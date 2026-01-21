@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bear Trap Hunter Pro (Version Proxy)</title>
+    <style>
+        /* --- CSS STYLES --- */
+        :root {
+            --bg-color: #0f1115;
+            --panel-bg: #1e222d;
+            --text-color: #d1d4dc;
+            --accent-color: #2962ff;
+            --up-color: #089981;
+            --down-color: #f23645;
+            --border-color: #2a2e39;
+            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: var(--bg-color); color: var(--text-color); font-family: var(--font-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+        /* HEADER */
+        header { background-color: var(--panel-bg); padding: 0.75rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        h1 { font-size: 1.2rem; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        .live-badge { background: var(--down-color); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; }
+        .live-badge.active { background: var(--up-color); box-shadow: 0 0 8px var(--up-color); }
+
+        /* MAIN LAYOUT */
+        main { display: flex; flex: 1; overflow: hidden; }
+        
+        /* SIDEBAR */
+        aside { width: 300px; background-color: var(--panel-bg); border-right: 1px solid var(--border-color); padding: 1rem; display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; }
+        .control-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        label { font-size: 0.8rem; color: #888; font-weight: 500; }
+        select, input, button {
+            background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color);
+            padding: 8px; border-radius: 4px; font-size: 0.9rem; outline: none; transition: 0.2s; width: 100%;
+        }
+        select:focus, input:focus { border-color: var(--accent-color); }
+        button { background: var(--accent-color); color: white; cursor: pointer; border: none; font-weight: 600; }
+        button:hover { opacity: 0.9; }
+        button.secondary { background: transparent; border: 1px solid var(--border-color); }
+        button.secondary:hover { background: var(--border-color); }
+        .hint { font-size: 0.7rem; color: #666; margin-top: 4px; line-height: 1.2; }
+        .success-box { color: #089981; font-size: 0.75rem; margin-top:5px; display: none; }
+
+        /* CHART */
+        #chart-container { flex: 1; position: relative; background: var(--bg-color); cursor: crosshair; }
+        canvas { display: block; width: 100%; height: 100%; }
+        
+        /* DASHBOARD (BOTTOM) */
+        #dashboard { height: 250px; background: var(--panel-bg); border-top: 1px solid var(--border-color); display: flex; flex-direction: column; }
+        .dashboard-header { padding: 0.5rem 1rem; border-bottom: 1px solid var(--border-color); font-weight: 600; font-size: 0.9rem; display: flex; justify-content: space-between; }
+        .signal-list { flex: 1; overflow-x: auto; display: flex; gap: 1rem; padding: 1rem; }
+        
+        /* SIGNAL CARD */
+        .signal-card {
+            min-width: 280px; background: var(--bg-color); border: 1px solid var(--border-color);
+            border-radius: 6px; padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem;
+            position: relative; overflow: hidden; transition: transform 0.2s;
+        }
+        .signal-card:hover { transform: translateY(-2px); border-color: #555; }
+        .signal-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--up-color); }
+        .signal-card .pair { font-weight: bold; font-size: 1.1rem; }
+        .signal-card .type { color: var(--up-color); font-size: 0.9rem; font-weight: 600; }
+        .signal-card .meta { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 0.8rem; margin-top: 5px; }
+        .signal-card .label { color: #888; }
+        .signal-card .value { font-family: 'Courier New', monospace; font-weight: bold;}
+        .signal-card .invalidated { opacity: 0.6; text-decoration: line-through; border-color: #555; }
+        .signal-card.win { border-color: var(--up-color); }
+        .signal-card.loss { border-color: var(--down-color); }
+
+        /* TOAST */
+        #toast-container { position: absolute; top: 20px; right: 20px; z-index: 100; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast {
+            background: var(--panel-bg); border-left: 4px solid var(--accent-color);
+            padding: 12px 20px; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            animation: slideIn 0.3s ease-out; font-size: 0.9rem; pointer-events: auto;
+        }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        /* STATS */
+        .stats-row { display: flex; gap: 1rem; font-size: 0.8rem; color: #888; margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 10px; }
+        .stat-val { color: var(--text-color); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Bear Trap Hunter Pro <span class="live-badge" id="status-badge">STOPPED</span></h1>
+    <div style="font-size: 0.8rem; color: #888;">Architecture Sécurisée (Proxy) • Latence: <span id="latency-val">0</span>ms</div>
+</header>
+
+<main>
+    <aside>
+        <div class="control-group">
+            <label>Source de Données</label>
+            <select id="data-source" onchange="app.toggleSource()">
+                <option value="simulation">Simulation (Générateur)</option>
+                <option value="api">API Réelle (Vercel Proxy)</option>
+            </select>
+            <div id="api-hint" style="display:none;" class="hint">
+                Utilise la clé stockée côté serveur Vercel.<br>
+                Plus sécurisé, pas de soucis CORS.
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Actif</label>
+            <select id="asset-select">
+                <option value="BTC/USD">Bitcoin (Crypto)</option>
+                <option value="EUR/USD">Forex EUR/USD</option>
+                <option value="AAPL">Apple (Stock)</option>
+                <option value="ETH/USD">Ethereum (Crypto)</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Timeframe</label>
+            <select id="timeframe-select">
+                <option value="1min">1 Minute</option>
+                <option value="5min" selected>5 Minutes</option>
+                <option value="15min">15 Minutes</option>
+                <option value="1h">1 Heure</option>
+            </select>
+        </div>
+
+        <button id="start-btn" onclick="app.toggleAnalysis()">Lancer l'Analyse Temps Réel</button>
+
+        <div style="border-top: 1px solid var(--border-color); margin: 1rem 0;"></div>
+
+        <div class="control-group">
+            <label>Backtesting</label>
+            <button class="secondary" onclick="app.runBacktest()">Lancer Backtest (5k Candles)</button>
+        </div>
+
+        <div class="stats-row">
+            <div>Bougies: <span class="stat-val" id="candle-count">0</span></div>
+            <div>Signaux: <span class="stat-val" id="signal-count">0</span></div>
+        </div>
+    </aside>
+
+    <div id="chart-container">
+        <canvas id="mainChart"></canvas>
+        <div id="toast-container"></div>
+    </div>
+</main>
+
+<div id="dashboard">
+    <div class="dashboard-header">
+        <span>Journal des Signaux</span>
+        <span style="font-size: 0.8rem; font-weight: normal; color: #888;">Scroll horizontal pour voir l'historique</span>
+    </div>
+    <div class="signal-list" id="signal-list">
+        <div style="color: #555; padding: 1rem; font-style: italic;">Aucun signal détecté.</div>
+    </div>
+</div>
+
+<script>
+/**
+ * ------------------------------------------------------------------
+ * APPLICATION CORE (Proxy API Mode)
+ * ------------------------------------------------------------------
+ */
+
+// 1. UTILS
+const Utils = {
+    sum: (arr) => arr.reduce((a, b) => a + b, 0),
+    sma: (data, period) => {
+        if (data.length < period) return null;
+        const slice = data.slice(data.length - period);
+        return Utils.sum(slice) / period;
+    },
+    emaArr: (data, period) => {
+        if (data.length < period) return [];
+        const k = 2 / (period + 1);
+        let emaArr = [];
+        let ema = data.slice(0, period).reduce((a, b) => a + b) / period;
+        emaArr.push(ema);
+        for (let i = period; i < data.length; i++) {
+            ema = data[i] * k + ema * (1 - k);
+            emaArr.push(ema);
+        }
+        return emaArr; 
+    },
+    formatPrice: (p) => p.toFixed(2),
+    now: () => new Date().toISOString()
+};
+
+// 2. INDICATORS
+class Indicators {
+    static calculateRSI(candles, period = 14) {
+        let closes = candles.map(c => c.close);
+        let rsiValues = [];
+        for(let i=0; i<period; i++) rsiValues.push(null);
+
+        let gains = 0, losses = 0;
+        for (let i = 1; i <= period; i++) {
+            let diff = closes[i] - closes[i-1];
+            gains += diff > 0 ? diff : 0;
+            losses += diff < 0 ? Math.abs(diff) : 0;
+        }
+        let avgGain = gains / period;
+        let avgLoss = losses / period;
+
+        for (let i = period + 1; i < closes.length; i++) {
+            let diff = closes[i] - closes[i-1];
+            let gain = diff > 0 ? diff : 0;
+            let loss = diff < 0 ? Math.abs(diff) : 0;
+            avgGain = (avgGain * (period - 1) + gain) / period;
+            avgLoss = (avgLoss * (period - 1) + loss) / period;
+            let rs = avgLoss === 0 ? 100 : avgGain / avgLoss;
+            rsiValues.push(100 - (100 / (1 + rs)));
+        }
+        return rsiValues;
+    }
+
+    static calculateATR(candles, period = 14) {
+        let atr = [];
+        for(let i=0; i<period; i++) atr.push(null);
+        let tr = [];
+        for (let i = 1; i < candles.length; i++) {
+            let c = candles[i], p = candles[i-1];
+            let val = Math.max(c.high - c.low, Math.abs(c.high - p.close), Math.abs(c.low - p.close));
+            tr.push(val);
+        }
+        let atrVal = Utils.sma(tr, period);
+        atr.push(atrVal);
+        for (let i = period; i < tr.length; i++) {
+            atrVal = (atrVal * (period - 1) + tr[i]) / period;
+            atr.push(atrVal);
+        }
+        return atr;
+    }
+
+    static calculateMACD(candles) {
+        let closes = candles.map(c => c.close);
+        const getFullEMA = (data, per) => {
+            let k = 2/(per+1);
+            let ema = data[0];
+            let arr = [ema];
+            for(let i=1; i<data.length; i++){
+                ema = data[i]*k + ema*(1-k);
+                arr.push(ema);
+            }
+            return arr;
+        };
+        let e12 = getFullEMA(closes, 12);
+        let e26 = getFullEMA(closes, 26);
+        let macdLine = e12.map((v, i) => v - e26[i]);
+        let signalLine = getFullEMA(macdLine, 9);
+        return { macdLine, signalLine };
+    }
+
+    static calculateVWAP(candles) {
+        let cumVolPrice = 0, cumVol = 0, vwap = [];
+        for(let c of candles) {
+            let tp = (c.high + c.low + c.close) / 3;
+            cumVolPrice += tp * c.volume;
+            cumVol += c.volume;
+            vwap.push(cumVolPrice / cumVol);
+        }
+        return vwap;
+    }
+
+    static detectStructures(candles, lookback = 5) {
+        let pivots = [];
+        for (let i = lookback; i < candles.length - lookback; i++) {
+            let isLow = true;
+            for (let j = i - lookback; j <= i + lookback; j++) {
+                if (j === i) continue;
+                if (candles[j].low < candles[i].low) { isLow = false; break; }
+            }
+            if (isLow) pivots.push({ index: i, price: candles[i].low, type: 'support' });
+        }
+        return pivots;
+    }
+}
+
+// 3. STRATEGY LOGIC
+const BearTrapLogic = {
+    check: (candles, idx, indicators) => {
+        const { rsi, macd, vwap, structures, atr } = indicators;
+        const relevantStructures = structures.filter(s => s.index > idx - 40 && s.index < idx - 5);
+        if (relevantStructures.length === 0) return null;
+        const lastSupport = relevantStructures[relevantStructures.length - 1];
+
+        let breakdownIndex = -1;
+        for (let i = Math.max(0, idx - 3); i < idx; i++) {
+            if (candles[i].close < lastSupport.price) {
+                breakdownIndex = i;
+                break;
+            }
+        }
+        if (breakdownIndex === -1) return null;
+        if (candles[idx].close <= lastSupport.price) return null;
+
+        let confirmations = 0;
+        const reasons = [];
+        const c = candles[idx];
+        
+        if (rsi[idx] > rsi[breakdownIndex]) { confirmations++; reasons.push("Div RSI"); }
+        const avgVol = Utils.sum(candles.slice(idx - 20, idx).map(x => x.volume)) / 20;
+        if (c.volume > avgVol * 1.2) { confirmations++; reasons.push("Vol+"); }
+        if (idx > 0) {
+            if (macd.macdLine[idx-1] < macd.signalLine[idx-1] && macd.macdLine[idx] > macd.signalLine[idx]) {
+                confirmations++; reasons.push("MACD Cross");
+            }
+        }
+        if (c.close > vwap[idx]) { confirmations++; reasons.push("VWAP Rejet"); }
+
+        if (confirmations >= 2) {
+            const sl = lastSupport.price - (0.5 * atr[idx]);
+            const dist = c.close - sl;
+            return {
+                type: 'LONG',
+                entry: c.close,
+                sl: sl,
+                tp: c.close + (dist * 2),
+                reasons: reasons
+            };
+        }
+        return null;
+    }
+};
+
+// 4. BACKTESTER
+class BacktesterEngine {
+    run(candles) {
+        const rsi = Indicators.calculateRSI(candles);
+        const atr = Indicators.calculateATR(candles);
+        const macd = Indicators.calculateMACD(candles);
+        const vwap = Indicators.calculateVWAP(candles);
+        const structures = Indicators.detectStructures(candles);
+        let balance = 10000, activePos = null, trades = [];
+        for (let i = 50; i < candles.length; i++) {
+            const c = candles[i];
+            if (activePos) {
+                if (c.high >= activePos.tp) {
+                    let pnl = (activePos.tp - activePos.entry);
+                    balance += pnl;
+                    trades.push({ ...activePos, result: 'WIN', pnl: pnl });
+                    activePos = null;
+                } else if (c.low <= activePos.sl) {
+                    let pnl = (activePos.sl - activePos.entry);
+                    balance += pnl;
+                    trades.push({ ...activePos, result: 'LOSS', pnl: pnl });
+                    activePos = null;
+                }
+            } else {
+                const sig = BearTrapLogic.check(candles, i, { rsi, atr, macd, vwap, structures });
+                if (sig) activePos = { ...sig, entryIndex: i };
+            }
+        }
+        const wins = trades.filter(t => t.result === 'WIN').length;
+        const losses = trades.filter(t => t.result === 'LOSS').length;
+        const grossProfit = trades.filter(t => t.result === 'WIN').reduce((s, t) => s + t.pnl, 0);
+        const grossLoss = Math.abs(trades.filter(t => t.result === 'LOSS').reduce((s, t) => s + t.pnl, 0));
+        return {
+            total: wins+losses, wins, losses,
+            winRate: trades.length ? ((wins/trades.length)*100).toFixed(1) : 0,
+            profitFactor: grossLoss ? (grossProfit/grossLoss).toFixed(2) : "0",
+            finalBalance: balance.toFixed(2),
+            trades
+        };
+    }
+}
+
+// 5. DATA MANAGER (MODIFIED FOR PROXY API)
+class DataManager {
+    constructor() {
+        this.candles = [];
+        this.listeners = [];
+        this.interval = null;
+        this.mode = 'simulation';
+    }
+    subscribe(cb) { this.listeners.push(cb); }
+    notify() { this.listeners.forEach(cb => cb(this.candles)); }
+
+    startSimulation(symbol) {
+        this.stop();
+        this.mode = 'simulation';
+        this.candles = this.generateHistory(100);
+        this.notify();
+        this.interval = setInterval(() => {
+            const last = this.candles[this.candles.length - 1];
+            const vol = last.close * 0.002;
+            const change = (Math.random() - 0.5) * vol;
+            const c = {
+                time: Date.now(),
+                open: last.close,
+                close: last.close + change,
+                high: Math.max(last.close, last.close+change) + Math.random()*vol*0.5,
+                low: Math.min(last.close, last.close+change) - Math.random()*vol*0.5,
+                volume: Math.random()*1000+500
+            };
+            if (Math.random() > 0.98) c.low -= vol * 1.5; // Fake trap
+            this.candles.push(c);
+            if(this.candles.length > 200) this.candles.shift();
+            this.notify();
+        }, 1000);
+    }
+
+    // --- PROXY API IMPLEMENTATION ---
+    async startRealAPI(symbol) {
+        this.stop();
+        this.mode = 'api';
+        this.symbol = symbol;
+        
+        const interval = document.getElementById('timeframe-select').value;
+        ui.toast("Connexion via Proxy Vercel...", "info");
+
+        const fetchRealData = async () => {
+            try {
+                // APPEL DU PROXY LOCAL (Pas de l'URL externe)
+                const url = `/api/twelve-data?symbol=${symbol}&interval=${interval}`;
+                
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.status === "error" || data.error) {
+                    throw new Error(data.message || "Erreur serveur API");
+                }
+
+                // Transformation des données
+                const newCandles = data.values.map(c => ({
+                    time: new Date(c.datetime).getTime(),
+                    open: parseFloat(c.open),
+                    high: parseFloat(c.high),
+                    low: parseFloat(c.low),
+                    close: parseFloat(c.close),
+                    volume: parseFloat(c.volume)
+                })).reverse();
+
+                this.candles = newCandles;
+                this.notify();
+
+            } catch (error) {
+                console.error("Erreur Proxy:", error);
+                ui.toast("Erreur API Proxy: " + error.message, "error");
+            }
+        };
+
+        await fetchRealData(); 
+        
+        // Polling toutes les 10 secondes
+        this.interval = setInterval(fetchRealData, 10000);
+    }
+
+    generateHistory(count) {
+        let arr = [], price = 50000, time = Date.now() - (count*60000);
+        for(let i=0; i<count; i++){
+            let ch = (Math.random()-0.5)*(price*0.005);
+            let open = price, close = price+ch;
+            arr.push({ time: time+(i*60000), open, high: Math.max(open,close)*1.002, low: Math.min(open,close)*0.998, close, volume: 1000 });
+            price = close;
+        }
+        return arr;
+    }
+
+    stop() { if(this.interval) clearInterval(this.interval); }
+}
+
+// 6. UI MANAGER
+class UIManager {
+    constructor() {
+        this.canvas = document.getElementById('mainChart');
+        this.ctx = this.canvas.getContext('2d');
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+    }
+    resize() {
+        this.canvas.width = this.canvas.parentElement.clientWidth;
+        this.canvas.height = this.canvas.parentElement.clientHeight;
+    }
+    render(candles) {
+        if(!candles.length) return;
+        const ctx = this.ctx;
+        const w = this.canvas.width, h = this.canvas.height, pad = 40, chartH = h - pad;
+        const vis = candles.slice(-60);
+        const max = Math.max(...vis.map(c=>c.high));
+        const min = Math.min(...vis.map(c=>c.low));
+        const getY = (p) => h - pad - ((p-min)/(max-min))*chartH;
+        const cw = (w-60)/vis.length;
+
+        ctx.fillStyle = '#0f1115'; ctx.fillRect(0,0,w,h);
+        
+        ctx.strokeStyle='#2a2e39'; ctx.beginPath();
+        for(let i=0;i<5;i++){let y=pad+(chartH*i)/4; ctx.moveTo(0,y); ctx.lineTo(w,y);} ctx.stroke();
+
+        vis.forEach((c,i)=>{
+            let x=i*cw, o=getY(c.open), cl=getY(c.close), hi=getY(c.high), lo=getY(c.low), g=c.close>=c.open;
+            ctx.strokeStyle=g?'#089981':'#f23645'; ctx.fillStyle=g?'#089981':'#f23645';
+            ctx.beginPath(); ctx.moveTo(x+cw/2,hi); ctx.lineTo(x+cw/2,lo); ctx.stroke();
+            ctx.fillRect(x+2, Math.min(o,cl), cw-4, Math.max(Math.abs(o-cl),1));
+        });
+
+        document.getElementById('candle-count').innerText = candles.length;
+    }
+    addSignal(s) {
+        document.getElementById('signal-count').innerText = parseInt(document.getElementById('signal-count').innerText)+1;
+        const list = document.getElementById('signal-list');
+        if(list.children[0]?.innerText.includes('Aucun')) list.innerHTML='';
+        
+        const div = document.createElement('div');
+        div.className = 'signal-card';
+        div.innerHTML = `
+            <div style="display:flex;justify-content:space-between"><span class="pair">${s.pair}</span><span class="type">${s.type}</span></div>
+            <div style="font-size:0.8rem;color:#888">${new Date(s.time).toLocaleTimeString()}</div>
+            <div class="meta">
+                <span class="label">Entry:</span> <span class="value">${s.entry.toFixed(2)}</span>
+                <span class="label">TP:</span> <span class="value" style="color:#089981">${s.tp.toFixed(2)}</span>
+                <span class="label">SL:</span> <span class="value" style="color:#f23645">${s.sl.toFixed(2)}</span>
+            </div>
+            <div style="margin-top:5px;font-size:0.75rem;color:#aaa;background:#2a2e39;padding:4px;border-radius:3px;">${s.reasons.join(', ')}</div>
+        `;
+        list.insertBefore(div, list.firstChild);
+    }
+    addBacktestSignal(s) {
+        const list = document.getElementById('signal-list');
+        if(list.children[0]?.innerText.includes('Aucun')) list.innerHTML='';
+        const div = document.createElement('div');
+        div.className = `signal-card ${s.result === 'WIN' ? 'win' : 'loss'}`;
+        div.innerHTML = `
+            <div style="display:flex;justify-content:space-between"><span class="pair">BACKTEST</span><span style="color:${s.result==='WIN'?'#089981':'#f23645'};font-weight:bold">${s.result}</span></div>
+            <div class="meta"><span class="label">PnL:</span> <span class="value">${s.pnl.toFixed(2)}$</span></div>
+             <div style="margin-top:5px;font-size:0.75rem;color:#aaa;background:#2a2e39;padding:4px;border-radius:3px;">${s.reasons.join(', ')}</div>
+        `;
+        list.insertBefore(div, list.firstChild);
+    }
+    toast(msg, type='info') {
+        const t = document.createElement('div');
+        t.className='toast';
+        t.innerText=msg;
+        t.style.borderLeftColor=type==='success'?'#089981':(type==='error'?'#f23645':'#2962ff');
+        document.getElementById('toast-container').appendChild(t);
+        setTimeout(()=>t.remove(), 3000);
+    }
+}
+
+// 7. APP ORCHESTRATOR
+const dm = new DataManager();
+const ui = new UIManager();
+const backtester = new BacktesterEngine();
+let signals = [];
+
+dm.subscribe(candles => {
+    ui.render(candles);
+    if(candles.length > 60) {
+        const idx = candles.length - 1;
+        const rsi = Indicators.calculateRSI(candles);
+        const atr = Indicators.calculateATR(candles);
+        const macd = Indicators.calculateMACD(candles);
+        const vwap = Indicators.calculateVWAP(candles);
+        const structs = Indicators.detectStructures(candles);
+        
+        const sig = BearTrapLogic.check(candles, idx, { rsi, atr, macd, vwap, structures: structs });
+        if(sig) {
+            const s = { ...sig, pair: document.getElementById('asset-select').value, time: Date.now() };
+            ui.addSignal(s);
+            ui.toast("Signal Piège Baissier Détecté", "success");
+        }
+    }
+});
+
+const app = {
+    isRunning: false,
+    toggleSource: () => {
+        const val = document.getElementById('data-source').value;
+        document.getElementById('api-hint').style.display = val === 'api' ? 'block' : 'none';
+    },
+    toggleAnalysis: () => {
+        if(app.isRunning) {
+            dm.stop();
+            app.isRunning=false;
+            document.getElementById('start-btn').innerText="Lancer l'Analyse";
+            document.getElementById('start-btn').style.background="#2962ff";
+            document.getElementById('status-badge').className="live-badge";
+            document.getElementById('status-badge').innerText="STOPPED";
+        } else {
+            const sym = document.getElementById('asset-select').value;
+            const src = document.getElementById('data-source').value;
+            
+            if(src === 'api') {
+                dm.startRealAPI(sym);
+            } else {
+                dm.startSimulation(sym);
+            }
+            
+            app.isRunning=true;
+            document.getElementById('start-btn').innerText="Arrêter";
+            document.getElementById('start-btn').style.background="#f23645";
+            document.getElementById('status-badge').classList.add('active');
+            document.getElementById('status-badge').innerText="LIVE";
+        }
+    },
+    runBacktest: () => {
+        if(app.isRunning) { ui.toast("Arrêtez l'analyse d'abord", "error"); return; }
+        const data = dm.generateHistory(5000);
+        ui.toast("Calcul Backtest...", "info");
+        setTimeout(() => {
+            const res = backtester.run(data);
+            document.getElementById('signal-list').innerHTML = '';
+            res.trades.slice(0,20).forEach(t => ui.addBacktestSignal(t)); 
+            alert(`📊 BACKTEST REPORT\nTotal: ${res.total}\nWins: ${res.wins} | Losses: ${res.losses}\nWinRate: ${res.winRate}%\nProfit Factor: ${res.profitFactor}\nBalance: ${res.finalBalance}$`);
+        }, 100);
+    }
+};
+</script>
+</body>
+</html>
