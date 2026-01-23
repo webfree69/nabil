@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LLM Debate Arena (Mode Anti-Hallucination)</title>
+    <title>LLM Multi-Agent Debate Arena</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         :root {
-            --primary: #10b981; /* Vert pour l'accent sur la fiabilité */
-            --bg: #f0fdf4;
-            --card-bg: #ffffff;
-            --text: #064e3b;
-            --border: #bbf7d0;
+            --primary: #ccff00; /* Jaune fluo */
+            --bg: #000000;      /* Fond noir */
+            --card-bg: #0a0a0a; /* Gris très foncé pour les cartes */
+            --text: #ccff00;    /* Texte principal */
+            --border: #ccff00;  /* Bordures */
+            --button-text: #000000;
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'Courier New', Courier, monospace; /* Police style terminal */
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
@@ -31,50 +32,82 @@
         header {
             text-align: center;
             margin-bottom: 40px;
+            text-shadow: 0 0 10px var(--primary);
         }
 
-        h1 { margin-bottom: 10px; color: #059669; }
-        p.subtitle { color: #047857; }
+        h1 { 
+            margin-bottom: 10px; 
+            color: var(--primary); 
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        p.subtitle { 
+            color: var(--primary); 
+            opacity: 0.8;
+        }
 
         .card {
             background: var(--card-bg);
-            border-radius: 12px;
+            border-radius: 0; /* Coins carrés style brutaliste */
             padding: 24px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 15px rgba(204, 255, 0, 0.1); /* Lueur subtile */
             margin-bottom: 24px;
             border: 1px solid var(--border);
         }
 
         .input-group { margin-bottom: 20px; }
-        label { display: block; font-weight: 600; margin-bottom: 8px; color: #047857; }
+        label { 
+            display: block; 
+            font-weight: 600; 
+            margin-bottom: 8px; 
+            color: var(--primary); 
+            text-transform: uppercase;
+        }
         
         input[type="text"], input[type="password"], textarea, select {
             width: 100%;
             padding: 12px;
-            border-radius: 8px;
+            border-radius: 0;
             border: 1px solid var(--border);
             font-size: 16px;
             box-sizing: border-box;
             font-family: inherit;
+            background-color: #000;
+            color: var(--text);
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            box-shadow: 0 0 10px var(--primary);
         }
 
         textarea { resize: vertical; min-height: 120px; }
 
         button {
             background-color: var(--primary);
-            color: white;
+            color: var(--button-text);
             border: none;
             padding: 12px 24px;
-            border-radius: 8px;
+            border-radius: 0;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: bold;
             cursor: pointer;
             width: 100%;
-            transition: background 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s;
         }
 
-        button:hover { background-color: #059669; }
-        button:disabled { background-color: #9ca3af; cursor: not-allowed; }
+        button:hover { 
+            background-color: #e6ff00;
+            box-shadow: 0 0 20px var(--primary);
+        }
+        button:disabled { 
+            background-color: #555; 
+            color: #888; 
+            cursor: not-allowed;
+            box-shadow: none;
+        }
 
         /* Status & Logs */
         .status-area {
@@ -85,16 +118,16 @@
         .log-entry {
             margin-bottom: 16px;
             padding: 12px;
-            background: #f3f4f6;
-            border-radius: 8px;
-            border-left: 4px solid #cbd5e1;
+            background: #111;
+            border-left: 4px solid var(--primary);
+            border-bottom: 1px solid var(--primary);
         }
 
-        .log-entry.success { border-color: #10b981; }
-        .log-entry.error { border-color: #ef4444; }
-        .log-entry.processing { border-color: #f59e0b; }
+        .log-entry.success { border-left-color: #ccff00; }
+        .log-entry.error { border-left-color: #ff0000; color: #ff6666; border-bottom-color: #ff0000;}
+        .log-entry.processing { border-left-color: #ffff00; }
 
-        .model-name { font-weight: bold; display: block; margin-bottom: 4px; }
+        .model-name { font-weight: bold; display: block; margin-bottom: 4px; text-decoration: underline; }
 
         /* Results */
         .results-grid {
@@ -109,21 +142,24 @@
         }
 
         .result-card {
-            background: white;
+            background: #000;
             padding: 16px;
-            border-radius: 8px;
+            border-radius: 0;
             border: 1px solid var(--border);
         }
 
         .president-section {
             margin-top: 40px;
             border: 2px solid var(--primary);
-            background-color: #ecfdf5;
+            background-color: #000;
+            box-shadow: 0 0 20px rgba(204, 255, 0, 0.2);
         }
 
-        .markdown-content h3 { margin-top: 0; }
-        .markdown-content p { margin-bottom: 1em; }
+        /* Markdown Content Styling */
+        .markdown-content h3 { margin-top: 0; color: #fff; }
+        .markdown-content p { margin-bottom: 1em; color: var(--text); }
         .markdown-content ul, .markdown-content ol { padding-left: 20px; }
+        .markdown-content strong { color: #fff; }
 
         .hidden { display: none; }
     </style>
@@ -132,31 +168,32 @@
 
 <div class="container">
     <header>
-        <h1>🛡️ Débat IA : Fiabilité Maximale</h1>
-        <p class="subtitle">Mode Anti-Hallucination activé. Température basse, critiques strictes.</p>
+        <h1>// SYSTÈME DE DÉBAT //</h1>
+        <p class="subtitle">> DeepSeek, Claude, Llama & ChatGPT connectés</p>
     </header>
 
     <!-- Configuration -->
     <div class="card">
         <div class="input-group">
-            <label for="apiKey">Clé API OpenRouter</label>
-            <input type="password" id="apiKey" placeholder="Collez votre clé ici (sk-or-v1-...)" value="">
+            <label for="apiKey">> CLÉ API OPENROUTER</label>
+            <input type="password" id="apiKey" placeholder="ENTRER LA CLÉ (sk-or-v1-...)" value="">
         </div>
 
         <div class="input-group">
-            <label for="modelMode">Mode de Modèles</label>
+            <label for="modelMode">> MODE DE MODÈLES</label>
             <select id="modelMode">
-                <option value="low">Économique (Stable)</option>
-                <option value="high">Premium (Précision Maximale)</option>
+                <option value="low">ÉCONOMIQUE (DeepSeek V3)</option>
+                <option value="high">PREMIUM (DeepSeek R1 REASONING)</option>
             </select>
+            <small style="color: var(--primary);">>> OPTIMISÉ POUR LA LOGIQUE.</small>
         </div>
 
         <div class="input-group">
-            <label for="userQuestion">Votre Question</label>
-            <textarea id="userQuestion" placeholder="Ex: Quelle est la date exacte de la signature du traité de Verdun ?"></textarea>
+            <label for="userQuestion">> ENTRER LA QUESTION</label>
+            <textarea id="userQuestion" placeholder="..."></textarea>
         </div>
 
-        <button id="startBtn" onclick="startDebate()">Lancer la Vérification Factuelle</button>
+        <button id="startBtn" onclick="startDebate()">LANCER LE DÉBAT</button>
     </div>
 
     <!-- Zone de progression et logs -->
@@ -166,14 +203,14 @@
 
     <!-- Résultats -->
     <div id="resultsArea" class="hidden">
-        <h2>Étape 1 : Propositions Initiales</h2>
+        <h2>> ÉTAPE 1 : PROPOSITIONS</h2>
         <div class="results-grid" id="initialResponses"></div>
 
-        <h2 style="margin-top: 30px;">Étape 2 : Audit Critique (Recherche d'erreurs)</h2>
+        <h2 style="margin-top: 30px;">> ÉTAPE 2 : ANALYSE MUTUELLE</h2>
         <div class="results-grid" id="critiques"></div>
 
         <div class="card president-section">
-            <h2>🏛️ Synthèse Validée (Président)</h2>
+            <h2>> SYNTHESE FINALE [PRÉSIDENT]</h2>
             <div id="finalAnswer" class="markdown-content"></div>
         </div>
     </div>
@@ -184,14 +221,14 @@
     
     const MODEL_SETS = {
         high: {
-            "Mistral": "mistralai/mistral-large",
+            "DeepSeek": "deepseek/deepseek-r1",
             "Claude": "anthropic/claude-3.5-sonnet",
             "Llama 3": "meta-llama/llama-3.1-70b-instruct",
             "ChatGPT": "openai/gpt-4o",
             "President": "openai/gpt-4o"
         },
         low: {
-            "Mistral": "mistralai/mistral-7b-instruct",
+            "DeepSeek": "deepseek/deepseek-chat",
             "Claude": "anthropic/claude-3-haiku",
             "Llama 3": "meta-llama/llama-3.1-8b-instruct",
             "ChatGPT": "openai/gpt-3.5-turbo",
@@ -217,13 +254,13 @@
                 headers: {
                     "Authorization": `Bearer ${apiKey}`,
                     "HTTP-Referer": window.location.href,
-                    "X-Title": "LLM Anti-Hallucination Debate",
+                    "X-Title": "LLM Multi-Agent Debate",
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
                     model: modelId,
                     messages: messages,
-                    temperature: 0.1 // MODIFICATION CLÉ : Température très basse pour réduire la "créativité" et les erreurs
+                    temperature: 0.1
                 })
             });
 
@@ -262,12 +299,12 @@
         const PRESIDENT_MODEL = currentModels.President;
 
         // Validation
-        if (!apiKey) return alert("Veuillez entrer votre clé API OpenRouter.");
-        if (!question) return alert("Veuillez entrer une question.");
+        if (!apiKey) return alert("VEUILLEZ ENTRER VOTRE CLÉ API OPENROUTER.");
+        if (!question) return alert("VEUILLEZ ENTRER UNE QUESTION.");
 
         // Reset UI
         btn.disabled = true;
-        btn.textContent = "Vérification factuelle en cours...";
+        btn.textContent = "EN COURS...";
         document.getElementById('statusArea').style.display = 'block';
         document.getElementById('resultsArea').classList.add('hidden');
         document.getElementById('logs').innerHTML = '';
@@ -277,13 +314,12 @@
 
         try {
             // --- ÉTAPE 1 : RÉCEPTIONS INITIALES ---
-            addLog("Système", "Collecte des réponses (Mode strict)...", 'processing');
+            addLog("Système", "Collecte des réponses...", 'processing');
             
             const initialResponses = {};
             const promises = [];
 
-            // Prompt Système implicite : "Soyez factuel et précis"
-            const strictPrompt = `Question : ${question}\n\nIMPORTANT : Réponds de manière factuelle, concise et précise. N'invente aucune donnée. Si tu ne connais pas la réponse exacte, dis-le.`;
+            const strictPrompt = `Question : ${question}\n\nIMPORTANT : Réponds de manière factuelle et précise. Si tu ne connais pas la réponse, dis-le.`;
 
             for (const [name, id] of Object.entries(MODELS)) {
                 promises.push(
@@ -305,21 +341,14 @@
                 document.getElementById('initialResponses').appendChild(card);
             });
 
-            // --- ÉTAPE 2 : DÉBAT ET CRITIQUE (Mode Censeur) ---
-            addLog("Système", "Lancement de l'audit croisé...", 'processing');
+            // --- ÉTAPE 2 : DÉBAT ET CRITIQUE ---
+            addLog("Système", "Analyse mutuelle en cours...", 'processing');
             
-            let debateContext = `Voici les réponses de tes collègues à la question précédente. Il est possible qu'elles contiennent des erreurs ou des hallucinations.\n\n`;
+            let debateContext = "Voici les réponses de tes collègues. Vérifie les faits.\n\n";
             for (const [name, text] of Object.entries(initialResponses)) {
                 debateContext += `### Réponse de ${name} :\n${text}\n\n`;
             }
-            debateContext += `
-            TA MISSION STRICTE :
-            1. Vérifie chaque affirmation factuelle (dates, noms, chiffres).
-            2. Identifie toute incohérence logique ou tout fait inventé (hallucination).
-            3. Si une réponse contient une erreur, mentionne-la explicitement.
-            4. Indique quelle est la réponse la plus fiable et pourquoi.
-            Sois critique et sévère.
-            `;
+            debateContext += "\nTa tâche : Analyse ces réponses. Indique quelle est la meilleure réponse et pourquoi.";
 
             const critiques = {};
             const critiquePromises = [];
@@ -335,40 +364,34 @@
 
             critiqueResults.forEach(res => {
                 critiques[res.name] = res.text;
-                addLog(`${res.name} a audité`, "Vérification terminée.", 'success');
+                addLog(`${res.name} a analysé`, "Terminé.", 'success');
 
                 const card = document.createElement('div');
                 card.className = 'result-card';
-                card.innerHTML = `<h3>Audit de ${res.name}</h3><div class="markdown-content">${renderMarkdown(res.text)}</div>`;
+                card.innerHTML = `<h3>Analyse de ${res.name}</h3><div class="markdown-content">${renderMarkdown(res.text)}</div>`;
                 document.getElementById('critiques').appendChild(card);
             });
 
-            // --- ÉTAPE 3 : PRÉSIDENCE (Validation Finale) ---
-            addLog("Système", "Synthèse validée par le Président...", 'processing');
+            // --- ÉTAPE 3 : PRÉSIDENCE ---
+            addLog("Système", "Synthèse finale...", 'processing');
 
             let fullTranscript = `QUESTION : ${question}\n\n`;
-            fullTranscript += "--- RÉPONSES INITIALES ---\n";
+            fullTranscript += "--- RÉPONSES ---\n";
             for (const [name, text] of Object.entries(initialResponses)) {
                 fullTranscript += `[${name}] : ${text}\n\n`;
             }
-            fullTranscript += "--- AUDIT ET CRITIQUES ---\n";
+            fullTranscript += "--- CRITIQUES ---\n";
             for (const [name, text] of Object.entries(critiques)) {
                 fullTranscript += `[${name}] : ${text}\n\n`;
             }
             fullTranscript += `
-            Tu es le Président du comité de vérification des faits.
-            Ton objectif : Fournir une réponse finale qui élimine toute incertitude ou hallucination.
-
-            DIRECTIVES :
-            1. Ne conserve que les informations qui ont été validées par au moins deux sources ou qui semblent irréfutables.
-            2. Supprime immédiatement tout fait qui a été contesté comme étant une hallucination.
-            3. S'il y a un désaccord entre les experts sur un chiffre ou une date, signale-le plutôt que de choisir au hasard.
-            4. Donne une réponse claire, structurée et fiable.
+            Tu es le Président. Synthétise les meilleures idées et corrige les erreurs.
+            Présente la réponse finale.
             `;
 
             const finalText = await callOpenRouter("Président", PRESIDENT_MODEL, [{role: "user", content: fullTranscript}], apiKey);
 
-            addLog("Président", "Validation terminée.", 'success');
+            addLog("Président", "Synthèse terminée.", 'success');
 
             document.getElementById('finalAnswer').innerHTML = renderMarkdown(finalText);
             document.getElementById('resultsArea').classList.remove('hidden');
@@ -378,7 +401,7 @@
             alert("Erreur : " + err.message);
         } finally {
             btn.disabled = false;
-            btn.textContent = "Lancer la Vérification Factuelle";
+            btn.textContent = "LANCER LE DÉBAT";
         }
     }
 </script>
