@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LLM Multi-Agent Debate Arena</title>
+    <title>LLM Debate Arena (Mode Anti-Hallucination)</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         :root {
-            --primary: #3b82f6;
-            --bg: #f8fafc;
+            --primary: #10b981; /* Vert pour l'accent sur la fiabilité */
+            --bg: #f0fdf4;
             --card-bg: #ffffff;
-            --text: #1e293b;
-            --border: #e2e8f0;
+            --text: #064e3b;
+            --border: #bbf7d0;
         }
 
         body {
@@ -33,8 +33,8 @@
             margin-bottom: 40px;
         }
 
-        h1 { margin-bottom: 10px; color: var(--primary); }
-        p.subtitle { color: #64748b; }
+        h1 { margin-bottom: 10px; color: #059669; }
+        p.subtitle { color: #047857; }
 
         .card {
             background: var(--card-bg);
@@ -46,7 +46,7 @@
         }
 
         .input-group { margin-bottom: 20px; }
-        label { display: block; font-weight: 600; margin-bottom: 8px; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; color: #047857; }
         
         input[type="text"], input[type="password"], textarea, select {
             width: 100%;
@@ -73,8 +73,8 @@
             transition: background 0.2s;
         }
 
-        button:hover { background-color: #2563eb; }
-        button:disabled { background-color: #94a3b8; cursor: not-allowed; }
+        button:hover { background-color: #059669; }
+        button:disabled { background-color: #9ca3af; cursor: not-allowed; }
 
         /* Status & Logs */
         .status-area {
@@ -85,14 +85,14 @@
         .log-entry {
             margin-bottom: 16px;
             padding: 12px;
-            background: #f1f5f9;
+            background: #f3f4f6;
             border-radius: 8px;
             border-left: 4px solid #cbd5e1;
         }
 
-        .log-entry.success { border-color: #22c55e; }
+        .log-entry.success { border-color: #10b981; }
         .log-entry.error { border-color: #ef4444; }
-        .log-entry.processing { border-color: #eab308; }
+        .log-entry.processing { border-color: #f59e0b; }
 
         .model-name { font-weight: bold; display: block; margin-bottom: 4px; }
 
@@ -118,6 +118,7 @@
         .president-section {
             margin-top: 40px;
             border: 2px solid var(--primary);
+            background-color: #ecfdf5;
         }
 
         .markdown-content h3 { margin-top: 0; }
@@ -131,9 +132,8 @@
 
 <div class="container">
     <header>
-        <h1>🏛️ Système de Débat IA</h1>
-        <p class="subtitle">Mistral, Claude, Llama & ChatGPT débattent.</p>
-        <p style="font-size: 0.8em; color: #ef4444;">*Gemini a été remplacé par Mistral car les ID Google sont inaccessibles sur votre clé.</p>
+        <h1>🛡️ Débat IA : Fiabilité Maximale</h1>
+        <p class="subtitle">Mode Anti-Hallucination activé. Température basse, critiques strictes.</p>
     </header>
 
     <!-- Configuration -->
@@ -147,16 +147,16 @@
             <label for="modelMode">Mode de Modèles</label>
             <select id="modelMode">
                 <option value="low">Économique (Stable)</option>
-                <option value="high">Premium (Qualité Maximale)</option>
+                <option value="high">Premium (Précision Maximale)</option>
             </select>
         </div>
 
         <div class="input-group">
             <label for="userQuestion">Votre Question</label>
-            <textarea id="userQuestion" placeholder="Ex: Quelle est la meilleure stratégie pour réduire le stress au travail ?"></textarea>
+            <textarea id="userQuestion" placeholder="Ex: Quelle est la date exacte de la signature du traité de Verdun ?"></textarea>
         </div>
 
-        <button id="startBtn" onclick="startDebate()">Lancer le Débat</button>
+        <button id="startBtn" onclick="startDebate()">Lancer la Vérification Factuelle</button>
     </div>
 
     <!-- Zone de progression et logs -->
@@ -166,33 +166,32 @@
 
     <!-- Résultats -->
     <div id="resultsArea" class="hidden">
-        <h2>Étape 1 : Réponses Initiales</h2>
+        <h2>Étape 1 : Propositions Initiales</h2>
         <div class="results-grid" id="initialResponses"></div>
 
-        <h2 style="margin-top: 30px;">Étape 2 : Critiques Mutuelles</h2>
+        <h2 style="margin-top: 30px;">Étape 2 : Audit Critique (Recherche d'erreurs)</h2>
         <div class="results-grid" id="critiques"></div>
 
         <div class="card president-section">
-            <h2>🏛️ Réponse Finale du Président</h2>
+            <h2>🏛️ Synthèse Validée (Président)</h2>
             <div id="finalAnswer" class="markdown-content"></div>
         </div>
     </div>
 </div>
 
 <script>
-    // --- CONFIGURATION FINALE ---
-    // Remplacement de Gemini par Mistral AI (très stable et performant).
+    // --- CONFIGURATION ---
     
     const MODEL_SETS = {
         high: {
-            "Mistral (Remplace Gemini)": "mistralai/mistral-large", // Stable, Premium
+            "Mistral": "mistralai/mistral-large",
             "Claude": "anthropic/claude-3.5-sonnet",
             "Llama 3": "meta-llama/llama-3.1-70b-instruct",
             "ChatGPT": "openai/gpt-4o",
             "President": "openai/gpt-4o"
         },
         low: {
-            "Mistral (Remplace Gemini)": "mistralai/mistral-7b-instruct", // Stable, Eco
+            "Mistral": "mistralai/mistral-7b-instruct",
             "Claude": "anthropic/claude-3-haiku",
             "Llama 3": "meta-llama/llama-3.1-8b-instruct",
             "ChatGPT": "openai/gpt-3.5-turbo",
@@ -218,32 +217,22 @@
                 headers: {
                     "Authorization": `Bearer ${apiKey}`,
                     "HTTP-Referer": window.location.href,
-                    "X-Title": "LLM Multi-Agent Debate",
+                    "X-Title": "LLM Anti-Hallucination Debate",
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
                     model: modelId,
                     messages: messages,
-                    temperature: 0.7
+                    temperature: 0.1 // MODIFICATION CLÉ : Température très basse pour réduire la "créativité" et les erreurs
                 })
             });
 
             if (!response.ok) {
                 const errorData = await response.json();
                 let errorMsg = `Erreur API ${response.status}`;
-                
-                if (response.status === 402) {
-                    errorMsg += " (Solde insuffisant)";
-                } else if (response.status === 404) {
-                    errorMsg += " (ID Modèle incorrect sur OpenRouter)";
-                } else if (response.status === 400) {
-                    errorMsg += " (Mauvaise requête ou ID Invalide)";
-                }
-                
                 if (errorData.error && errorData.error.message) {
                     errorMsg += `: ${errorData.error.message}`;
                 }
-                
                 throw new Error(errorMsg);
             }
             const data = await response.json();
@@ -278,7 +267,7 @@
 
         // Reset UI
         btn.disabled = true;
-        btn.textContent = "Débat en cours...";
+        btn.textContent = "Vérification factuelle en cours...";
         document.getElementById('statusArea').style.display = 'block';
         document.getElementById('resultsArea').classList.add('hidden');
         document.getElementById('logs').innerHTML = '';
@@ -288,14 +277,17 @@
 
         try {
             // --- ÉTAPE 1 : RÉCEPTIONS INITIALES ---
-            addLog("Système", `Mode ${modeKey === 'high' ? 'Premium' : 'Économique'} activé.`, 'processing');
+            addLog("Système", "Collecte des réponses (Mode strict)...", 'processing');
             
             const initialResponses = {};
             const promises = [];
 
+            // Prompt Système implicite : "Soyez factuel et précis"
+            const strictPrompt = `Question : ${question}\n\nIMPORTANT : Réponds de manière factuelle, concise et précise. N'invente aucune donnée. Si tu ne connais pas la réponse exacte, dis-le.`;
+
             for (const [name, id] of Object.entries(MODELS)) {
                 promises.push(
-                    callOpenRouter(name, id, [{role: "user", content: question}], apiKey)
+                    callOpenRouter(name, id, [{role: "user", content: strictPrompt}], apiKey)
                         .then(text => { return { name, text }; })
                 );
             }
@@ -313,14 +305,21 @@
                 document.getElementById('initialResponses').appendChild(card);
             });
 
-            // --- ÉTAPE 2 : DÉBAT ET CRITIQUE ---
-            addLog("Système", "Analyse mutuelle en cours...", 'processing');
+            // --- ÉTAPE 2 : DÉBAT ET CRITIQUE (Mode Censeur) ---
+            addLog("Système", "Lancement de l'audit croisé...", 'processing');
             
-            let debateContext = "Voici les réponses de tes collègues à la question précédente :\n\n";
+            let debateContext = `Voici les réponses de tes collègues à la question précédente. Il est possible qu'elles contiennent des erreurs ou des hallucinations.\n\n`;
             for (const [name, text] of Object.entries(initialResponses)) {
                 debateContext += `### Réponse de ${name} :\n${text}\n\n`;
             }
-            debateContext += "\nTa tâche : Analyse ces réponses. Identifie leurs forces et faiblesses. Puis, indique quelle est selon toi la meilleure réponse et justifie ton choix de manière concise.";
+            debateContext += `
+            TA MISSION STRICTE :
+            1. Vérifie chaque affirmation factuelle (dates, noms, chiffres).
+            2. Identifie toute incohérence logique ou tout fait inventé (hallucination).
+            3. Si une réponse contient une erreur, mentionne-la explicitement.
+            4. Indique quelle est la réponse la plus fiable et pourquoi.
+            Sois critique et sévère.
+            `;
 
             const critiques = {};
             const critiquePromises = [];
@@ -336,38 +335,40 @@
 
             critiqueResults.forEach(res => {
                 critiques[res.name] = res.text;
-                addLog(`${res.name} a analysé`, "Terminé.", 'success');
+                addLog(`${res.name} a audité`, "Vérification terminée.", 'success');
 
                 const card = document.createElement('div');
                 card.className = 'result-card';
-                card.innerHTML = `<h3>Analyse de ${res.name}</h3><div class="markdown-content">${renderMarkdown(res.text)}</div>`;
+                card.innerHTML = `<h3>Audit de ${res.name}</h3><div class="markdown-content">${renderMarkdown(res.text)}</div>`;
                 document.getElementById('critiques').appendChild(card);
             });
 
-            // --- ÉTAPE 3 : PRÉSIDENCE ---
-            addLog("Système", "Synthèse finale par le Président...", 'processing');
+            // --- ÉTAPE 3 : PRÉSIDENCE (Validation Finale) ---
+            addLog("Système", "Synthèse validée par le Président...", 'processing');
 
             let fullTranscript = `QUESTION : ${question}\n\n`;
             fullTranscript += "--- RÉPONSES INITIALES ---\n";
             for (const [name, text] of Object.entries(initialResponses)) {
                 fullTranscript += `[${name}] : ${text}\n\n`;
             }
-            fullTranscript += "--- DÉBAT ET CRITIQUES ---\n";
+            fullTranscript += "--- AUDIT ET CRITIQUES ---\n";
             for (const [name, text] of Object.entries(critiques)) {
                 fullTranscript += `[${name}] : ${text}\n\n`;
             }
             fullTranscript += `
-            Tu es le Président du comité. Tu as lu la question, les réponses des 4 experts et leurs analyses mutuelles.
-            TA MISSION :
-            1. Dégager les points clés et le consensus.
-            2. Créer une réponse finale combinée, exhaustive et structurée qui dépasse la simple somme des parties.
-            3. Corriger les erreurs relevées lors du débat.
-            Présente la réponse finale de manière professionnelle.
+            Tu es le Président du comité de vérification des faits.
+            Ton objectif : Fournir une réponse finale qui élimine toute incertitude ou hallucination.
+
+            DIRECTIVES :
+            1. Ne conserve que les informations qui ont été validées par au moins deux sources ou qui semblent irréfutables.
+            2. Supprime immédiatement tout fait qui a été contesté comme étant une hallucination.
+            3. S'il y a un désaccord entre les experts sur un chiffre ou une date, signale-le plutôt que de choisir au hasard.
+            4. Donne une réponse claire, structurée et fiable.
             `;
 
             const finalText = await callOpenRouter("Président", PRESIDENT_MODEL, [{role: "user", content: fullTranscript}], apiKey);
 
-            addLog("Président", "Synthèse terminée.", 'success');
+            addLog("Président", "Validation terminée.", 'success');
 
             document.getElementById('finalAnswer').innerHTML = renderMarkdown(finalText);
             document.getElementById('resultsArea').classList.remove('hidden');
@@ -377,7 +378,7 @@
             alert("Erreur : " + err.message);
         } finally {
             btn.disabled = false;
-            btn.textContent = "Lancer le Débat";
+            btn.textContent = "Lancer la Vérification Factuelle";
         }
     }
 </script>
