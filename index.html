@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LLM Multi-Agent Debate Arena</title>
+    <title>LLM Multi-Agent Debate Arena (Mode Éco)</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         :root {
-            /* Palette professionnelle (Blue & Slate) */
             --primary: #2563eb;
             --primary-hover: #1d4ed8;
             --bg: #f8fafc;
@@ -207,7 +206,7 @@
 <div class="container">
     <header>
         <h1>Système de Débat IA</h1>
-        <p class="subtitle">DeepSeek, Claude, Llama & ChatGPT collaborent</p>
+        <p class="subtitle">DeepSeek, Claude, Llama & ChatGPT collaborent (Mode Éco)</p>
     </header>
 
     <!-- Configuration -->
@@ -218,13 +217,13 @@
         </div>
 
         <div class="input-group">
-            <label for="modelMode">Mode de Modèles</label>
+            <label for="modelMode">Mode de Modèles (Optimisé Crédits)</label>
             <select id="modelMode">
-                <option value="low">Économique (DeepSeek V3)</option>
-                <option value="high">Premium (DeepSeek R1 Reasoning)</option>
+                <option value="low">Économique (Max 150 mots / réponse)</option>
+                <option value="high">Premium (Max 300 mots / réponse)</option>
             </select>
             <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px;">
-                Les réponses sont limitées à ~750 mots pour réduire le coût et les erreurs.
+                Les réponses sont volontairement courtes pour réduire drastiquement les coûts.
             </p>
         </div>
 
@@ -287,21 +286,21 @@
         logsDiv.scrollTop = logsDiv.scrollHeight;
     }
 
-    async function callOpenRouter(modelName, modelId, messages, apiKey) {
+    async function callOpenRouter(modelName, modelId, messages, apiKey, maxTokens) {
         try {
             const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${apiKey}`,
                     "HTTP-Referer": window.location.href,
-                    "X-Title": "LLM Multi-Agent Debate",
+                    "X-Title": "LLM Eco Debate",
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
                     model: modelId,
                     messages: messages,
-                    temperature: 0.1, // Bas pour éviter les hallucinations
-                    max_tokens: 1024  // Limite la taille pour éviter l'erreur 402 (Crédits insuffisants)
+                    temperature: 0.1, 
+                    max_tokens: maxTokens // Utilisation de la limite variable
                 })
             });
 
@@ -332,12 +331,15 @@
         const question = document.getElementById('userQuestion').value.trim();
         const btn = document.getElementById('startBtn');
         
-        // Sélection du set de modèles
+        // Sélection du set de modèles et des tokens
         const modeKey = document.getElementById('modelMode').value;
         const currentModels = MODEL_SETS[modeKey];
         const MODELS = { ...currentModels };
         delete MODELS.President; 
         const PRESIDENT_MODEL = currentModels.President;
+
+        // OPTIMISATION : Limitation drastique des tokens pour économiser les crédits
+        let maxTokens = (modeKey === 'low') ? 256 : 512;
 
         // Validation
         if (!apiKey) return alert("Veuillez entrer votre clé API OpenRouter.");
@@ -355,16 +357,17 @@
 
         try {
             // --- ÉTAPE 1 : RÉCEPTIONS INITIALES ---
-            addLog("Système", "Collecte des réponses...", 'processing');
+            addLog("Système", "Collecte des réponses (Mode Éco)...", 'processing');
             
             const initialResponses = {};
             const promises = [];
 
-            const strictPrompt = `Question : ${question}\n\nIMPORTANT : Réponds de manière factuelle et précise. Si tu ne connais pas la réponse, dis-le.`;
+            // Prompt ultra-courte
+            const strictPrompt = `Question : ${question}\n\nIMPORTANT : Réponds en une seule phrase ou un paragraphe très court (max 50 mots). Va droit au but. N'invente rien.`;
 
             for (const [name, id] of Object.entries(MODELS)) {
                 promises.push(
-                    callOpenRouter(name, id, [{role: "user", content: strictPrompt}], apiKey)
+                    callOpenRouter(name, id, [{role: "user", content: strictPrompt}], apiKey, maxTokens)
                         .then(text => { return { name, text }; })
                 );
             }
@@ -383,20 +386,20 @@
             });
 
             // --- ÉTAPE 2 : DÉBAT ET CRITIQUE ---
-            addLog("Système", "Analyse mutuelle en cours...", 'processing');
+            addLog("Système", "Analyse mutuelle (Courte)...", 'processing');
             
-            let debateContext = "Voici les réponses de tes collègues. Vérifie les faits.\n\n";
+            let debateContext = "Voici des réponses brèves à une question.\n\n";
             for (const [name, text] of Object.entries(initialResponses)) {
-                debateContext += `### Réponse de ${name} :\n${text}\n\n`;
+                debateContext += `${name} : ${text}\n`;
             }
-            debateContext += "\nTa tâche : Analyse ces réponses. Indique quelle est la meilleure réponse et pourquoi.";
+            debateContext += `\nTa tâche : Analyse ces réponses en 3 points maximum. Indique la meilleure réponse.`;
 
             const critiques = {};
             const critiquePromises = [];
 
             for (const [name, id] of Object.entries(MODELS)) {
                 critiquePromises.push(
-                    callOpenRouter(name, id, [{role: "user", content: debateContext}], apiKey)
+                    callOpenRouter(name, id, [{role: "user", content: debateContext}], apiKey, maxTokens)
                         .then(text => { return { name, text }; })
                 );
             }
@@ -417,20 +420,16 @@
             addLog("Système", "Synthèse finale...", 'processing');
 
             let fullTranscript = `QUESTION : ${question}\n\n`;
-            fullTranscript += "--- RÉPONSES ---\n";
+            fullTranscript += "RÉPONSES ET ANALYSES (TRÈS COURTES) :\n";
             for (const [name, text] of Object.entries(initialResponses)) {
-                fullTranscript += `[${name}] : ${text}\n\n`;
+                fullTranscript += `[${name}] : ${text}\n`;
             }
-            fullTranscript += "--- CRITIQUES ---\n";
             for (const [name, text] of Object.entries(critiques)) {
-                fullTranscript += `[${name}] : ${text}\n\n`;
+                fullTranscript += `[Analyse ${name}] : ${text}\n`;
             }
-            fullTranscript += `
-            Tu es le Président. Synthétise les meilleures idées et corrige les erreurs.
-            Présente la réponse finale.
-            `;
+            fullTranscript += `\nTa mission : Synthétise tout cela en une réponse unique et factuelle. Pas de bavardage.`;
 
-            const finalText = await callOpenRouter("Président", PRESIDENT_MODEL, [{role: "user", content: fullTranscript}], apiKey);
+            const finalText = await callOpenRouter("Président", PRESIDENT_MODEL, [{role: "user", content: fullTranscript}], apiKey, maxTokens);
 
             addLog("Président", "Synthèse terminée.", 'success');
 
