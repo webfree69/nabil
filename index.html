@@ -145,10 +145,10 @@
         <div class="input-group">
             <label for="modelMode">Mode de Modèles</label>
             <select id="modelMode">
-                <option value="low">Économique (Prix réduit - Stable)</option>
+                <option value="low">Économique (Stable)</option>
                 <option value="high">Premium (Qualité Maximale)</option>
             </select>
-            <small style="color: #64748b;">Les IDs ont été corrigés pour la stabilité d'OpenRouter.</small>
+            <small style="color: #64748b;">IDs vérifiés et stables.</small>
         </div>
 
         <div class="input-group">
@@ -181,7 +181,8 @@
 
 <script>
     // --- CONFIGURATION FINALE ---
-    // Utilisation d'IDs vérifiés et stables pour éviter les erreurs 400/404.
+    // Utilisation d'IDs vérifiés. 
+    // Pour Gemini, on force l'ID "1.5-pro" standard car l'ID alternatif renvoie 404.
     
     const MODEL_SETS = {
         high: {
@@ -192,10 +193,10 @@
             "President": "openai/gpt-4o"
         },
         low: {
-            // Remplacement de Flash par Pro pour la stabilité (Flash a des ID variables)
-            "Gemini": "google/gemini-pro-1.5",         
+            // NOTE: On utilise le même ID que le mode High pour Gemini car l'ID 'gemini-pro-1.5' est cassé.
+            "Gemini": "google/gemini-1.5-pro",         
             "Claude": "anthropic/claude-3-haiku",      
-            "Llama 3": "meta-llama/llama-3.1-8b-instruct", // CORRIGÉ: Suppression de :free
+            "Llama 3": "meta-llama/llama-3.1-8b-instruct", 
             "ChatGPT": "openai/gpt-3.5-turbo",         
             "President": "openai/gpt-3.5-turbo"
         }
