@@ -1,74 +1,348 @@
-<!DOCTYPE html>
-<html>
+ <!DOCTYPE html>
+<html lang="fr">
 <head>
-    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
-    <title>KERIM-AZIZA</title>
-    
-    <!-- Insert to your webpage before the </head> -->
-    <script src="sliderengine/jquery.js"></script>
-    <script src="sliderengine/amazingslider.js"></script>
-    <link rel="stylesheet" type="text/css" href="sliderengine/amazingslider-1.css">
-    <script src="sliderengine/initslider-1.js"></script>
-    <!-- End of head section HTML codes -->
-    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Multi-Agent Debate Arena</title>
+    <!-- Importation de Marked.js pour afficher le Markdown proprement -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 { margin-bottom: 10px; color: var(--primary); }
+        p.subtitle { color: #64748b; }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+        }
+
+        .input-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; }
+        
+        input[type="text"], input[type="password"], textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-size: 16px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        textarea { resize: vertical; min-height: 120px; }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        button:hover { background-color: #2563eb; }
+        button:disabled { background-color: #94a3b8; cursor: not-allowed; }
+
+        /* Status & Logs */
+        .status-area {
+            display: none; /* Caché par défaut */
+            margin-top: 20px;
+        }
+
+        .log-entry {
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            border-left: 4px solid #cbd5e1;
+        }
+
+        .log-entry.success { border-color: #22c55e; }
+        .log-entry.processing { border-color: #eab308; }
+
+        .model-name { font-weight: bold; display: block; margin-bottom: 4px; }
+
+        /* Results */
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .results-grid { grid-template-columns: 1fr; }
+        }
+
+        .result-card {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .president-section {
+            margin-top: 40px;
+            border: 2px solid var(--primary);
+        }
+
+        .markdown-content h3 { margin-top: 0; }
+        .markdown-content p { margin-bottom: 1em; }
+        .markdown-content ul, .markdown-content ol { padding-left: 20px; }
+
+        .hidden { display: none; }
+    </style>
 </head>
 <body>
-    
-    <!-- Insert to your webpage where you want to display the slider -->
-    <div class="amazingslider-wrapper" id="amazingslider-wrapper-1" style="display:block;position:relative;max-width:1200px;margin:0px auto 56px;">
-        <div class="amazingslider" id="amazingslider-1" style="display:block;position:relative;margin:0 auto;">
-            <ul class="amazingslider-slides" style="display:none;">
-                <li><img src="images/IMG_4267_edited.jpg" alt="IMG_4267_edited"  title="IMG_4267_edited" />
-                </li>
-                <li><img src="images/IMG_4279_edited.jpg" alt="IMG_4279_edited"  title="IMG_4279_edited" />
-                </li>
-                <li><img src="images/IMG_4286_edited.jpg" alt="IMG_4286_edited"  title="IMG_4286_edited" />
-                </li>
-                <li><img src="images/IMG_4303_edited.jpg" alt="IMG_4303_edited"  title="IMG_4303_edited" />
-                </li>
-                <li><img src="images/IMG_4318_edited.jpg" alt="IMG_4318_edited"  title="IMG_4318_edited" />
-                </li>
-                <li><img src="images/IMG_4343_edited.jpg" alt="IMG_4343_edited"  title="IMG_4343_edited" />
-                </li>
-                <li><img src="images/IMG_4346_edited.jpg" alt="IMG_4346_edited"  title="IMG_4346_edited" />
-                </li>
-                <li><img src="images/IMG_4381_edited.jpg" alt="IMG_4381_edited"  title="IMG_4381_edited" />
-                </li>
-                <li><img src="images/IMG_4383_edited.jpg" alt="IMG_4383_edited"  title="IMG_4383_edited" />
-                </li>
-                <li><img src="images/IMG_4384_edited.jpg" alt="IMG_4384_edited"  title="IMG_4384_edited" />
-                </li>
-                <li><img src="images/IMG_4386_edited.jpg" alt="IMG_4386_edited"  title="IMG_4386_edited" />
-                </li>
-                <li><img src="images/IMG_4387_edited.jpg" alt="IMG_4387_edited"  title="IMG_4387_edited" />
-                </li>
-                <li><img src="images/IMG_4391_edited.jpg" alt="IMG_4391_edited"  title="IMG_4391_edited" />
-                </li>
-                <li><img src="images/IMG_4393_edited.jpg" alt="IMG_4393_edited"  title="IMG_4393_edited" />
-                </li>
-                <li><img src="images/IMG_4440_edited.jpg" alt="IMG_4440_edited"  title="IMG_4440_edited" />
-                </li>
-            </ul>
-            <ul class="amazingslider-thumbnails" style="display:none;">
-                <li><img src="images/IMG_4267_edited-tn.jpg" alt="IMG_4267_edited" title="IMG_4267_edited" /></li>
-                <li><img src="images/IMG_4279_edited-tn.jpg" alt="IMG_4279_edited" title="IMG_4279_edited" /></li>
-                <li><img src="images/IMG_4286_edited-tn.jpg" alt="IMG_4286_edited" title="IMG_4286_edited" /></li>
-                <li><img src="images/IMG_4303_edited-tn.jpg" alt="IMG_4303_edited" title="IMG_4303_edited" /></li>
-                <li><img src="images/IMG_4318_edited-tn.jpg" alt="IMG_4318_edited" title="IMG_4318_edited" /></li>
-                <li><img src="images/IMG_4343_edited-tn.jpg" alt="IMG_4343_edited" title="IMG_4343_edited" /></li>
-                <li><img src="images/IMG_4346_edited-tn.jpg" alt="IMG_4346_edited" title="IMG_4346_edited" /></li>
-                <li><img src="images/IMG_4381_edited-tn.jpg" alt="IMG_4381_edited" title="IMG_4381_edited" /></li>
-                <li><img src="images/IMG_4383_edited-tn.jpg" alt="IMG_4383_edited" title="IMG_4383_edited" /></li>
-                <li><img src="images/IMG_4384_edited-tn.jpg" alt="IMG_4384_edited" title="IMG_4384_edited" /></li>
-                <li><img src="images/IMG_4386_edited-tn.jpg" alt="IMG_4386_edited" title="IMG_4386_edited" /></li>
-                <li><img src="images/IMG_4387_edited-tn.jpg" alt="IMG_4387_edited" title="IMG_4387_edited" /></li>
-                <li><img src="images/IMG_4391_edited-tn.jpg" alt="IMG_4391_edited" title="IMG_4391_edited" /></li>
-                <li><img src="images/IMG_4393_edited-tn.jpg" alt="IMG_4393_edited" title="IMG_4393_edited" /></li>
-                <li><img src="images/IMG_4440_edited-tn.jpg" alt="IMG_4440_edited" title="IMG_4440_edited" /></li>
-            </ul>
+
+<div class="container">
+    <header>
+        <h1>🏛️ Système de Débat IA</h1>
+        <p class="subtitle">Gemini, Claude, Grok & ChatGPT débattent. Le Président tranche.</p>
+    </header>
+
+    <!-- Configuration -->
+    <div class="card">
+        <div class="input-group">
+            <label for="apiKey">Clé API OpenRouter</label>
+            <input type="password" id="apiKey" placeholder="sk-or-v1-..." value="">
+            <small style="color: #64748b; font-size: 0.9em;">La clé est utilisée uniquement localement dans votre navigateur.</small>
+        </div>
+
+        <div class="input-group">
+            <label for="userQuestion">Votre Question</label>
+            <textarea id="userQuestion" placeholder="Ex: Quelle est la meilleure stratégie pour réduire le stress au travail ?"></textarea>
+        </div>
+
+        <button id="startBtn" onclick="startDebate()">Lancer le Débat</button>
+    </div>
+
+    <!-- Zone de progression et logs -->
+    <div id="statusArea" class="status-area">
+        <div id="logs"></div>
+    </div>
+
+    <!-- Résultats -->
+    <div id="resultsArea" class="hidden">
+        <!-- Phase 1 -->
+        <h2>Étape 1 : Réponses Initiales</h2>
+        <div class="results-grid" id="initialResponses"></div>
+
+        <!-- Phase 2 -->
+        <h2 style="margin-top: 30px;">Étape 2 : Critiques Mutuelles</h2>
+        <div class="results-grid" id="critiques"></div>
+
+        <!-- Phase 3 -->
+        <div class="card president-section">
+            <h2>🏛️ Réponse Finale du Président</h2>
+            <div id="finalAnswer" class="markdown-content"></div>
         </div>
     </div>
-    <!-- End of body section HTML codes -->
-    
+</div>
+
+<script>
+    // --- CONFIGURATION ---
+    const MODELS = {
+        "Gemini": "google/gemini-pro-1.5",
+        "Claude": "anthropic/claude-3.5-sonnet",
+        "Grok": "x-ai/grok-beta",
+        "ChatGPT": "openai/gpt-4o"
+    };
+    const PRESIDENT_MODEL = "openai/gpt-4o";
+
+    // --- FONCTIONS UTILITAIRES ---
+
+    function addLog(title, message, type = 'processing') {
+        const logsDiv = document.getElementById('logs');
+        const entry = document.createElement('div');
+        entry.className = `log-entry ${type}`;
+        entry.innerHTML = `<span class="model-name">${title}</span><div>${message}</div>`;
+        logsDiv.appendChild(entry);
+        // Auto-scroll vers le bas
+        logsDiv.scrollTop = logsDiv.scrollHeight;
+    }
+
+    async function callOpenRouter(modelName, modelId, messages, apiKey) {
+        try {
+            const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${apiKey}`,
+                    "HTTP-Referer": window.location.href, // Requis par OpenRouter
+                    "X-Title": "LLM Multi-Agent Debate",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: modelId,
+                    messages: messages,
+                    temperature: 0.7
+                })
+            });
+
+            if (!response.ok) throw new Error(`Erreur API: ${response.status}`);
+            const data = await response.json();
+            return data.choices[0].message.content;
+        } catch (error) {
+            console.error(error);
+            return `Erreur lors de l'appel à ${modelName}: ${error.message}`;
+        }
+    }
+
+    function renderMarkdown(text) {
+        return marked.parse(text);
+    }
+
+    // --- LOGIQUE PRINCIPALE ---
+
+    async function startDebate() {
+        const apiKey = document.getElementById('apiKey').value.trim();
+        const question = document.getElementById('userQuestion').value.trim();
+        const btn = document.getElementById('startBtn');
+
+        // Validation
+        if (!apiKey) return alert("Veuillez entrer votre clé API OpenRouter.");
+        if (!question) return alert("Veuillez entrer une question.");
+
+        // Reset UI
+        btn.disabled = true;
+        btn.textContent = "Débat en cours...";
+        document.getElementById('statusArea').style.display = 'block';
+        document.getElementById('resultsArea').classList.add('hidden');
+        document.getElementById('logs').innerHTML = '';
+        document.getElementById('initialResponses').innerHTML = '';
+        document.getElementById('critiques').innerHTML = '';
+        document.getElementById('finalAnswer').innerHTML = '';
+
+        try {
+            // --- ÉTAPE 1 : RÉCEPTIONS INITIALES ---
+            addLog("Système", "Lancement des interrogations initiales...", 'processing');
+            
+            const initialResponses = {};
+            const promises = [];
+
+            for (const [name, id] of Object.entries(MODELS)) {
+                promises.push(
+                    callOpenRouter(name, id, [{role: "user", content: question}], apiKey)
+                        .then(text => { return { name, text }; })
+                );
+            }
+
+            const results = await Promise.all(promises);
+
+            results.forEach(res => {
+                initialResponses[res.name] = res.text;
+                addLog(`${res.name} a répondu`, "Réceptionnée.", 'success');
+                
+                // Affichage dans la grille de résultats
+                const card = document.createElement('div');
+                card.className = 'result-card';
+                card.innerHTML = `<h3>${res.name}</h3><div class="markdown-content">${renderMarkdown(res.text)}</div>`;
+                document.getElementById('initialResponses').appendChild(card);
+            });
+
+            // --- ÉTAPE 2 : DÉBAT ET CRITIQUE ---
+            addLog("Système", "Construction du contexte pour le débat...", 'processing');
+            
+            let debateContext = "Voici les réponses de tes collègues à la question précédente :\n\n";
+            for (const [name, text] of Object.entries(initialResponses)) {
+                debateContext += `### Réponse de ${name} :\n${text}\n\n`;
+            }
+            debateContext += "\nTa tâche : Analyse ces réponses. Identifie leurs forces et faiblesses. Puis, indique quelle est selon toi la meilleure réponse et justifie ton choix de manière concise.";
+
+            const critiques = {};
+            const critiquePromises = [];
+
+            for (const [name, id] of Object.entries(MODELS)) {
+                critiquePromises.push(
+                    callOpenRouter(name, id, [{role: "user", content: debateContext}], apiKey)
+                        .then(text => { return { name, text }; })
+                );
+            }
+
+            const critiqueResults = await Promise.all(critiquePromises);
+
+            critiqueResults.forEach(res => {
+                critiques[res.name] = res.text;
+                addLog(`${res.name} a analysé`, "Critique terminée.", 'success');
+
+                const card = document.createElement('div');
+                card.className = 'result-card';
+                card.innerHTML = `<h3>Analyse de ${res.name}</h3><div class="markdown-content">${renderMarkdown(res.text)}</div>`;
+                document.getElementById('critiques').appendChild(card);
+            });
+
+            // --- ÉTAPE 3 : PRÉSIDENCE ---
+            addLog("Système", "Transmission du dossier complet au Président...", 'processing');
+
+            let fullTranscript = `QUESTION : ${question}\n\n`;
+            fullTranscript += "--- RÉPONSES INITIALES ---\n";
+            for (const [name, text] of Object.entries(initialResponses)) {
+                fullTranscript += `[${name}] : ${text}\n\n`;
+            }
+            fullTranscript += "--- DÉBAT ET CRITIQUES ---\n";
+            for (const [name, text] of Object.entries(critiques)) {
+                fullTranscript += `[${name}] : ${text}\n\n`;
+            }
+            fullTranscript += `
+            Tu es le Président du comité. Tu as lu la question, les réponses des 4 experts (Gemini, Claude, Grok, ChatGPT) et leurs analyses mutuelles.
+            TA MISSION :
+            1. Dégager les points clés et le consensus.
+            2. Créer une réponse finale combinée, exhaustive et structurée qui dépasse la simple somme des parties.
+            3. Corriger les erreurs relevées lors du débat.
+            Présente la réponse finale de manière professionnelle.
+            `;
+
+            const finalText = await callOpenRouter("Président", PRESIDENT_MODEL, [{role: "user", content: fullTranscript}], apiKey);
+
+            addLog("Président", "Synthèse finale terminée.", 'success');
+
+            // Affichage Final
+            document.getElementById('finalAnswer').innerHTML = renderMarkdown(finalText);
+            document.getElementById('resultsArea').classList.remove('hidden');
+
+        } catch (err) {
+            addLog("Erreur critique", err.message, 'processing');
+            alert("Une erreur est survenue : " + err.message);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "Lancer le Débat";
+        }
+    }
+</script>
+
 </body>
 </html>
