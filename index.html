@@ -213,7 +213,7 @@
     <!-- Configuration -->
     <div class="card">
         <div class="input-group">
-            <label for="apiKey">Clé API OpenRouter</label>
+            <label for="apiKey">Ouvre toi sesame</label>
             <input type="password" id="apiKey" placeholder="sk-or-v1-..." value="">
         </div>
 
@@ -224,7 +224,7 @@
                 <option value="high">Premium (DeepSeek R1 Reasoning)</option>
             </select>
             <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px;">
-                Le mode Premium utilise des modèles de raisonnement avancés pour une meilleure précision factuelle.
+                Les réponses sont limitées à ~750 mots pour réduire le coût et les erreurs.
             </p>
         </div>
 
@@ -300,7 +300,8 @@
                 body: JSON.stringify({
                     model: modelId,
                     messages: messages,
-                    temperature: 0.1 // Bas pour limiter les hallucinations
+                    temperature: 0.1, // Bas pour éviter les hallucinations
+                    max_tokens: 1024  // Limite la taille pour éviter l'erreur 402 (Crédits insuffisants)
                 })
             });
 
