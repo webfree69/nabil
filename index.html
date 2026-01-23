@@ -1,10 +1,9 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LLM Multi-Agent Debate Arena</title>
-    <!-- Importation de Marked.js pour afficher le Markdown proprement -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         :root {
@@ -49,7 +48,7 @@
         .input-group { margin-bottom: 20px; }
         label { display: block; font-weight: 600; margin-bottom: 8px; }
         
-        input[type="text"], input[type="password"], textarea {
+        input[type="text"], input[type="password"], textarea, select {
             width: 100%;
             padding: 12px;
             border-radius: 8px;
@@ -79,7 +78,7 @@
 
         /* Status & Logs */
         .status-area {
-            display: none; /* Caché par défaut */
+            display: none;
             margin-top: 20px;
         }
 
@@ -92,6 +91,7 @@
         }
 
         .log-entry.success { border-color: #22c55e; }
+        .log-entry.error { border-color: #ef4444; }
         .log-entry.processing { border-color: #eab308; }
 
         .model-name { font-weight: bold; display: block; margin-bottom: 4px; }
@@ -125,6 +125,16 @@
         .markdown-content ul, .markdown-content ol { padding-left: 20px; }
 
         .hidden { display: none; }
+        
+        .mode-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            background: #eee;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -132,15 +142,22 @@
 <div class="container">
     <header>
         <h1>🏛️ Système de Débat IA</h1>
-        <p class="subtitle">Gemini, Claude, Grok & ChatGPT débattent. Le Président tranche.</p>
+        <p class="subtitle">Les modèles débattent et le Président tranche.</p>
     </header>
 
     <!-- Configuration -->
     <div class="card">
         <div class="input-group">
-            <label for="apiKey">Clé API OpenRouter</label>
-            <input type="password" id="apiKey" placeholder="sk-or-v1-..." value="">
-            <small style="color: #64748b; font-size: 0.9em;">La clé est utilisée uniquement localement dans votre navigateur.</small>
+            <label for="apiKey">Clé API OpenRouter <span id="costWarning" style="color:red; font-weight:normal; font-size:0.8em;">(Solde insuffisant détecté ? Utilisez le mode Économique)</span></label>
+            <input type="password" id="apiKey" placeholder="Collez votre clé ici (sk-or-v1-...)" value="">
+        </div>
+
+        <div class="input-group">
+            <label for="modelMode">Mode de Modèles</label>
+            <select id="modelMode" onchange="updateModeDisplay()">
+                <option value="low">Économique (Recommandé pour tester - Moins cher)</option>
+                <option value="high">Premium (GPT-4o, Claude 3.5 - Nécessite des crédits)</option>
+            </select>
         </div>
 
         <div class="input-group">
@@ -158,15 +175,12 @@
 
     <!-- Résultats -->
     <div id="resultsArea" class="hidden">
-        <!-- Phase 1 -->
         <h2>Étape 1 : Réponses Initiales</h2>
         <div class="results-grid" id="initialResponses"></div>
 
-        <!-- Phase 2 -->
         <h2 style="margin-top: 30px;">Étape 2 : Critiques Mutuelles</h2>
         <div class="results-grid" id="critiques"></div>
 
-        <!-- Phase 3 -->
         <div class="card president-section">
             <h2>🏛️ Réponse Finale du Président</h2>
             <div id="finalAnswer" class="markdown-content"></div>
@@ -176,15 +190,38 @@
 
 <script>
     // --- CONFIGURATION ---
-    const MODELS = {
-        "Gemini": "google/gemini-pro-1.5",
-        "Claude": "anthropic/claude-3.5-sonnet",
-        "Grok": "x-ai/grok-beta",
-        "ChatGPT": "openai/gpt-4o"
+    // Mettez 'true' pour utiliser les modèles chers (nécessite des crédits OpenRouter)
+    // Mettez 'false' pour utiliser des modèles gratuits ou très peu chers.
+    // Note: Le code détectera automatiquement votre choix dans le menu déroulant.
+    
+    const MODEL_SETS = {
+        high: {
+            "Gemini": "google/gemini-1.5-pro",
+            "Claude": "anthropic/claude-3.5-sonnet",
+            "Grok": "x-ai/grok-2",          // ID CORRIGÉ (anciennement beta)
+            "ChatGPT": "openai/gpt-4o",
+            "President": "openai/gpt-4o"
+        },
+        low: {
+            "Gemini": "google/gemini-flash-1.5", // Rapide et souvent gratuit
+            "Claude": "anthropic/claude-3-haiku", // Version économique de Claude
+            "Grok": "x-ai/grok-2",               // Grok n'a pas vraiment de version free, on garde le même mais ça peut échouer si pas de crédits
+            "ChatGPT": "openai/gpt-3.5-turbo",   // Ancien modèle, très peu cher
+            "President": "openai/gpt-3.5-turbo"
+        }
     };
-    const PRESIDENT_MODEL = "openai/gpt-4o";
 
     // --- FONCTIONS UTILITAIRES ---
+
+    function updateModeDisplay() {
+        // Fonction pour mettre à jour l'interface si besoin
+        const mode = document.getElementById('modelMode').value;
+        if(mode === 'high') {
+            document.getElementById('costWarning').style.visibility = 'visible';
+        } else {
+            document.getElementById('costWarning').style.visibility = 'hidden';
+        }
+    }
 
     function addLog(title, message, type = 'processing') {
         const logsDiv = document.getElementById('logs');
@@ -192,7 +229,6 @@
         entry.className = `log-entry ${type}`;
         entry.innerHTML = `<span class="model-name">${title}</span><div>${message}</div>`;
         logsDiv.appendChild(entry);
-        // Auto-scroll vers le bas
         logsDiv.scrollTop = logsDiv.scrollHeight;
     }
 
@@ -202,7 +238,7 @@
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${apiKey}`,
-                    "HTTP-Referer": window.location.href, // Requis par OpenRouter
+                    "HTTP-Referer": window.location.href,
                     "X-Title": "LLM Multi-Agent Debate",
                     "Content-Type": "application/json"
                 },
@@ -213,12 +249,27 @@
                 })
             });
 
-            if (!response.ok) throw new Error(`Erreur API: ${response.status}`);
+            if (!response.ok) {
+                const errorData = await response.json();
+                let errorMsg = `Erreur API ${response.status}`;
+                
+                if (response.status === 402) {
+                    errorMsg += " (Solde insuffisant / Crédits épuisés sur OpenRouter pour ce modèle)";
+                } else if (response.status === 404) {
+                    errorMsg += " (Modèle introuvable, ID incorrect)";
+                }
+                
+                if (errorData.error && errorData.error.message) {
+                    errorMsg += `: ${errorData.error.message}`;
+                }
+                
+                throw new Error(errorMsg);
+            }
             const data = await response.json();
             return data.choices[0].message.content;
         } catch (error) {
             console.error(error);
-            return `Erreur lors de l'appel à ${modelName}: ${error.message}`;
+            return `**Erreur critique** avec ${modelName} : ${error.message}`;
         }
     }
 
@@ -232,6 +283,13 @@
         const apiKey = document.getElementById('apiKey').value.trim();
         const question = document.getElementById('userQuestion').value.trim();
         const btn = document.getElementById('startBtn');
+        
+        // Sélection du set de modèles
+        const modeKey = document.getElementById('modelMode').value;
+        const currentModels = MODEL_SETS[modeKey];
+        const MODELS = { ...currentModels };
+        delete MODELS.President; // Séparer le président des débatteurs
+        const PRESIDENT_MODEL = currentModels.President;
 
         // Validation
         if (!apiKey) return alert("Veuillez entrer votre clé API OpenRouter.");
@@ -249,7 +307,7 @@
 
         try {
             // --- ÉTAPE 1 : RÉCEPTIONS INITIALES ---
-            addLog("Système", "Lancement des interrogations initiales...", 'processing');
+            addLog("Système", `Mode ${modeKey === 'high' ? 'Premium' : 'Économique'} activé. Lancement...`, 'processing');
             
             const initialResponses = {};
             const promises = [];
@@ -265,9 +323,9 @@
 
             results.forEach(res => {
                 initialResponses[res.name] = res.text;
-                addLog(`${res.name} a répondu`, "Réceptionnée.", 'success');
+                const isError = res.text.includes("Erreur critique");
+                addLog(`${res.name} a répondu`, isError ? "Échec (voir carte)" : "Réceptionnée.", isError ? 'error' : 'success');
                 
-                // Affichage dans la grille de résultats
                 const card = document.createElement('div');
                 card.className = 'result-card';
                 card.innerHTML = `<h3>${res.name}</h3><div class="markdown-content">${renderMarkdown(res.text)}</div>`;
@@ -318,7 +376,7 @@
                 fullTranscript += `[${name}] : ${text}\n\n`;
             }
             fullTranscript += `
-            Tu es le Président du comité. Tu as lu la question, les réponses des 4 experts (Gemini, Claude, Grok, ChatGPT) et leurs analyses mutuelles.
+            Tu es le Président du comité. Tu as lu la question, les réponses des 4 experts et leurs analyses mutuelles.
             TA MISSION :
             1. Dégager les points clés et le consensus.
             2. Créer une réponse finale combinée, exhaustive et structurée qui dépasse la simple somme des parties.
@@ -330,12 +388,11 @@
 
             addLog("Président", "Synthèse finale terminée.", 'success');
 
-            // Affichage Final
             document.getElementById('finalAnswer').innerHTML = renderMarkdown(finalText);
             document.getElementById('resultsArea').classList.remove('hidden');
 
         } catch (err) {
-            addLog("Erreur critique", err.message, 'processing');
+            addLog("Erreur critique", err.message, 'error');
             alert("Une erreur est survenue : " + err.message);
         } finally {
             btn.disabled = false;
