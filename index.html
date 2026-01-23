@@ -132,7 +132,8 @@
 <div class="container">
     <header>
         <h1>🏛️ Système de Débat IA</h1>
-        <p class="subtitle">Gemini, Claude, Llama & ChatGPT débattent.</p>
+        <p class="subtitle">Mistral, Claude, Llama & ChatGPT débattent.</p>
+        <p style="font-size: 0.8em; color: #ef4444;">*Gemini a été remplacé par Mistral car les ID Google sont inaccessibles sur votre clé.</p>
     </header>
 
     <!-- Configuration -->
@@ -148,7 +149,6 @@
                 <option value="low">Économique (Stable)</option>
                 <option value="high">Premium (Qualité Maximale)</option>
             </select>
-            <small style="color: #64748b;">IDs corrigés (Gemini Exp & Pro Legacy).</small>
         </div>
 
         <div class="input-group">
@@ -181,22 +181,18 @@
 
 <script>
     // --- CONFIGURATION FINALE ---
-    // Les IDs Gemini ont été changés pour des versions stables reconnues par OpenRouter.
-    // High: gemini-exp-1206 (Remplacement actuel du 1.5 Pro)
-    // Low: gemini-pro (Version 1.0 Legacy, très stable)
+    // Remplacement de Gemini par Mistral AI (très stable et performant).
     
     const MODEL_SETS = {
         high: {
-            // ID corrigé: gemini-exp-1206 est l'ID "Pro" actuel le plus stable sur OpenRouter
-            "Gemini": "google/gemini-exp-1206",
+            "Mistral (Remplace Gemini)": "mistralai/mistral-large", // Stable, Premium
             "Claude": "anthropic/claude-3.5-sonnet",
             "Llama 3": "meta-llama/llama-3.1-70b-instruct",
             "ChatGPT": "openai/gpt-4o",
             "President": "openai/gpt-4o"
         },
         low: {
-            // ID corrigé: gemini-pro (Legacy) fonctionne toujours parfaitement
-            "Gemini": "google/gemini-pro",
+            "Mistral (Remplace Gemini)": "mistralai/mistral-7b-instruct", // Stable, Eco
             "Claude": "anthropic/claude-3-haiku",
             "Llama 3": "meta-llama/llama-3.1-8b-instruct",
             "ChatGPT": "openai/gpt-3.5-turbo",
