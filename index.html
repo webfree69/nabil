@@ -125,12 +125,6 @@
         .markdown-content ul, .markdown-content ol { padding-left: 20px; }
 
         .hidden { display: none; }
-        
-        .sub-text {
-            color: #64748b;
-            font-size: 0.85em;
-            margin-top: 4px;
-        }
     </style>
 </head>
 <body>
@@ -138,7 +132,7 @@
 <div class="container">
     <header>
         <h1>🏛️ Système de Débat IA</h1>
-        <p class="subtitle">Les modèles débattent et le Président tranche.</p>
+        <p class="subtitle">Gemini, Claude, Llama & ChatGPT débattent.</p>
     </header>
 
     <!-- Configuration -->
@@ -150,11 +144,11 @@
 
         <div class="input-group">
             <label for="modelMode">Mode de Modèles</label>
-            <select id="modelMode" onchange="updateModeDisplay()">
-                <option value="low">Économique (Test rapide - Gratuit/Pas cher)</option>
-                <option value="high">Premium (Qualité Maximale - Nécessite des crédits)</option>
+            <select id="modelMode">
+                <option value="low">Économique (Prix réduit - Stable)</option>
+                <option value="high">Premium (Qualité Maximale)</option>
             </select>
-            <div id="modeDescription" class="sub-text"></div>
+            <small style="color: #64748b;">Les IDs ont été corrigés pour la stabilité d'OpenRouter.</small>
         </div>
 
         <div class="input-group">
@@ -186,41 +180,28 @@
 </div>
 
 <script>
-    // --- CONFIGURATION ---
-    // Utilisation d'identifiants (IDs) vérifiés et stables sur OpenRouter.
-    // Grok a été remplacé par Llama 3 car l'ID Grok est trop instable sur l'agrégateur.
+    // --- CONFIGURATION FINALE ---
+    // Utilisation d'IDs vérifiés et stables pour éviter les erreurs 400/404.
     
     const MODEL_SETS = {
         high: {
-            "Gemini": "google/gemini-1.5-pro",         // Correct
-            "Claude": "anthropic/claude-3.5-sonnet",  // Correct
-            "Llama 3 (Grok Substitué)": "meta-llama/llama-3.1-70b-instruct", // Stable et puissant
-            "ChatGPT": "openai/gpt-4o",              // Correct
+            "Gemini": "google/gemini-1.5-pro",          // Stable
+            "Claude": "anthropic/claude-3.5-sonnet",   // Stable
+            "Llama 3": "meta-llama/llama-3.1-70b-instruct", // Stable
+            "ChatGPT": "openai/gpt-4o",                // Stable
             "President": "openai/gpt-4o"
         },
         low: {
-            "Gemini": "google/gemini-1.5-flash",     // CORRIGÉ : flash-1.5 -> 1.5-flash
-            "Claude": "anthropic/claude-3-haiku",    // Correct
-            "Llama 3 (Grok Substitué)": "meta-llama/llama-3.1-8b-instruct:free", // Très économique ou gratuit
-            "ChatGPT": "openai/gpt-3.5-turbo",       // Correct
+            // Remplacement de Flash par Pro pour la stabilité (Flash a des ID variables)
+            "Gemini": "google/gemini-pro-1.5",         
+            "Claude": "anthropic/claude-3-haiku",      
+            "Llama 3": "meta-llama/llama-3.1-8b-instruct", // CORRIGÉ: Suppression de :free
+            "ChatGPT": "openai/gpt-3.5-turbo",         
             "President": "openai/gpt-3.5-turbo"
         }
     };
 
-    const MODE_DESCRIPTIONS = {
-        high: "Utilise GPT-4o, Claude 3.5 et Gemini 1.5 Pro. Coûte environ 0.05$ à 0.10$ par débat.",
-        low: "Utilise GPT-3.5, Claude Haiku et Llama 3. Coût minime ou gratuit."
-    };
-
     // --- FONCTIONS UTILITAIRES ---
-
-    function updateModeDisplay() {
-        const modeKey = document.getElementById('modelMode').value;
-        document.getElementById('modeDescription').textContent = MODE_DESCRIPTIONS[modeKey];
-    }
-
-    // Initialiser l'affichage
-    updateModeDisplay();
 
     function addLog(title, message, type = 'processing') {
         const logsDiv = document.getElementById('logs');
@@ -256,6 +237,8 @@
                     errorMsg += " (Solde insuffisant)";
                 } else if (response.status === 404) {
                     errorMsg += " (ID Modèle incorrect sur OpenRouter)";
+                } else if (response.status === 400) {
+                    errorMsg += " (Mauvaise requête ou ID Invalide)";
                 }
                 
                 if (errorData.error && errorData.error.message) {
@@ -306,7 +289,7 @@
 
         try {
             // --- ÉTAPE 1 : RÉCEPTIONS INITIALES ---
-            addLog("Système", "Démarrage des interrogations...", 'processing');
+            addLog("Système", `Mode ${modeKey === 'high' ? 'Premium' : 'Économique'} activé.`, 'processing');
             
             const initialResponses = {};
             const promises = [];
