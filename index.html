@@ -126,14 +126,10 @@
 
         .hidden { display: none; }
         
-        .mode-badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-            background: #eee;
-            margin-left: 10px;
+        .sub-text {
+            color: #64748b;
+            font-size: 0.85em;
+            margin-top: 4px;
         }
     </style>
 </head>
@@ -148,16 +144,17 @@
     <!-- Configuration -->
     <div class="card">
         <div class="input-group">
-            <label for="apiKey">Clé API OpenRouter <span id="costWarning" style="color:red; font-weight:normal; font-size:0.8em;">(Solde insuffisant détecté ? Utilisez le mode Économique)</span></label>
+            <label for="apiKey">Clé API OpenRouter</label>
             <input type="password" id="apiKey" placeholder="Collez votre clé ici (sk-or-v1-...)" value="">
         </div>
 
         <div class="input-group">
             <label for="modelMode">Mode de Modèles</label>
             <select id="modelMode" onchange="updateModeDisplay()">
-                <option value="low">Économique (Recommandé pour tester - Moins cher)</option>
-                <option value="high">Premium (GPT-4o, Claude 3.5 - Nécessite des crédits)</option>
+                <option value="low">Économique (Test rapide - Gratuit/Pas cher)</option>
+                <option value="high">Premium (Qualité Maximale - Nécessite des crédits)</option>
             </select>
+            <div id="modeDescription" class="sub-text"></div>
         </div>
 
         <div class="input-group">
@@ -190,38 +187,40 @@
 
 <script>
     // --- CONFIGURATION ---
-    // Mettez 'true' pour utiliser les modèles chers (nécessite des crédits OpenRouter)
-    // Mettez 'false' pour utiliser des modèles gratuits ou très peu chers.
-    // Note: Le code détectera automatiquement votre choix dans le menu déroulant.
+    // Utilisation d'identifiants (IDs) vérifiés et stables sur OpenRouter.
+    // Grok a été remplacé par Llama 3 car l'ID Grok est trop instable sur l'agrégateur.
     
     const MODEL_SETS = {
         high: {
-            "Gemini": "google/gemini-1.5-pro",
-            "Claude": "anthropic/claude-3.5-sonnet",
-            "Grok": "x-ai/grok-2",          // ID CORRIGÉ (anciennement beta)
-            "ChatGPT": "openai/gpt-4o",
+            "Gemini": "google/gemini-1.5-pro",         // Correct
+            "Claude": "anthropic/claude-3.5-sonnet",  // Correct
+            "Llama 3 (Grok Substitué)": "meta-llama/llama-3.1-70b-instruct", // Stable et puissant
+            "ChatGPT": "openai/gpt-4o",              // Correct
             "President": "openai/gpt-4o"
         },
         low: {
-            "Gemini": "google/gemini-flash-1.5", // Rapide et souvent gratuit
-            "Claude": "anthropic/claude-3-haiku", // Version économique de Claude
-            "Grok": "x-ai/grok-2",               // Grok n'a pas vraiment de version free, on garde le même mais ça peut échouer si pas de crédits
-            "ChatGPT": "openai/gpt-3.5-turbo",   // Ancien modèle, très peu cher
+            "Gemini": "google/gemini-1.5-flash",     // CORRIGÉ : flash-1.5 -> 1.5-flash
+            "Claude": "anthropic/claude-3-haiku",    // Correct
+            "Llama 3 (Grok Substitué)": "meta-llama/llama-3.1-8b-instruct:free", // Très économique ou gratuit
+            "ChatGPT": "openai/gpt-3.5-turbo",       // Correct
             "President": "openai/gpt-3.5-turbo"
         }
+    };
+
+    const MODE_DESCRIPTIONS = {
+        high: "Utilise GPT-4o, Claude 3.5 et Gemini 1.5 Pro. Coûte environ 0.05$ à 0.10$ par débat.",
+        low: "Utilise GPT-3.5, Claude Haiku et Llama 3. Coût minime ou gratuit."
     };
 
     // --- FONCTIONS UTILITAIRES ---
 
     function updateModeDisplay() {
-        // Fonction pour mettre à jour l'interface si besoin
-        const mode = document.getElementById('modelMode').value;
-        if(mode === 'high') {
-            document.getElementById('costWarning').style.visibility = 'visible';
-        } else {
-            document.getElementById('costWarning').style.visibility = 'hidden';
-        }
+        const modeKey = document.getElementById('modelMode').value;
+        document.getElementById('modeDescription').textContent = MODE_DESCRIPTIONS[modeKey];
     }
+
+    // Initialiser l'affichage
+    updateModeDisplay();
 
     function addLog(title, message, type = 'processing') {
         const logsDiv = document.getElementById('logs');
@@ -254,9 +253,9 @@
                 let errorMsg = `Erreur API ${response.status}`;
                 
                 if (response.status === 402) {
-                    errorMsg += " (Solde insuffisant / Crédits épuisés sur OpenRouter pour ce modèle)";
+                    errorMsg += " (Solde insuffisant)";
                 } else if (response.status === 404) {
-                    errorMsg += " (Modèle introuvable, ID incorrect)";
+                    errorMsg += " (ID Modèle incorrect sur OpenRouter)";
                 }
                 
                 if (errorData.error && errorData.error.message) {
@@ -269,7 +268,7 @@
             return data.choices[0].message.content;
         } catch (error) {
             console.error(error);
-            return `**Erreur critique** avec ${modelName} : ${error.message}`;
+            return `**Erreur** avec ${modelName} : ${error.message}`;
         }
     }
 
@@ -288,7 +287,7 @@
         const modeKey = document.getElementById('modelMode').value;
         const currentModels = MODEL_SETS[modeKey];
         const MODELS = { ...currentModels };
-        delete MODELS.President; // Séparer le président des débatteurs
+        delete MODELS.President; 
         const PRESIDENT_MODEL = currentModels.President;
 
         // Validation
@@ -307,7 +306,7 @@
 
         try {
             // --- ÉTAPE 1 : RÉCEPTIONS INITIALES ---
-            addLog("Système", `Mode ${modeKey === 'high' ? 'Premium' : 'Économique'} activé. Lancement...`, 'processing');
+            addLog("Système", "Démarrage des interrogations...", 'processing');
             
             const initialResponses = {};
             const promises = [];
@@ -323,8 +322,8 @@
 
             results.forEach(res => {
                 initialResponses[res.name] = res.text;
-                const isError = res.text.includes("Erreur critique");
-                addLog(`${res.name} a répondu`, isError ? "Échec (voir carte)" : "Réceptionnée.", isError ? 'error' : 'success');
+                const isError = res.text.includes("Erreur");
+                addLog(`${res.name} a répondu`, isError ? "Échec" : "Réceptionnée.", isError ? 'error' : 'success');
                 
                 const card = document.createElement('div');
                 card.className = 'result-card';
@@ -333,7 +332,7 @@
             });
 
             // --- ÉTAPE 2 : DÉBAT ET CRITIQUE ---
-            addLog("Système", "Construction du contexte pour le débat...", 'processing');
+            addLog("Système", "Analyse mutuelle en cours...", 'processing');
             
             let debateContext = "Voici les réponses de tes collègues à la question précédente :\n\n";
             for (const [name, text] of Object.entries(initialResponses)) {
@@ -355,7 +354,7 @@
 
             critiqueResults.forEach(res => {
                 critiques[res.name] = res.text;
-                addLog(`${res.name} a analysé`, "Critique terminée.", 'success');
+                addLog(`${res.name} a analysé`, "Terminé.", 'success');
 
                 const card = document.createElement('div');
                 card.className = 'result-card';
@@ -364,7 +363,7 @@
             });
 
             // --- ÉTAPE 3 : PRÉSIDENCE ---
-            addLog("Système", "Transmission du dossier complet au Président...", 'processing');
+            addLog("Système", "Synthèse finale par le Président...", 'processing');
 
             let fullTranscript = `QUESTION : ${question}\n\n`;
             fullTranscript += "--- RÉPONSES INITIALES ---\n";
@@ -386,14 +385,14 @@
 
             const finalText = await callOpenRouter("Président", PRESIDENT_MODEL, [{role: "user", content: fullTranscript}], apiKey);
 
-            addLog("Président", "Synthèse finale terminée.", 'success');
+            addLog("Président", "Synthèse terminée.", 'success');
 
             document.getElementById('finalAnswer').innerHTML = renderMarkdown(finalText);
             document.getElementById('resultsArea').classList.remove('hidden');
 
         } catch (err) {
             addLog("Erreur critique", err.message, 'error');
-            alert("Une erreur est survenue : " + err.message);
+            alert("Erreur : " + err.message);
         } finally {
             btn.disabled = false;
             btn.textContent = "Lancer le Débat";
