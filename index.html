@@ -148,7 +148,7 @@
                 <option value="low">Économique (Stable)</option>
                 <option value="high">Premium (Qualité Maximale)</option>
             </select>
-            <small style="color: #64748b;">IDs vérifiés et stables.</small>
+            <small style="color: #64748b;">IDs corrigés (Gemini Exp & Pro Legacy).</small>
         </div>
 
         <div class="input-group">
@@ -181,23 +181,25 @@
 
 <script>
     // --- CONFIGURATION FINALE ---
-    // Utilisation d'IDs vérifiés. 
-    // Pour Gemini, on force l'ID "1.5-pro" standard car l'ID alternatif renvoie 404.
+    // Les IDs Gemini ont été changés pour des versions stables reconnues par OpenRouter.
+    // High: gemini-exp-1206 (Remplacement actuel du 1.5 Pro)
+    // Low: gemini-pro (Version 1.0 Legacy, très stable)
     
     const MODEL_SETS = {
         high: {
-            "Gemini": "google/gemini-1.5-pro",          // Stable
-            "Claude": "anthropic/claude-3.5-sonnet",   // Stable
-            "Llama 3": "meta-llama/llama-3.1-70b-instruct", // Stable
-            "ChatGPT": "openai/gpt-4o",                // Stable
+            // ID corrigé: gemini-exp-1206 est l'ID "Pro" actuel le plus stable sur OpenRouter
+            "Gemini": "google/gemini-exp-1206",
+            "Claude": "anthropic/claude-3.5-sonnet",
+            "Llama 3": "meta-llama/llama-3.1-70b-instruct",
+            "ChatGPT": "openai/gpt-4o",
             "President": "openai/gpt-4o"
         },
         low: {
-            // NOTE: On utilise le même ID que le mode High pour Gemini car l'ID 'gemini-pro-1.5' est cassé.
-            "Gemini": "google/gemini-1.5-pro",         
-            "Claude": "anthropic/claude-3-haiku",      
-            "Llama 3": "meta-llama/llama-3.1-8b-instruct", 
-            "ChatGPT": "openai/gpt-3.5-turbo",         
+            // ID corrigé: gemini-pro (Legacy) fonctionne toujours parfaitement
+            "Gemini": "google/gemini-pro",
+            "Claude": "anthropic/claude-3-haiku",
+            "Llama 3": "meta-llama/llama-3.1-8b-instruct",
+            "ChatGPT": "openai/gpt-3.5-turbo",
             "President": "openai/gpt-3.5-turbo"
         }
     };
