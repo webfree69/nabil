@@ -83,4 +83,37 @@
             ],
             "colorTheme": "dark", "isTransparent": true, "displayMode": "adaptive", "locale": "fr"
             }
-            </script
+            </script>
+        </div>
+    </footer>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            // Options pour l'heure de New York
+            const options = { timeZone: 'America/New York', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+            const nyTimeString = new Intl.DateTimeFormat('fr-FR', options).format(now);
+            document.getElementById('ny-time').innerText = nyTimeString + " (NY)";
+
+            // Logique d'ouverture du marché (15h30 - 22h00 France / 09h30 - 16h00 NY)
+            const nyHour = parseInt(nyTimeString.split(':')[0]);
+            const nyMin = parseInt(nyTimeString.split(':')[1]);
+            const day = now.getDay(); // 0 = Dimanche, 6 = Samedi
+
+            const status = document.getElementById('market-status');
+            const isWeekend = (day === 0 || day === 6);
+            const isBusinessHours = (nyHour > 9 || (nyHour === 9 && nyMin >= 30)) && nyHour < 16;
+
+            if (!isWeekend && isBusinessHours) {
+                status.innerText = "● MARCHÉ OUVERT";
+                status.style.color = "var(--success-color)";
+            } else {
+                status.innerText = "○ MARCHÉ FERMÉ";
+                status.style.color = "var(--warning-color)";
+            }
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>
