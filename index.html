@@ -8,10 +8,11 @@
     <style>
         :root {
             --bg-color: #05070a;
-            --card-bg: #0e1117;
+            --nav-bg: #0e1117;
             --accent-color: #00d4ff;
             --text-color: #e2e8f0;
             --success-color: #00ff88;
+            --border-color: #1e293b;
         }
 
         body, html {
@@ -22,94 +23,68 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* Barre de navigation moderne */
+        /* BARRE DE NAVIGATION */
         nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 30px;
-            background: rgba(14, 17, 23, 0.8);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid #1e293b;
-            height: 40px;
+            padding: 0 30px;
+            background: var(--nav-bg);
+            border-bottom: 1px solid var(--border-color);
+            height: 60px;
+            flex-shrink: 0;
+            z-index: 10;
         }
 
         .logo {
             font-weight: 800;
-            font-size: 1.2rem;
-            letter-spacing: 2px;
+            font-size: 1.1rem;
+            letter-spacing: 3px;
             color: var(--accent-color);
+            text-transform: uppercase;
+        }
+
+        .logo span { color: #ffffff; font-weight: 300; }
+
+        .status-group {
             display: flex;
-            align-items: center;
+            gap: 15px;
         }
 
         .status-badge {
-            font-size: 0.8rem;
-            background: rgba(0, 255, 136, 0.1);
+            font-size: 0.7rem;
+            background: rgba(0, 255, 136, 0.05);
             color: var(--success-color);
-            padding: 5px 12px;
-            border-radius: 20px;
-            border: 1px solid var(--success-color);
+            padding: 6px 14px;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
             display: flex;
             align-items: center;
             gap: 8px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
-        .dot {
-            height: 8px;
-            width: 8px;
+        .pulse {
+            height: 7px;
+            width: 7px;
             background-color: var(--success-color);
             border-radius: 50%;
             display: inline-block;
             box-shadow: 0 0 8px var(--success-color);
+            animation: blink 2s infinite;
         }
 
-        /* Container de l'Iframe */
-        .dashboard-container {
-            width: 100%;
-            height: calc(100vh - 70px); /* Hauteur totale moins la nav */
+        @keyframes blink {
+            0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; }
+        }
+
+        /* CONTAINER DU DASHBOARD */
+        .main-view {
+            flex-grow: 1;
             position: relative;
-        }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: transparent;
-        }
-
-        /* Overlay de chargement discret */
-        .loading-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: -1;
-            color: #475569;
-            font-size: 0.9rem;
-        }
-    </style>
-</head>
-<body>
-
-    <nav>
-        <div class="logo">
-            ALPHA-5 <span style="color:white; margin-left:5px;">SYSTEM</span>
-        </div>
-        <div class="status-badge">
-            <span class="dot"></span> AGENT JULES : CONNECTÉ
-        </div>
-    </nav>
-
-    <div class="dashboard-container">
-        <div class="loading-text">Initialisation des flux Polygon & Alpaca...</div>
-        <iframe 
-            src="https://ton-app.streamlit.app/?embed=true&embed_options=dark_theme" 
-            allowtransparency="true">
-        </iframe>
-    </div>
-
-</body>
-</html>
+            background: var(--bg-color);
