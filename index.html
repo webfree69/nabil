@@ -11,7 +11,7 @@
             background-color: #050505; 
             color: #e5e7eb; 
             font-family: 'Inter', sans-serif;
-            overflow: hidden;
+            overflow-x: hidden;
         }
         .glass-card {
             background: rgba(17, 24, 39, 0.7);
@@ -19,8 +19,13 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .mono { font-family: 'JetBrains Mono', monospace; }
-        .glow-green { box-shadow: 0 0 20px rgba(34, 197, 94, 0.2); }
-        .glow-red { box-shadow: 0 0 20px rgba(239, 68, 68, 0.2); }
+        .glow-green { box-shadow: 0 0 30px rgba(34, 197, 94, 0.15); border-color: rgba(34, 197, 94, 0.4); }
+        .glow-red { box-shadow: 0 0 30px rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.4); }
+        .update-flash { animation: flash 0.5s ease-out; }
+        @keyframes flash {
+            0% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
@@ -28,43 +33,13 @@
     <div class="w-full max-w-md">
         <div class="flex justify-between items-center mb-6 px-2">
             <div>
-                <h1 class="text-2xl font-black tracking-tighter text-white">JULES <span class="text-green-500">V9.0</span></h1>
-                <p class="text-[10px] text-gray-500 uppercase tracking-[0.2em]">Quant Algorithmic Surveillance</p>
+                <h1 class="text-2xl font-black tracking-tighter text-white uppercase italic">Jules <span class="text-green-500 italic">V9.0</span></h1>
+                <p class="text-[10px] text-gray-500 uppercase tracking-[0.2em] font-bold">Station USA • Algorithmic Surveillance</p>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 bg-gray-900/50 px-3 py-1 rounded-full border border-gray-800">
                 <span id="status-dot" class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                <span class="text-[10px] font-bold text-gray-400 uppercase">Live USA</span>
+                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Live</span>
             </div>
         </div>
 
-        <div id="main-card" class="glass-card rounded-[2.5rem] p-8 mb-4 relative overflow-hidden transition-all duration-500">
-            <div class="relative z-10">
-                <div id="symbol-label" class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Scanning Market...</div>
-                <div id="symbol" class="text-6xl font-black tracking-tighter mb-4 text-white italic">---</div>
-                
-                <div class="flex items-baseline gap-2">
-                    <div id="price" class="text-3xl font-bold mono text-blue-400">0.00</div>
-                    <span class="text-sm text-gray-500 font-bold uppercase">USD</span>
-                </div>
-            </div>
-            <div class="absolute top-[-20%] right-[-10%] text-9xl font-black text-white/[0.03] italic select-none">V9</div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-            <div class="glass-card rounded-3xl p-5">
-                <p class="text-[10px] text-gray-500 uppercase font-bold mb-2">Indicateur RSI</p>
-                <div class="flex items-center gap-2">
-                    <span id="rsi-value" class="text-2xl font-black mono">--</span>
-                    <span id="rsi-badge" class="px-2 py-0.5 rounded text-[8px] font-bold uppercase bg-gray-800 text-gray-400">Neutral</span>
-                </div>
-            </div>
-            <div class="glass-card rounded-3xl p-5">
-                <p class="text-[10px] text-gray-500 uppercase font-bold mb-2">Protection</p>
-                <div class="flex items-center gap-2">
-                    <span id="hedge-status" class="text-sm font-black uppercase text-gray-400 tracking-wider text-xl">Désactivée</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="mt-6 text-center">
-            <div id="last-update" class="text-[10px] text-gray-600 font-medium uppercase tracking-widest">Initialisation du flux...</div>
+        <div id="main-card" class
