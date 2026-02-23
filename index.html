@@ -2,44 +2,59 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Alpha-5 | Terminal Quantitatif</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <title>Alpha-5 | Terminal</title>
     <style>
-        :root {
-            --bg-color: #05070a; --nav-bg: #0e1117; --accent-color: #00d4ff;
-            --text-color: #e2e8f0; --success-color: #00ff88; --warning-color: #ffab00;
-            --danger-color: #ff4d4d; --border-color: #1e293b;
-        }
-        html, body { margin: 0; padding: 0; width: 100%; height: 100dvh; background-color: var(--bg-color); color: var(--text-color); font-family: 'Inter', sans-serif; display: flex; flex-direction: column; overflow: hidden; }
-        
-        nav { display: flex; justify-content: space-between; align-items: center; padding: 0 30px; background: var(--nav-bg); border-bottom: 1px solid var(--border-color); min-height: 70px; flex-shrink: 0; z-index: 100; box-sizing: border-box; width: 100%; }
-        .logo { font-weight: 800; font-size: 1.1rem; letter-spacing: 3px; color: var(--accent-color); text-transform: uppercase; }
-        
-        .status-area { display: flex; align-items: center; gap: 20px; }
-        .status-badge { font-size: 0.65rem; padding: 4px 10px; border-radius: 4px; font-weight: 600; display: flex; align-items: center; gap: 6px; white-space: nowrap; border: 1px solid rgba(255,255,255,0.1); }
-        
-        .pulse { height: 6px; width: 6px; border-radius: 50%; animation: blink 2s infinite; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-        
-        .market-clock { text-align: right; border-left: 1px solid var(--border-color); padding-left: 20px; min-width: 140px; }
-        #ny-time { font-size: 1rem; font-weight: 600; color: #fff; }
-        #market-status { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; }
-        
-        .main-view { flex: 1; width: 100%; position: relative; background: var(--bg-color); }
+        body { margin: 0; padding: 0; background: #05070a; color: #e2e8f0; font-family: sans-serif; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: #0e1117; border-bottom: 1px solid #1e293b; height: 60px; }
+        .logo { font-weight: bold; letter-spacing: 2px; color: #00d4ff; }
+        .status-area { display: flex; gap: 20px; align-items: center; }
+        .badge { color: #00ff88; font-size: 0.7rem; border: 1px solid rgba(0,255,136,0.3); padding: 5px 10px; border-radius: 4px; }
+        .clock-box { text-align: right; min-width: 120px; }
+        #ny-time { font-size: 1rem; font-weight: bold; }
+        #market-status { font-size: 0.6rem; color: #ffab00; }
+        main { flex: 1; width: 100%; }
         iframe { width: 100%; height: 100%; border: none; }
-        
-        footer { height: 44px; background: var(--nav-bg); border-top: 1px solid var(--border-color); flex-shrink: 0; overflow: hidden; }
-
-        @media (max-width: 768px) {
-            nav { flex-direction: column; padding: 10px; height: auto; }
-            .status-area { margin-top: 10px; gap: 10px; }
-            .market-clock { border: none; padding: 0; text-align: center; }
-        }
+        footer { height: 40px; background: #0e1117; border-top: 1px solid #1e293b; }
     </style>
 </head>
 <body>
     <nav>
-        <div class="logo">Alpha-5 <span style="font-weight:300; color:white;">Quant System</span></div>
+        <div class="logo">ALPHA-5 QUANT</div>
         <div class="status-area">
-            <div id="jules-status" class="status-badge" style="color: var(--success-color); border-color: rgba(0
+            <div class="badge">● JULES ACTIF</div>
+            <div class="clock-box">
+                <div id="ny-time">00:00:00</div>
+                <div id="market-status">CHARGEMENT...</div>
+            </div>
+        </div>
+    </nav>
+    <main>
+        <iframe src="https://finance-mz6r7cphvjowiqz4py9tzp.streamlit.app/?embed=true"></iframe>
+    </main>
+    <footer>
+        <div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+        {"symbols": [{"proName": "NASDAQ:TSLA", "title": "Tesla"}], "colorTheme": "dark", "isTransparent": true, "displayMode": "adaptive", "locale": "fr"}
+        </script></div>
+    </footer>
+    <script>
+        function update() {
+            const now = new Date();
+            const nyTime = now.toLocaleTimeString("fr-FR", {timeZone: "America/New_York", hour12: false});
+            document.getElementById('ny-time').innerText = nyTime + " NY";
+            
+            const nyDate = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+            const day = nyDate.getDay();
+            const hour = nyDate.getHours();
+            const min = nyDate.getMinutes();
+            const isOpen = (day !== 0 && day !== 6) && ((hour > 9 || (hour === 9 && min >= 30)) && hour < 16);
+            
+            const s = document.getElementById('market-status');
+            s.innerText = isOpen ? "● MARCHÉ OUVERT" : "○ MARCHÉ FERMÉ";
+            s.style.color = isOpen ? "#00ff88" : "#ffab00";
+        }
+        setInterval(update, 1000);
+        update();
+    </script>
+</body>
+</html>
