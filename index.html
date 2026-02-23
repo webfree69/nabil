@@ -2,106 +2,112 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Alpha-5 | Terminal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NabilH - Tour de Contrôle V8.1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --bg: #05070a; --nav: #0e1117; --accent: #00d4ff; --green: #00ff88; --orange: #ffab00;
-        }
-        body { 
-            margin: 0; padding: 0; background: var(--bg); color: #e2e8f0; 
-            font-family: sans-serif; display: flex; flex-direction: column; 
-            height: 100vh; height: 100dvh; width: 100vw; overflow: hidden; 
-        }
-        
-        nav { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 0 15px; background: var(--nav); border-bottom: 1px solid #1e293b; 
-            height: 60px; min-height: 60px; flex-shrink: 0; box-sizing: border-box;
-        }
-        
-        .logo { font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; color: var(--accent); text-transform: uppercase; }
-        
-        .status-area { display: flex; align-items: center; gap: 8px; }
-        .badge { color: var(--green); font-size: 0.6rem; border: 1px solid rgba(0,255,136,0.2); padding: 3px 6px; border-radius: 4px; font-weight: bold; }
-        
-        .clock-box { text-align: right; border-left: 1px solid #1e293b; padding-left: 8px; }
-        #ny-time { font-size: 0.85rem; font-weight: bold; color: #fff; display: block; }
-        #market-status { font-size: 0.55rem; font-weight: bold; }
-        
-        main { flex: 1; width: 100%; position: relative; overflow: hidden; background: #000; }
-        iframe { width: 100%; height: 100%; border: none; }
-        
-        /* FOOTER RELEVÉ : Hauteur augmentée pour une meilleure visibilité */
-        footer { 
-            height: 55px; min-height: 55px; background: var(--nav); 
-            border-top: 1px solid #1e293b; flex-shrink: 0; width: 100%; 
-            padding-bottom: 5px; /* Espace de sécurité pour mobiles */
-        }
-
-        @media (max-width: 400px) {
-            .logo { font-size: 0.7rem; }
-            nav { padding: 0 8px; }
-            footer { height: 60px; min-height: 60px; } /* Encore plus haut sur petit écran */
+        body { background-color: #0a0e14; color: #e2e8f0; }
+        .trading-card { background: linear-gradient(145deg, #111827, #1f2937); border: 1px solid #374151; }
+        .rsi-low { color: #f87171; font-weight: bold; animation: pulse 2s infinite; }
+        .rsi-ok { color: #34d399; }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
         }
     </style>
 </head>
-<body>
-    <nav>
-        <div class="logo">ALPHA-5 QUANT</div>
-        <div class="status-area">
-            <div class="badge">● JULES ACTIF</div>
-            <div class="clock-box">
-                <div id="ny-time">--:--:--</div>
-                <div id="market-status">--</div>
+<body class="p-4 md:p-8">
+    <div class="max-w-5xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500">
+                    JULES QUANT V8.1
+                </h1>
+                <p class="text-gray-400 text-sm">Surveillance Algorithmique Haute Fréquence</p>
+            </div>
+            <div class="text-right">
+                <span id="status-badge" class="px-3 py-1 rounded-full bg-green-900 text-green-300 text-xs font-bold">SYSTÈME ACTIF</span>
             </div>
         </div>
-    </nav>
-    <main>
-        <iframe src="https://finance-mz6r7cphvjowiqz4py9tzp.streamlit.app/?embed=true"></iframe>
-    </main>
-    <footer>
-        <div class="tradingview-widget-container">
-            <div class="tradingview-widget-container__widget"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-            {
-              "symbols": [
-                {"proName": "FOREXCOM:SPX500", "title": "S&P 500"},
-                {"proName": "FOREXCOM:NSXUSD", "title": "Nasdaq 100"},
-                {"proName": "NASDAQ:TSLA", "title": "Tesla"},
-                {"proName": "BINANCE:BTCUSDT", "title": "Bitcoin"},
-                {"proName": "FX_IDC:EURUSD", "title": "EUR/USD"},
-                {"proName": "TVC:GOLD", "title": "Or"}
-              ],
-              "showSymbolLogo": true,
-              "colorTheme": "dark",
-              "isTransparent": true,
-              "displayMode": "adaptive",
-              "locale": "fr"
-            }
-            </script>
+
+        <div class="trading-card rounded-xl overflow-hidden shadow-2xl">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-black/50">
+                    <tr>
+                        <th class="p-4 text-xs font-bold uppercase text-gray-500 tracking-wider">Actif</th>
+                        <th class="p-4 text-xs font-bold uppercase text-gray-500 tracking-wider">Prix Actuel</th>
+                        <th class="p-4 text-xs font-bold uppercase text-gray-500 tracking-wider">RSI (14)</th>
+                        <th class="p-4 text-xs font-bold uppercase text-gray-500 tracking-wider">ATR (Vol)</th>
+                        <th class="p-4 text-xs font-bold uppercase text-gray-500 tracking-wider">Statut</th>
+                    </tr>
+                </thead>
+                <tbody id="trading-body">
+                    <tr class="border-b border-gray-800 hover:bg-white/5 transition">
+                        <td class="p-4 font-bold">TSLA</td><td class="p-4 text-blue-400">---</td><td class="p-4">--</td><td class="p-4 text-gray-500">--</td><td class="p-4 text-xs text-gray-400 italic">SCANNING...</td>
+                    </tr>
+                    <tr class="border-b border-gray-800 hover:bg-white/5 transition">
+                        <td class="p-4 font-bold">NVDA</td><td class="p-4 text-blue-400">---</td><td class="p-4">--</td><td class="p-4 text-gray-500">--</td><td class="p-4 text-xs text-gray-400 italic">SCANNING...</td>
+                    </tr>
+                    <tr class="border-b border-gray-800 hover:bg-white/5 transition">
+                        <td class="p-4 font-bold">AAPL</td><td class="p-4 text-blue-400">---</td><td class="p-4">--</td><td class="p-4 text-gray-500">--</td><td class="p-4 text-xs text-gray-400 italic">SCANNING...</td>
+                    </tr>
+                    <tr class="border-b border-gray-800 hover:bg-white/5 transition">
+                        <td class="p-4 font-bold">MSFT</td><td class="p-4 text-blue-400">---</td><td class="p-4">--</td><td class="p-4 text-gray-500">--</td><td class="p-4 text-xs text-gray-400 italic">SCANNING...</td>
+                    </tr>
+                    <tr class="border-b border-gray-800 hover:bg-white/5 transition">
+                        <td class="p-4 font-bold">AMD</td><td class="p-4 text-blue-400">---</td><td class="p-4">--</td><td class="p-4 text-gray-500">--</td><td class="p-4 text-xs text-gray-400 italic">SCANNING...</td>
+                    </tr>
+                    <tr class="border-b border-gray-800 hover:bg-white/5 transition">
+                        <td class="p-4 font-bold">META</td><td class="p-4 text-blue-400">---</td><td class="p-4">--</td><td class="p-4 text-gray-500">--</td><td class="p-4 text-xs text-gray-400 italic">SCANNING...</td>
+                    </tr>
+                    <tr class="border-b border-gray-800 hover:bg-white/5 transition">
+                        <td class="p-4 font-bold">GOOGL</td><td class="p-4 text-blue-400">---</td><td class="p-4">--</td><td class="p-4 text-gray-500">--</td><td class="p-4 text-xs text-gray-400 italic">SCANNING...</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-    </footer>
+
+        <div class="mt-6 flex justify-between text-xs text-gray-500">
+            <p>Source : Alpaca Real-Time Data</p>
+            <p id="update-time">En attente de synchronisation...</p>
+        </div>
+    </div>
+
     <script>
-        function update() {
+        async function updateDashboard() {
             try {
-                const now = new Date();
-                const nyTime = now.toLocaleTimeString("fr-FR", {timeZone: "America/New_York", hour12: false});
-                document.getElementById('ny-time').innerText = nyTime + " NY";
-                
-                const nyDate = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
-                const day = nyDate.getDay();
-                const hour = nyDate.getHours();
-                const min = nyDate.getMinutes();
-                const isOpen = (day !== 0 && day !== 6) && ((hour > 9 || (hour === 9 && min >= 30)) && hour < 16);
-                
-                const s = document.getElementById('market-status');
-                s.innerText = isOpen ? "● MARCHÉ OUVERT" : "○ MARCHÉ FERMÉ";
-                s.style.color = isOpen ? "#00ff88" : "#ffab00";
-            } catch(e) {}
+                const response = await fetch('status.json');
+                const data = await response.json();
+                const tbody = document.getElementById('trading-body');
+                tbody.innerHTML = '';
+
+                data.assets.forEach(asset => {
+                    const isSignal = asset.rsi < 30;
+                    const rsiClass = isSignal ? 'rsi-low' : 'rsi-ok';
+                    const statusText = isSignal ? 'ACHAT' : 'VEILLE';
+                    const statusColor = isSignal ? 'bg-red-900 text-red-200' : 'bg-gray-800 text-gray-400';
+
+                    tbody.innerHTML += `
+                        <tr class="border-b border-gray-800 hover:bg-white/5 transition">
+                            <td class="p-4 font-bold text-gray-200">${asset.symbol}</td>
+                            <td class="p-4 text-blue-400 font-mono">${asset.price} $</td>
+                            <td class="p-4 ${rsiClass} font-mono">${asset.rsi}</td>
+                            <td class="p-4 text-gray-500 font-mono">${asset.atr || '0.00'}</td>
+                            <td class="p-4">
+                                <span class="px-2 py-1 rounded text-[10px] font-bold ${statusColor}">
+                                    ${statusText}
+                                </span>
+                            </td>
+                        </tr>`;
+                });
+                document.getElementById('update-time').innerText = "Dernier scan : " + (data.update || "Juste maintenant");
+            } catch (e) {
+                console.log("En attente de données...");
+            }
         }
-        setInterval(update, 1000);
-        update();
+        setInterval(updateDashboard, 5000);
+        updateDashboard();
     </script>
 </body>
 </html>
