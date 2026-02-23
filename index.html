@@ -60,50 +60,60 @@
         <iframe src="https://finance-mz6r7cphvjowiqz4py9tzp.streamlit.app/?embed=true&embed_options=dark_theme"></iframe>
     </main>
 
+    <footer>
+        <div class="tradingview-widget-container">
+            <div class="tradingview-widget-container__widget"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+            {
+              "symbols": [
+                {"proName": "FOREXCOM:SPX600", "title": "S&P 500"},
+                {"proName": "BITSTAMP:BTCUSD", "title": "Bitcoin"},
+                {"proName": "NASDAQ:AAPL", "title": "Apple"},
+                {"proName": "NASDAQ:NVDA", "title": "Nvidia"},
+                {"proName": "NASDAQ:TSLA", "title": "Tesla"}
+              ],
+              "colorTheme": "dark", "isTransparent": true, "displayMode": "adaptive", "locale": "fr"
+            }
+            </script>
+        </div>
+    </footer>
+
     <script>
+        // --- SYNCHRONISATION AVEC LE SERVEUR LINUX ---
         async function updateHeartbeat() {
             const julesBadge = document.getElementById('jules-status');
+            const SERVER_IP = "150.241.230.207"; 
+            
             try {
-                const response = await fetch('heartbeat.json?nocache=' + new Date().getTime());
-                if (!response.ok) throw new Error();
+                // Appel vers ton serveur Flask sur le port 5000
+                const response = await fetch(`http://${SERVER_IP}:5000/status`);
+                if (!response.ok) throw new Error("Server not responding");
+                
                 const data = await response.json();
                 
                 const lastSeen = new Date(data.last_seen);
-                const diff = (new Date() - lastSeen) / 1000;
+                const now = new Date();
+                const diffSeconds = (now - lastSeen) / 1000;
 
-                if (diff < 90) { // Moins de 1min30 : Connecté
+                // Si le bot a donné signe de vie il y a moins de 90 secondes
+                if (diffSeconds < 90) { 
                     julesBadge.style.color = "var(--success-color)";
                     julesBadge.style.borderColor = "rgba(0, 255, 136, 0.2)";
                     julesBadge.innerHTML = `<span class="pulse" style="background: var(--success-color);"></span> JULES CONNECTÉ (${data.status})`;
                 } else {
                     julesBadge.style.color = "var(--warning-color)";
                     julesBadge.style.borderColor = "rgba(255, 171, 0, 0.2)";
-                    julesBadge.innerHTML = `<span class="pulse" style="background: var(--warning-color);"></span> JULES EN ATTENTE`;
+                    julesBadge.innerHTML = `<span class="pulse" style="background: var(--warning-color);"></span> JULES EN VEILLE`;
                 }
             } catch (e) {
+                console.log("Erreur de connexion au bot:", e);
                 julesBadge.style.color = "var(--danger-color)";
                 julesBadge.style.borderColor = "rgba(255, 77, 77, 0.2)";
                 julesBadge.innerHTML = `<span class="pulse" style="background: var(--danger-color);"></span> JULES DÉCONNECTÉ`;
             }
         }
 
+        // --- HORLOGE BOURSIÈRE ---
         function updateClock() {
             const now = new Date();
-            const nyTime = now.toLocaleTimeString("fr-FR", { timeZone: "America/New_York", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
-            document.getElementById('ny-time').innerText = nyTime + " (NY)";
-            const parts = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "numeric", hour12: false, weekday: "short" }).formatToParts(now);
-            const day = parts.find(p => p.type === "weekday").value;
-            const hour = parseInt(parts.find(p => p.type === "hour").value);
-            const minute = parseInt(parts.find(p => p.type === "minute").value);
-            const isBiz = (day !== "Sat" && day !== "Sun") && ((hour > 9 || (hour === 9 && minute >= 30)) && hour < 16);
-            const status = document.getElementById('market-status');
-            status.innerText = isBiz ? "● MARCHÉ OUVERT" : "○ MARCHÉ FERMÉ";
-            status.style.color = isBiz ? "var(--success-color)" : "var(--warning-color)";
-        }
-
-        setInterval(updateHeartbeat, 20000);
-        setInterval(updateClock, 1000);
-        updateHeartbeat(); updateClock();
-    </script>
-</body>
-</html>
+            const nyTime = now.toLocaleTimeString("fr-FR", { timeZone: "America/New_York", hour: "2-digit", minute: "2
