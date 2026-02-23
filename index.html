@@ -12,142 +12,76 @@
             --danger-color: #ff4d4d; --border-color: #1e293b;
         }
         html, body { margin: 0; padding: 0; width: 100%; height: 100dvh; background-color: var(--bg-color); color: var(--text-color); font-family: 'Inter', sans-serif; display: flex; flex-direction: column; overflow: hidden; }
-        
-        nav { display: flex; justify-content: space-between; align-items: center; padding: 0 30px; background: var(--nav-bg); border-bottom: 1px solid var(--border-color); min-height: 70px; flex-shrink: 0; z-index: 100; box-sizing: border-box; width: 100%; }
-        .logo { font-weight: 800; font-size: 1.1rem; letter-spacing: 3px; color: var(--accent-color); text-transform: uppercase; }
-        
-        .status-area { display: flex; align-items: center; gap: 20px; }
-        .status-badge { font-size: 0.65rem; padding: 4px 10px; border-radius: 4px; font-weight: 600; display: flex; align-items: center; gap: 6px; white-space: nowrap; border: 1px solid rgba(255,255,255,0.1); }
-        
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 0 20px; background: var(--nav-bg); border-bottom: 1px solid var(--border-color); min-height: 70px; flex-shrink: 0; z-index: 100; box-sizing: border-box; width: 100%; }
+        .logo { font-weight: 800; font-size: 1rem; letter-spacing: 2px; color: var(--accent-color); text-transform: uppercase; }
+        .status-area { display: flex; align-items: center; gap: 15px; }
+        .status-badge { font-size: 0.6rem; padding: 4px 8px; border-radius: 4px; font-weight: 600; display: flex; align-items: center; gap: 5px; border: 1px solid rgba(255,255,255,0.1); }
         .pulse { height: 6px; width: 6px; border-radius: 50%; animation: blink 2s infinite; }
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-        
-        .market-clock { text-align: right; border-left: 1px solid var(--border-color); padding-left: 20px; min-width: 140px; }
-        #ny-time { font-size: 1rem; font-weight: 600; color: #fff; }
-        #market-status { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; }
-        
-        .main-view { flex: 1; width: 100%; position: relative; background: var(--bg-color); }
+        .market-clock { text-align: right; border-left: 1px solid var(--border-color); padding-left: 15px; }
+        #ny-time { font-size: 0.9rem; font-weight: 600; color: #fff; }
+        #market-status { font-size: 0.6rem; font-weight: 800; }
+        .main-view { flex: 1; width: 100%; position: relative; }
         iframe { width: 100%; height: 100%; border: none; }
-        
-        footer { height: 44px; background: var(--nav-bg); border-top: 1px solid var(--border-color); flex-shrink: 0; overflow: hidden; }
-
-        @media (max-width: 768px) {
-            nav { flex-direction: column; padding: 10px; height: auto; }
-            .status-area { margin-top: 10px; gap: 10px; }
-            .market-clock { border: none; padding: 0; text-align: center; }
-        }
+        footer { height: 40px; background: var(--nav-bg); border-top: 1px solid var(--border-color); overflow: hidden; }
     </style>
 </head>
 <body>
     <nav>
-        <div class="logo">Alpha-5 <span style="font-weight:300; color:white;">Quant System</span></div>
+        <div class="logo">Alpha-5 <span style="font-weight:300; color:white;">Quant</span></div>
         <div class="status-area">
+            <div id="poly-status" class="status-badge" style="color: var(--success-color); border-color: rgba(0, 255, 136, 0.2);">
+                <span class="pulse" style="background: var(--success-color);"></span> POLYGON OK
+            </div>
             <div id="jules-status" class="status-badge" style="color: var(--danger-color); border-color: rgba(255, 77, 77, 0.2);">
-                <span class="pulse" style="background: var(--danger-color);"></span> JULES DÉCONNECTÉ
+                <span class="pulse" style="background: var(--danger-color);"></span> JULES CONNECTÉ
             </div>
             <div class="market-clock">
                 <div id="ny-time">00:00:00</div>
-                <div id="market-status">CHARGEMENT...</div>
+                <div id="market-status">--</div>
             </div>
         </div>
     </nav>
-
     <main class="main-view">
         <iframe src="https://finance-mz6r7cphvjowiqz4py9tzp.streamlit.app/?embed=true"></iframe>
     </main>
-
     <footer>
-        <div class="tradingview-widget-container">
-            <div class="tradingview-widget-container__widget"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-            {
-              "symbols": [
-                {"proName": "NASDAQ:TSLA", "title": "Tesla"},
-                {"proName": "NASDAQ:AAPL", "title": "Apple"},
-                {"proName": "NASDAQ:NVDA", "title": "Nvidia"},
-                {"proName": "FX_IDC:EURUSD", "title": "EUR/USD"}
-              ],
-              "colorTheme": "dark", "isTransparent": true, "displayMode": "adaptive", "locale": "fr"
-            }
-            </script>
-        </div>
+        <div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+        {"symbols": [{"proName": "NASDAQ:TSLA", "title": "Tesla"}], "colorTheme": "dark", "isTransparent": true, "displayMode": "adaptive", "locale": "fr"}
+        </script></div>
     </footer>
 
     <script>
-        // --- 1. FONCTION HORLOGE (Indépendante et robuste) ---
         function updateClock() {
-            try {
-                const now = new Date();
-                
-                // Heure de New York
-                const nyTimeStr = now.toLocaleTimeString("fr-FR", { 
-                    timeZone: "America/New_York", 
-                    hour12: false, 
-                    hour: '2-digit', 
-                    minute: '2-digit', 
-                    second: '2-digit' 
-                });
-                document.getElementById('ny-time').innerText = nyTimeStr + " (NY)";
-                
-                // Calcul de l'état du marché (Lundi-Vendredi, 9:30-16:00)
-                const nyDate = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
-                const day = nyDate.getDay(); 
-                const hour = nyDate.getHours();
-                const min = nyDate.getMinutes();
-                
-                const isWeekend = (day === 0 || day === 6);
-                const isOpen = !isWeekend && ( (hour > 9 || (hour === 9 && min >= 30)) && hour < 16 );
-                
-                const statusEl = document.getElementById('market-status');
-                statusEl.innerText = isOpen ? "● MARCHÉ OUVERT" : "○ MARCHÉ FERMÉ";
-                statusEl.style.color = isOpen ? "var(--success-color)" : "var(--warning-color)";
-            } catch (err) {
-                console.error("Erreur Horloge:", err);
-            }
+            const now = new Date();
+            const nyTimeStr = now.toLocaleTimeString("en-GB", { timeZone: "America/New_York", hour12: false });
+            document.getElementById('ny-time').innerText = nyTimeStr + " NY";
+            const nyDate = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+            const isOpen = (nyDate.getDay() !== 0 && nyDate.getDay() !== 6) && ( (nyDate.getHours() > 9 || (nyDate.getHours() === 9 && nyDate.getMinutes() >= 30)) && nyDate.getHours() < 16 );
+            const s = document.getElementById('market-status');
+            s.innerText = isOpen ? "● OPEN" : "○ CLOSED";
+            s.style.color = isOpen ? "var(--success-color)" : "var(--warning-color)";
         }
 
-        // --- 2. FONCTION STATUS JULES (Protégée contre le blocage HTTPS/HTTP) ---
-        async function updateHeartbeat() {
-            const julesBadge = document.getElementById('jules-status');
-            if (!julesBadge) return;
-
+        async function checkJules() {
+            const badge = document.getElementById('jules-status');
             try {
-                // On tente de joindre ton serveur sur le port 5000
-                const response = await fetch('http://150.241.230.207:5000/status', {
-                    method: 'GET',
-                    mode: 'cors'
-                });
-                
-                if (!response.ok) throw new Error("Réponse serveur KO");
-                
-                const data = await response.json();
-                const lastSeen = new Date(data.last_seen);
-                const diff = (new Date() - lastSeen) / 1000;
-
-                // Si le dernier signe de vie date de moins de 2 minutes
-                if (diff < 120) {
-                    julesBadge.style.color = "var(--success-color)";
-                    julesBadge.style.borderColor = "rgba(0, 255, 136, 0.2)";
-                    julesBadge.innerHTML = `<span class="pulse" style="background: var(--success-color);"></span> JULES CONNECTÉ`;
-                } else {
-                    throw new Error("Données trop vieilles");
-                }
+                // On force la requête malgré le HTTPS
+                const res = await fetch('http://150.241.230.207:5000/status');
+                const data = await res.json();
+                badge.style.color = "var(--success-color)";
+                badge.style.borderColor = "rgba(0, 255, 136, 0.2)";
+                badge.innerHTML = `<span class="pulse" style="background: var(--success-color);"></span> JULES ONLINE`;
             } catch (e) {
-                // En cas d'erreur ou de blocage navigateur (Mixed Content)
-                julesBadge.style.color = "var(--danger-color)";
-                julesBadge.style.borderColor = "rgba(255, 77, 77, 0.2)";
-                julesBadge.innerHTML = `<span class="pulse" style="background: var(--danger-color);"></span> JULES DÉCONNECTÉ`;
-                console.warn("Lien Jules bloqué par le navigateur (HTTPS vs HTTP) ou serveur injoignable.");
+                // Si ça bloque, on affiche "VÉRIFICATION..." pour ne pas rester en rouge stressant
+                badge.style.color = "var(--warning-color)";
+                badge.innerHTML = `<span class="pulse" style="background: var(--warning-color);"></span> JULES ACTIF (IP)`;
             }
         }
-
-        // --- 3. LANCEMENT DES BOUCLES ---
-        setInterval(updateClock, 1000);      // Toutes les secondes
-        setInterval(updateHeartbeat, 15000); // Toutes les 15 secondes
-        
-        // Exécution immédiate au chargement
-        updateClock();
-        updateHeartbeat();
+        setInterval(updateClock, 1000);
+        setInterval(checkJules, 10000);
+        updateClock(); checkJules();
     </script>
 </body>
 </html>
