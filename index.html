@@ -61,12 +61,12 @@
     </div>
 
     <script>
-        // Version jsDelivr sans proxy complexe
-        const URL = 'https://cdn.jsdelivr.net/gh/nabs75/trading@main/data.json';
+        // Utilisation de raw.githubusercontent.com pour avoir les données en temps réel (sans cache jsDelivr)
+        const URL = 'https://raw.githubusercontent.com/nabs75/trading/main/data.json';
 
         async function update() {
             try {
-                // Le ?t= force le rafraîchissement
+                // Le ?t= force le rafraîchissement (évite le cache navigateur)
                 const res = await fetch(URL + '?t=' + Date.now());
                 const data = await res.json();
 
