@@ -3,15 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>JULES V9.0 | QUANT TERMINAL</title>
+    <title>JULES V9.0 | TERMINAL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #050505; color: #fff; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+        body { background-color: #050505; color: #fff; font-family: 'Inter', sans-serif; }
         .mono { font-family: 'JetBrains Mono', monospace; }
-        .card { background: #0f0f0f; border: 1px solid #1f1f1f; border-radius: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .update-flash { animation: flash 0.5s ease-out; }
-        @keyframes flash { 0% { opacity: 0.4; } 100% { opacity: 1; } }
+        .card { background: #0f0f0f; border: 1px solid #1f1f1f; border-radius: 2rem; }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-6">
@@ -19,19 +17,19 @@
     <div class="w-full max-w-sm">
         <div class="flex justify-between items-center mb-8 px-2">
             <div>
-                <h1 class="text-xl font-black italic tracking-tighter uppercase leading-none">JULES <span class="text-green-500">V9.0</span></h1>
+                <h1 class="text-xl font-black italic tracking-tighter uppercase leading-none italic">JULES <span class="text-green-500 italic">V9.0</span></h1>
                 <p class="text-[8px] text-gray-500 font-bold uppercase tracking-[0.3em] mt-1">Station USA • Quant Algorithm</p>
             </div>
             <div class="bg-white/5 border border-white/10 px-3 py-1.5 rounded-full flex items-center gap-2">
-                <div id="led" class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
-                <span class="text-[8px] font-black uppercase tracking-widest text-gray-400">Live Stream</span>
+                <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                <span class="text-[8px] font-black uppercase tracking-widest text-gray-400 font-bold">Live Stream</span>
             </div>
         </div>
 
         <div class="card p-8 mb-4 relative overflow-hidden border-t-2 border-t-blue-600/30">
             <div class="relative z-10">
-                <div id="sym-label" class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1 italic">Recherche de signal...</div>
-                <div id="sym" class="text-6xl font-black italic tracking-tighter mb-4 leading-none transition-all duration-500">---</div>
+                <div id="sym-label" class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1 italic font-bold uppercase">Signal Détecté</div>
+                <div id="sym" class="text-6xl font-black italic tracking-tighter mb-4 leading-none italic uppercase">---</div>
                 
                 <div class="flex items-baseline gap-2">
                     <div id="val" class="text-4xl font-bold mono text-blue-400 tracking-tighter">0.00</div>
@@ -43,51 +41,40 @@
 
         <div class="grid grid-cols-2 gap-4">
             <div class="card p-5 border-l-2 border-l-green-600/20">
-                <p class="text-[8px] text-gray-600 uppercase font-black mb-2 tracking-widest">RSI Relative</p>
+                <p class="text-[8px] text-gray-600 uppercase font-black mb-2 tracking-widest font-bold uppercase">RSI (14)</p>
                 <div class="flex flex-col">
-                    <span id="rsi" class="text-2xl font-bold mono tracking-tighter">--</span>
-                    <span id="rsi-msg" class="text-[7px] font-bold uppercase text-gray-700 mt-1 italic">Sync...</span>
+                    <span id="rsi" class="text-2xl font-bold mono tracking-tighter italic">--</span>
+                    <span id="rsi-msg" class="text-[7px] font-bold uppercase text-gray-700 mt-1 italic uppercase font-bold">Sync...</span>
                 </div>
             </div>
             <div class="card p-5 border-l-2 border-l-purple-600/20">
-                <p class="text-[8px] text-gray-600 uppercase font-black mb-2 tracking-widest">Hedging Mode</p>
+                <p class="text-[8px] text-gray-600 uppercase font-black mb-2 tracking-widest font-bold uppercase">Protection</p>
                 <div class="flex flex-col">
-                    <span id="hdg" class="text-sm font-black uppercase text-gray-700 mt-1">Standby</span>
-                    <span class="text-[7px] font-bold uppercase text-gray-800 italic">Protection</span>
+                    <span id="hdg" class="text-sm font-black uppercase text-gray-700 mt-1 font-bold uppercase">VEILLE</span>
                 </div>
             </div>
         </div>
 
         <div class="mt-8 flex flex-col items-center gap-3">
-            <p id="clock" class="text-[9px] text-gray-700 mono uppercase tracking-widest font-bold tracking-tighter">Initialisation Liaison...</p>
+            <p id="clock" class="text-[9px] text-gray-700 mono uppercase tracking-widest font-bold tracking-tighter italic uppercase">Connexion au VPS...</p>
         </div>
     </div>
 
     <script>
-        // Utilisation du proxy AllOrigins pour contourner le blocage CORS de GitHub
         const TARGET_URL = 'https://raw.githubusercontent.com/nabs75/trading/main/data.json';
         const PROXY_URL = 'https://api.allorigins.win/get?url=' + encodeURIComponent(TARGET_URL);
 
         async function updateTerminal() {
             try {
-                // On force le rafraîchissement avec un timestamp
-                const response = await fetch(`${PROXY_URL}&t=${Date.now()}`);
-                if (!response.ok) throw new Error();
-                
+                // On ajoute un timestamp pour briser le cache
+                const response = await fetch(PROXY_URL + '&t=' + Date.now());
                 const json = await response.json();
-                // Le contenu est dans json.contents sous forme de chaîne de caractères
+                
+                // On récupère le contenu brut et on le convertit en objet JS
                 const data = JSON.parse(json.contents);
 
-                // Mise à jour UI
-                const symEl = document.getElementById('sym');
-                const valEl = document.getElementById('val');
-                
-                symEl.innerText = data.symbol;
-                valEl.innerText = data.price.toLocaleString('en-US', {minimumFractionDigits: 2});
-                document.getElementById('rsi').innerText = data.rsi.toFixed(1);
-                document.getElementById('clock').innerText = "Last Sync: " + data.time + " (USA)";
-                document.getElementById('sym-label').innerText = "Signal Détecté";
-
-                // Effet visuel lors du changement
-                valEl.classList.add('update-flash');
-                setTimeout(() => valEl.classList.remove('update-flash'), 500);
+                if (data && data.symbol) {
+                    document.getElementById('sym').innerText = data.symbol;
+                    document.getElementById('val').innerText = Number(data.price).toLocaleString('en-US', {minimumFractionDigits: 2});
+                    document.getElementById('rsi').innerText = Number(data.rsi).toFixed(1);
+                    document.getElementById('clock').innerText = "Sync: " +
