@@ -10,7 +10,8 @@
         body { background-color: #050505; color: #fff; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
         .mono { font-family: 'JetBrains Mono', monospace; }
         .card { background: #0f0f0f; border: 1px solid #1f1f1f; border-radius: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .glow-text { text-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
+        .update-flash { animation: flash 0.5s ease-out; }
+        @keyframes flash { 0% { opacity: 0.4; } 100% { opacity: 1; } }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-6">
@@ -33,14 +34,60 @@
                 <div id="sym" class="text-6xl font-black italic tracking-tighter mb-4 leading-none transition-all duration-500">---</div>
                 
                 <div class="flex items-baseline gap-2">
-                    <div id="val" class="text-4xl font-bold mono text-blue-400 tracking-tighter glow-text">0.00</div>
+                    <div id="val" class="text-4xl font-bold mono text-blue-400 tracking-tighter">0.00</div>
                     <span class="text-[10px] font-bold text-gray-600 mono uppercase">USD</span>
                 </div>
             </div>
-            <div class="absolute -right-4 -bottom-4 text-8xl font-black text-white/[0.02] italic">V9</div>
+            <div class="absolute -right-4 -bottom-4 text-8xl font-black text-white/[0.02] italic uppercase">V9</div>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
             <div class="card p-5 border-l-2 border-l-green-600/20">
                 <p class="text-[8px] text-gray-600 uppercase font-black mb-2 tracking-widest">RSI Relative</p>
-                <div class="flex flex-
+                <div class="flex flex-col">
+                    <span id="rsi" class="text-2xl font-bold mono tracking-tighter">--</span>
+                    <span id="rsi-msg" class="text-[7px] font-bold uppercase text-gray-700 mt-1 italic">Sync...</span>
+                </div>
+            </div>
+            <div class="card p-5 border-l-2 border-l-purple-600/20">
+                <p class="text-[8px] text-gray-600 uppercase font-black mb-2 tracking-widest">Hedging Mode</p>
+                <div class="flex flex-col">
+                    <span id="hdg" class="text-sm font-black uppercase text-gray-700 mt-1">Standby</span>
+                    <span class="text-[7px] font-bold uppercase text-gray-800 italic">Protection</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 flex flex-col items-center gap-3">
+            <p id="clock" class="text-[9px] text-gray-700 mono uppercase tracking-widest font-bold tracking-tighter">Initialisation Liaison...</p>
+        </div>
+    </div>
+
+    <script>
+        // Utilisation du proxy AllOrigins pour contourner le blocage CORS de GitHub
+        const TARGET_URL = 'https://raw.githubusercontent.com/nabs75/trading/main/data.json';
+        const PROXY_URL = 'https://api.allorigins.win/get?url=' + encodeURIComponent(TARGET_URL);
+
+        async function updateTerminal() {
+            try {
+                // On force le rafraîchissement avec un timestamp
+                const response = await fetch(`${PROXY_URL}&t=${Date.now()}`);
+                if (!response.ok) throw new Error();
+                
+                const json = await response.json();
+                // Le contenu est dans json.contents sous forme de chaîne de caractères
+                const data = JSON.parse(json.contents);
+
+                // Mise à jour UI
+                const symEl = document.getElementById('sym');
+                const valEl = document.getElementById('val');
+                
+                symEl.innerText = data.symbol;
+                valEl.innerText = data.price.toLocaleString('en-US', {minimumFractionDigits: 2});
+                document.getElementById('rsi').innerText = data.rsi.toFixed(1);
+                document.getElementById('clock').innerText = "Last Sync: " + data.time + " (USA)";
+                document.getElementById('sym-label').innerText = "Signal Détecté";
+
+                // Effet visuel lors du changement
+                valEl.classList.add('update-flash');
+                setTimeout(() => valEl.classList.remove('update-flash'), 500);
