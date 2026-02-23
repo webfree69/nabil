@@ -3,111 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NabilH - Tour de Contrôle V8.1</title>
+    <title>JULES V9 | LIVE</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background-color: #0a0e14; color: #e2e8f0; }
-        .trading-card { background: linear-gradient(145deg, #111827, #1f2937); border: 1px solid #374151; }
-        .rsi-low { color: #f87171; font-weight: bold; animation: pulse 2s infinite; }
-        .rsi-ok { color: #34d399; }
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-    </style>
 </head>
-<body class="p-4 md:p-8">
-    <div class="max-w-5xl mx-auto">
-        <div class="flex justify-between items-center mb-8">
-            <div>
-                <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500">
-                    JULES QUANT V8.1
-                </h1>
-                <p class="text-gray-400 text-sm">Surveillance Algorithmique Haute Fréquence</p>
-            </div>
-            <div class="text-right">
-                <span id="status-badge" class="px-3 py-1 rounded-full bg-green-900 text-green-300 text-xs font-bold">SYSTÈME ACTIF</span>
-            </div>
+<body class="bg-black text-white p-6">
+    <div class="max-w-md mx-auto bg-gray-900 rounded-3xl p-8 border border-gray-800 shadow-2xl">
+        <h1 class="text-green-500 font-black text-2xl mb-4 italic">JULES V9.0</h1>
+        <div class="border-l-4 border-blue-500 pl-4 mb-6">
+            <div id="symbol" class="text-4xl font-bold tracking-tighter">CHARGEMENT...</div>
+            <div id="price" class="text-2xl text-blue-400 font-mono">0.00 $</div>
         </div>
-
-        <div class="trading-card rounded-xl overflow-hidden shadow-2xl">
-            <table class="w-full text-left border-collapse">
-                <thead class="bg-black/50">
-                    <tr>
-                        <th class="p-4 text-xs font-bold uppercase text-gray-500 tracking-wider">Actif</th>
-                        <th class="p-4 text-xs font-bold uppercase text-gray-500 tracking-wider">Prix Actuel</th>
-                        <th class="p-4 text-xs font-bold uppercase text-gray-500 tracking-wider">RSI (14)</th>
-                        <th class="p-4 text-xs font-bold uppercase text-gray-500 tracking-wider">ATR (Vol)</th>
-                        <th class="p-4 text-xs font-bold uppercase text-gray-500 tracking-wider">Statut</th>
-                    </tr>
-                </thead>
-                <tbody id="trading-body">
-                    <tr class="border-b border-gray-800 hover:bg-white/5 transition">
-                        <td class="p-4 font-bold">TSLA</td><td class="p-4 text-blue-400">---</td><td class="p-4">--</td><td class="p-4 text-gray-500">--</td><td class="p-4 text-xs text-gray-400 italic">SCANNING...</td>
-                    </tr>
-                    <tr class="border-b border-gray-800 hover:bg-white/5 transition">
-                        <td class="p-4 font-bold">NVDA</td><td class="p-4 text-blue-400">---</td><td class="p-4">--</td><td class="p-4 text-gray-500">--</td><td class="p-4 text-xs text-gray-400 italic">SCANNING...</td>
-                    </tr>
-                    <tr class="border-b border-gray-800 hover:bg-white/5 transition">
-                        <td class="p-4 font-bold">AAPL</td><td class="p-4 text-blue-400">---</td><td class="p-4">--</td><td class="p-4 text-gray-500">--</td><td class="p-4 text-xs text-gray-400 italic">SCANNING...</td>
-                    </tr>
-                    <tr class="border-b border-gray-800 hover:bg-white/5 transition">
-                        <td class="p-4 font-bold">MSFT</td><td class="p-4 text-blue-400">---</td><td class="p-4">--</td><td class="p-4 text-gray-500">--</td><td class="p-4 text-xs text-gray-400 italic">SCANNING...</td>
-                    </tr>
-                    <tr class="border-b border-gray-800 hover:bg-white/5 transition">
-                        <td class="p-4 font-bold">AMD</td><td class="p-4 text-blue-400">---</td><td class="p-4">--</td><td class="p-4 text-gray-500">--</td><td class="p-4 text-xs text-gray-400 italic">SCANNING...</td>
-                    </tr>
-                    <tr class="border-b border-gray-800 hover:bg-white/5 transition">
-                        <td class="p-4 font-bold">META</td><td class="p-4 text-blue-400">---</td><td class="p-4">--</td><td class="p-4 text-gray-500">--</td><td class="p-4 text-xs text-gray-400 italic">SCANNING...</td>
-                    </tr>
-                    <tr class="border-b border-gray-800 hover:bg-white/5 transition">
-                        <td class="p-4 font-bold">GOOGL</td><td class="p-4 text-blue-400">---</td><td class="p-4">--</td><td class="p-4 text-gray-500">--</td><td class="p-4 text-xs text-gray-400 italic">SCANNING...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="mt-6 flex justify-between text-xs text-gray-500">
-            <p>Source : Alpaca Real-Time Data</p>
-            <p id="update-time">En attente de synchronisation...</p>
-        </div>
+        <div class="text-[10px] text-gray-500 uppercase tracking-widest" id="time">Initialisation...</div>
     </div>
 
     <script>
-        async function updateDashboard() {
+        async function update() {
             try {
-                const response = await fetch('status.json');
-                const data = await response.json();
-                const tbody = document.getElementById('trading-body');
-                tbody.innerHTML = '';
-
-                data.assets.forEach(asset => {
-                    const isSignal = asset.rsi < 30;
-                    const rsiClass = isSignal ? 'rsi-low' : 'rsi-ok';
-                    const statusText = isSignal ? 'ACHAT' : 'VEILLE';
-                    const statusColor = isSignal ? 'bg-red-900 text-red-200' : 'bg-gray-800 text-gray-400';
-
-                    tbody.innerHTML += `
-                        <tr class="border-b border-gray-800 hover:bg-white/5 transition">
-                            <td class="p-4 font-bold text-gray-200">${asset.symbol}</td>
-                            <td class="p-4 text-blue-400 font-mono">${asset.price} $</td>
-                            <td class="p-4 ${rsiClass} font-mono">${asset.rsi}</td>
-                            <td class="p-4 text-gray-500 font-mono">${asset.atr || '0.00'}</td>
-                            <td class="p-4">
-                                <span class="px-2 py-1 rounded text-[10px] font-bold ${statusColor}">
-                                    ${statusText}
-                                </span>
-                            </td>
-                        </tr>`;
-                });
-                document.getElementById('update-time').innerText = "Dernier scan : " + (data.update || "Juste maintenant");
-            } catch (e) {
-                console.log("En attente de données...");
-            }
+                const r = await fetch('data.json');
+                const d = await r.json();
+                document.getElementById('symbol').innerText = d.symbol;
+                document.getElementById('price').innerText = d.price + " $";
+                document.getElementById('time').innerText = "Last update: " + d.time;
+            } catch(e) {}
         }
-        setInterval(updateDashboard, 5000);
-        updateDashboard();
+        setInterval(update, 5000);
     </script>
 </body>
 </html>
