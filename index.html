@@ -3,136 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Alpha-5 | Terminal de Trading Quantitatif</title>
+    <title>Alpha-5 | Terminal Quantitatif</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #05070a;
-            --nav-bg: #0e1117;
-            --accent-color: #00d4ff;
-            --text-color: #e2e8f0;
-            --success-color: #00ff88;
-            --warning-color: #ffab00;
-            --border-color: #1e293b;
+            --bg-color: #05070a; --nav-bg: #0e1117; --accent-color: #00d4ff;
+            --text-color: #e2e8f0; --success-color: #00ff88; --warning-color: #ffab00;
+            --danger-color: #ff4d4d; --border-color: #1e293b;
         }
 
-        /* 1. CORRECTION ICI : On sépare html et body */
-        html {
-            height: 100%;
-            width: 100%;
-            background-color: var(--bg-color);
-        }
+        html, body { margin: 0; padding: 0; width: 100%; height: 100dvh; background-color: var(--bg-color); color: var(--text-color); font-family: 'Inter', sans-serif; display: flex; flex-direction: column; overflow: hidden; }
 
-        body {
-            margin: 0; padding: 0; 
-            min-height: 100%;
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex; 
-            flex-direction: column; /* Le body devient la vraie colonne vertébrale */
-            overflow: hidden; /* Cache les barres de défilement globales */
-        }
-
-        nav {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 30px; background: var(--nav-bg);
-            border-bottom: 1px solid var(--border-color);
-            min-height: 70px;
-            flex-shrink: 0; /* Interdit au menu de s'écraser */
-            z-index: 100;
-            box-sizing: border-box;
-            width: 100%;
-        }
-
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 0 30px; background: var(--nav-bg); border-bottom: 1px solid var(--border-color); min-height: 70px; flex-shrink: 0; z-index: 100; box-sizing: border-box; width: 100%; }
         .logo { font-weight: 800; font-size: 1.1rem; letter-spacing: 3px; color: var(--accent-color); text-transform: uppercase; }
         .logo span { color: #ffffff; font-weight: 300; }
 
         .status-area { display: flex; align-items: center; gap: 20px; }
+        .status-badge { font-size: 0.65rem; padding: 4px 10px; border-radius: 4px; font-weight: 600; display: flex; align-items: center; gap: 6px; white-space: nowrap; border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s; }
 
-        .status-badge {
-            font-size: 0.65rem;
-            color: var(--success-color);
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-weight: 600;
-            display: flex; align-items: center; gap: 6px;
-            white-space: nowrap;
-        }
-
-        .pulse { height: 6px; width: 6px; background: var(--success-color); border-radius: 50%; animation: blink 2s infinite; }
+        .pulse { height: 6px; width: 6px; border-radius: 50%; animation: blink 2s infinite; }
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
-        .market-clock {
-            text-align: right;
-            border-left: 1px solid var(--border-color);
-            padding-left: 20px;
-            min-width: 120px;
-        }
-
+        .market-clock { text-align: right; border-left: 1px solid var(--border-color); padding-left: 20px; min-width: 120px; }
         #ny-time { font-size: 1rem; font-weight: 600; color: #fff; }
-        #market-status { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        #market-status { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; }
 
-        /* 2. CORRECTION DE LA VUE PRINCIPALE (Iframe) */
-        .main-view { 
-            flex-grow: 1; 
-            position: relative; 
-            background: var(--bg-color); 
-            width: 100%; 
-            display: flex; /* Aide le conteneur à gérer l'iframe sur iOS */
-        }
-        
-        iframe { 
-            position: absolute; 
-            top: 0; left: 0; right: 0; bottom: 0; 
-            width: 100%; height: 100%; 
-            border: none; 
-        }
-        
-        footer { height: 44px; background: var(--nav-bg); border-top: 1px solid var(--border-color); flex-shrink: 0; width: 100%; overflow: hidden;}
+        .main-view { flex: 1; width: 100%; position: relative; background: var(--bg-color); }
+        iframe { width: 100%; height: 100%; border: none; }
+        footer { height: 44px; background: var(--nav-bg); border-top: 1px solid var(--border-color); flex-shrink: 0; width: 100%; }
 
-        /* ========================================= */
-        /* 📱 RESPONSIVE DESIGN (TÉLÉPHONES)         */
-        /* ========================================= */
         @media (max-width: 768px) {
-            nav {
-                flex-direction: column;
-                padding: 15px 10px;
-                gap: 15px;
-            }
-
-            .logo {
-                text-align: center;
-                font-size: 1rem;
-            }
-
-            .status-area {
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 10px;
-                width: 100%;
-            }
-
-            .market-clock {
-                text-align: center;
-                border-left: none;
-                border-top: 1px solid var(--border-color);
-                padding-left: 0;
-                padding-top: 10px;
-                width: 100%;
-            }
+            nav { flex-direction: column; padding: 15px 10px; gap: 15px; }
+            .status-area { flex-wrap: wrap; justify-content: center; width: 100%; }
+            .market-clock { text-align: center; border: none; border-top: 1px solid var(--border-color); width: 100%; padding: 10px 0 0 0; }
         }
     </style>
 </head>
 <body>
-
     <nav>
         <div class="logo">Alpha-5 <span>Quant System</span></div>
-        
         <div class="status-area">
-            <div class="status-badge"><span class="pulse"></span> POLYGON ACTIF</div>
-            <div class="status-badge"><span class="pulse"></span> JULES CONNECTÉ</div>
+            <div id="polygon-status" class="status-badge" style="color: var(--success-color); border-color: rgba(0, 255, 136, 0.2);">
+                <span class="pulse" style="background: var(--success-color);"></span> POLYGON ACTIF
+            </div>
+            <div id="jules-status" class="status-badge" style="color: var(--danger-color); border-color: rgba(255, 77, 77, 0.2);">
+                <span class="pulse" style="background: var(--danger-color);"></span> JULES DÉCONNECTÉ
+            </div>
             <div class="market-clock">
                 <div id="ny-time">--:--:--</div>
                 <div id="market-status">CHARGEMENT...</div>
@@ -141,71 +57,53 @@
     </nav>
 
     <main class="main-view">
-        <iframe src="https://finance-mz6r7cphvjowiqz4py9tzp.streamlit.app/?embed=true&embed_options=dark_theme" allowtransparency="true"></iframe>
+        <iframe src="https://finance-mz6r7cphvjowiqz4py9tzp.streamlit.app/?embed=true&embed_options=dark_theme"></iframe>
     </main>
 
-    <footer>
-        <div class="tradingview-widget-container">
-            <div class="tradingview-widget-container__widget"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-            {
-            "symbols": [
-                {"proName": "FOREXCOM:SPX600", "title": "S&P 500"},
-                {"proName": "BITSTAMP:BTCUSD", "title": "Bitcoin"},
-                {"proName": "NASDAQ:AAPL", "title": "Apple"},
-                {"proName": "NASDAQ:NVDA", "title": "Nvidia"},
-                {"proName": "NASDAQ:TSLA", "title": "Tesla"}
-            ],
-            "colorTheme": "dark", "isTransparent": true, "displayMode": "adaptive", "locale": "fr"
-            }
-            </script>
-        </div>
-    </footer>
-
     <script>
-        function updateClock() {
+        async function updateHeartbeat() {
+            const julesBadge = document.getElementById('jules-status');
             try {
-                const now = new Date();
-                const nyTime = now.toLocaleTimeString("fr-FR", {
-                    timeZone: "America/New_York",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    second: "2-digit",
-                    hour12: false
-                });
+                const response = await fetch('heartbeat.json?nocache=' + new Date().getTime());
+                if (!response.ok) throw new Error();
+                const data = await response.json();
                 
-                document.getElementById('ny-time').innerText = nyTime + " (NY)";
+                const lastSeen = new Date(data.last_seen);
+                const diff = (new Date() - lastSeen) / 1000;
 
-                const formatter = new Intl.DateTimeFormat("en-US", {
-                    timeZone: "America/New_York",
-                    hour: "numeric",
-                    minute: "numeric",
-                    hour12: false,
-                    weekday: "short"
-                });
-                
-                const parts = formatter.formatToParts(now);
-                const day = parts.find(p => p.type === "weekday").value;
-                const hour = parseInt(parts.find(p => p.type === "hour").value);
-                const minute = parseInt(parts.find(p => p.type === "minute").value);
-
-                const status = document.getElementById('market-status');
-                const isWeekend = (day === "Sat" || day === "Sun");
-                const isBusinessHours = (hour > 9 || (hour === 9 && minute >= 30)) && hour < 16;
-
-                if (!isWeekend && isBusinessHours) {
-                    status.innerText = "● MARCHÉ OUVERT";
-                    status.style.color = "var(--success-color)";
+                if (diff < 90) { // Moins de 1min30 : Connecté
+                    julesBadge.style.color = "var(--success-color)";
+                    julesBadge.style.borderColor = "rgba(0, 255, 136, 0.2)";
+                    julesBadge.innerHTML = `<span class="pulse" style="background: var(--success-color);"></span> JULES CONNECTÉ (${data.status})`;
                 } else {
-                    status.innerText = "○ MARCHÉ FERMÉ";
-                    status.style.color = "var(--warning-color)";
+                    julesBadge.style.color = "var(--warning-color)";
+                    julesBadge.style.borderColor = "rgba(255, 171, 0, 0.2)";
+                    julesBadge.innerHTML = `<span class="pulse" style="background: var(--warning-color);"></span> JULES EN ATTENTE`;
                 }
             } catch (e) {
-                console.log("Erreur horloge:", e);
+                julesBadge.style.color = "var(--danger-color)";
+                julesBadge.style.borderColor = "rgba(255, 77, 77, 0.2)";
+                julesBadge.innerHTML = `<span class="pulse" style="background: var(--danger-color);"></span> JULES DÉCONNECTÉ`;
             }
         }
+
+        function updateClock() {
+            const now = new Date();
+            const nyTime = now.toLocaleTimeString("fr-FR", { timeZone: "America/New_York", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+            document.getElementById('ny-time').innerText = nyTime + " (NY)";
+            const parts = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "numeric", hour12: false, weekday: "short" }).formatToParts(now);
+            const day = parts.find(p => p.type === "weekday").value;
+            const hour = parseInt(parts.find(p => p.type === "hour").value);
+            const minute = parseInt(parts.find(p => p.type === "minute").value);
+            const isBiz = (day !== "Sat" && day !== "Sun") && ((hour > 9 || (hour === 9 && minute >= 30)) && hour < 16);
+            const status = document.getElementById('market-status');
+            status.innerText = isBiz ? "● MARCHÉ OUVERT" : "○ MARCHÉ FERMÉ";
+            status.style.color = isBiz ? "var(--success-color)" : "var(--warning-color)";
+        }
+
+        setInterval(updateHeartbeat, 20000);
         setInterval(updateClock, 1000);
-        updateClock();
+        updateHeartbeat(); updateClock();
     </script>
 </body>
 </html>
