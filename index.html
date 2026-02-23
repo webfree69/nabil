@@ -16,23 +16,33 @@
             --border-color: #1e293b;
         }
 
-        body, html {
-            margin: 0; padding: 0; height: 100%;
+        /* 1. CORRECTION ICI : On sépare html et body */
+        html {
+            height: 100%;
+            width: 100%;
+            background-color: var(--bg-color);
+        }
+
+        body {
+            margin: 0; padding: 0; 
+            min-height: 100%;
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            overflow: hidden; /* Empêche le scroll global, Streamlit gère le sien */
-            display: flex; flex-direction: column;
-            width: 100%;
+            display: flex; 
+            flex-direction: column; /* Le body devient la vraie colonne vertébrale */
+            overflow: hidden; /* Cache les barres de défilement globales */
         }
 
         nav {
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 30px; background: var(--nav-bg);
             border-bottom: 1px solid var(--border-color);
-            min-height: 70px; /* MODIFIÉ: min-height au lieu de height pour permettre l'expansion sur mobile */
-            flex-shrink: 0; z-index: 100;
-            box-sizing: border-box; /* Garantit que le padding ne fait pas déborder le site */
+            min-height: 70px;
+            flex-shrink: 0; /* Interdit au menu de s'écraser */
+            z-index: 100;
+            box-sizing: border-box;
+            width: 100%;
         }
 
         .logo { font-weight: 800; font-size: 1.1rem; letter-spacing: 3px; color: var(--accent-color); text-transform: uppercase; }
@@ -48,8 +58,20 @@
             border-radius: 4px;
             font-weight: 600;
             display: flex; align-items: center; gap: 6px;
-            white-space: nowrap; /* Empêche le texte du badge de se casser en deux */
+            white-space: nowrap;
         }
 
         .pulse { height: 6px; width: 6px; background: var(--success-color); border-radius: 50%; animation: blink 2s infinite; }
-        @
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        .market-clock {
+            text-align: right;
+            border-left: 1px solid var(--border-color);
+            padding-left: 20px;
+            min-width: 120px;
+        }
+
+        #ny-time { font-size: 1rem; font-weight: 600; color: #fff; }
+        #market-status { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* 2
