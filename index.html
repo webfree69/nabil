@@ -17,12 +17,12 @@
     <div class="w-full max-w-sm">
         <div class="flex justify-between items-center mb-8 px-2">
             <div>
-                <h1 class="text-xl font-black italic tracking-tighter uppercase leading-none italic">JULES <span class="text-green-500 italic">V9.0</span></h1>
+                <h1 class="text-xl font-black italic tracking-tighter uppercase leading-none italic text-white">JULES <span class="text-green-500 italic">V9.0</span></h1>
                 <p class="text-[8px] text-gray-500 font-bold uppercase tracking-[0.3em] mt-1">Station USA • Quant Algorithm</p>
             </div>
             <div class="bg-white/5 border border-white/10 px-3 py-1.5 rounded-full flex items-center gap-2">
                 <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
-                <span class="text-[8px] font-black uppercase tracking-widest text-gray-400 font-bold">Live Stream</span>
+                <span class="text-[8px] font-black uppercase tracking-widest text-gray-400 font-bold">Live</span>
             </div>
         </div>
 
@@ -33,7 +33,7 @@
                 
                 <div class="flex items-baseline gap-2">
                     <div id="val" class="text-4xl font-bold mono text-blue-400 tracking-tighter">0.00</div>
-                    <span class="text-[10px] font-bold text-gray-600 mono uppercase">USD</span>
+                    <span class="text-[10px] font-bold text-gray-600 mono uppercase tracking-widest">USD</span>
                 </div>
             </div>
             <div class="absolute -right-4 -bottom-4 text-8xl font-black text-white/[0.02] italic uppercase">V9</div>
@@ -44,37 +44,50 @@
                 <p class="text-[8px] text-gray-600 uppercase font-black mb-2 tracking-widest font-bold uppercase">RSI (14)</p>
                 <div class="flex flex-col">
                     <span id="rsi" class="text-2xl font-bold mono tracking-tighter italic">--</span>
-                    <span id="rsi-msg" class="text-[7px] font-bold uppercase text-gray-700 mt-1 italic uppercase font-bold">Sync...</span>
+                    <span id="rsi-msg" class="text-[7px] font-bold uppercase text-gray-700 mt-1 italic uppercase font-bold tracking-widest leading-none">Sync...</span>
                 </div>
             </div>
             <div class="card p-5 border-l-2 border-l-purple-600/20">
-                <p class="text-[8px] text-gray-600 uppercase font-black mb-2 tracking-widest font-bold uppercase">Protection</p>
+                <p class="text-[8px] text-gray-600 uppercase font-black mb-2 tracking-widest font-bold uppercase italic">Protection</p>
                 <div class="flex flex-col">
-                    <span id="hdg" class="text-sm font-black uppercase text-gray-700 mt-1 font-bold uppercase">VEILLE</span>
+                    <span id="hdg" class="text-sm font-black uppercase text-gray-700 mt-1 font-bold uppercase italic">VEILLE</span>
                 </div>
             </div>
         </div>
 
-        <div class="mt-8 flex flex-col items-center gap-3">
+        <div class="mt-8 flex flex-col items-center gap-3 text-center">
             <p id="clock" class="text-[9px] text-gray-700 mono uppercase tracking-widest font-bold tracking-tighter italic uppercase">Connexion au VPS...</p>
         </div>
     </div>
 
     <script>
-        const TARGET_URL = 'https://raw.githubusercontent.com/nabs75/trading/main/data.json';
-        const PROXY_URL = 'https://api.allorigins.win/get?url=' + encodeURIComponent(TARGET_URL);
+        // Version jsDelivr sans proxy complexe
+        const URL = 'https://cdn.jsdelivr.net/gh/nabs75/trading@main/data.json';
 
-        async function updateTerminal() {
+        async function update() {
             try {
-                // On ajoute un timestamp pour briser le cache
-                const response = await fetch(PROXY_URL + '&t=' + Date.now());
-                const json = await response.json();
-                
-                // On récupère le contenu brut et on le convertit en objet JS
-                const data = JSON.parse(json.contents);
+                // Le ?t= force le rafraîchissement
+                const res = await fetch(URL + '?t=' + Date.now());
+                const data = await res.json();
 
                 if (data && data.symbol) {
                     document.getElementById('sym').innerText = data.symbol;
-                    document.getElementById('val').innerText = Number(data.price).toLocaleString('en-US', {minimumFractionDigits: 2});
+                    document.getElementById('val').innerText = Number(data.price).toFixed(2);
                     document.getElementById('rsi').innerText = Number(data.rsi).toFixed(1);
-                    document.getElementById('clock').innerText = "Sync: " +
+                    document.getElementById('clock').innerText = "Sync USA: " + data.time;
+                    
+                    const rsiEl = document.getElementById('rsi');
+                    if (data.rsi < 35) rsiEl.style.color = "#22c55e";
+                    else if (data.rsi > 65) rsiEl.style.color = "#ef4444";
+                    else rsiEl.style.color = "white";
+                }
+            } catch (e) {
+                console.log("Flux en attente...");
+            }
+        }
+
+        setInterval(update, 5000);
+        update();
+    </script>
+</body>
+</html>
