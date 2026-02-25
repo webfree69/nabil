@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Trading - NabilH</title>
     <style>
-        /* Design Moderne & Sombre */
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #131722; color: #d1d4dc; margin: 0; padding: 20px; }
         .container { max-width: 800px; margin: 0 auto; }
         .card { background: #1e222d; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); padding: 25px; margin-bottom: 20px; border: 1px solid #2a2e39; }
@@ -48,12 +47,7 @@
 
 <script>
     // --- CONFIGURATION ---
-    // Votre IP VPS
-    const VPS_IP = '150.241.230.207'; 
-    
-    // URL du script Python sur le port 80 (standard HTTP)
-    // On n'ajoute pas ":5000", ce qui force le navigateur à utiliser le port 80
-    const DATA_URL = `http://${VPS_IP}/data`;
+    const DATA_URL = 'https://cds-chess-invention-republic.trycloudflare.com/data';
     // ---------------------
 
     function updateDashboard() {
@@ -120,14 +114,13 @@
                 document.getElementById('main').innerHTML = `
                     <div class="error-msg">
                         <strong>⚠️ Erreur de connexion</strong><br><br>
-                        Impossible de joindre le VPS (IP: ${VPS_IP}).<br>
-                        Vérifiez que le script web_app.py tourne bien sur le VPS avec la commande sudo.
+                        Impossible de joindre le serveur.<br>
+                        Vérifiez que le VPS et le tunnel sont actifs.
                     </div>`;
                 console.error(error);
             });
     }
 
-    // Mise à jour immédiate puis toutes les 30 secondes
     updateDashboard();
     setInterval(updateDashboard, 30000);
 </script>
