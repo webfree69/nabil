@@ -51,8 +51,9 @@
     // Votre IP VPS
     const VPS_IP = '150.241.230.207'; 
     
-    // URL du script Python (port 5000)
-    const DATA_URL = `http://${VPS_IP}:5000/data`;
+    // URL du script Python sur le port 80 (standard HTTP)
+    // On n'ajoute pas ":5000", ce qui force le navigateur à utiliser le port 80
+    const DATA_URL = `http://${VPS_IP}/data`;
     // ---------------------
 
     function updateDashboard() {
@@ -120,7 +121,7 @@
                     <div class="error-msg">
                         <strong>⚠️ Erreur de connexion</strong><br><br>
                         Impossible de joindre le VPS (IP: ${VPS_IP}).<br>
-                        Vérifiez que le script web_app.py tourne bien sur le VPS.
+                        Vérifiez que le script web_app.py tourne bien sur le VPS avec la commande sudo.
                     </div>`;
                 console.error(error);
             });
