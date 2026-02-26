@@ -29,6 +29,17 @@
         th { color: #787b86; font-weight: 500; font-size: 12px; text-transform: uppercase; }
         td { font-size: 14px; }
 
+        /* Statuts des ordres */
+        .order-badge { padding: 2px 8px; border-radius: 3px; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+        .order-filled { background: #00e67622; color: #00e676; border: 1px solid #00e67644; }
+        .order-partially_filled { background: #ffb30022; color: #ffb300; border: 1px solid #ffb30044; }
+        .order-pending_new, .order-new, .order-accepted { background: #2962ff22; color: #2962ff; border: 1px solid #2962ff44; }
+        .order-canceled, .order-expired, .order-rejected { background: #ff525222; color: #ff5252; border: 1px solid #ff525244; }
+
+        /* Côté achat/vente */
+        .side-buy { color: #00e676; font-weight: bold; }
+        .side-sell { color: #ff5252; font-weight: bold; }
+
         /* Bloc IA */
         .ai-box {
             background: #1a1f35;
@@ -37,39 +48,14 @@
             padding: 16px 20px;
             margin-top: 20px;
         }
-        .ai-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px;
-        }
+        .ai-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
         .ai-title { font-size: 11px; color: #2962ff; text-transform: uppercase; letter-spacing: 0.8px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
         .ai-text { font-size: 14px; color: #d1d4dc; line-height: 1.5; margin-bottom: 10px; }
 
-        /* Jauge d'analyse animée */
-        .ai-scanning {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        .ai-scanning-label {
-            font-size: 11px;
-            color: #787b86;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-        }
-        .scan-bar-wrap {
-            flex: 1;
-            height: 6px;
-            background: #2a2e39;
-            border-radius: 3px;
-            overflow: hidden;
-            position: relative;
-        }
+        .ai-scanning { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .ai-scanning-label { font-size: 11px; color: #787b86; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+        .scan-bar-wrap { flex: 1; height: 6px; background: #2a2e39; border-radius: 3px; overflow: hidden; position: relative; }
 
-        /* Animation scanning — barre qui parcourt de gauche à droite */
         @keyframes scanning {
             0% { left: -40%; }
             100% { left: 110%; }
@@ -77,74 +63,39 @@
         .scan-bar-active::after {
             content: '';
             position: absolute;
-            top: 0;
-            left: -40%;
-            width: 40%;
-            height: 100%;
+            top: 0; left: -40%;
+            width: 40%; height: 100%;
             background: linear-gradient(90deg, transparent, #2962ff, #00e676, transparent);
             border-radius: 3px;
             animation: scanning 1.4s ease-in-out infinite;
         }
 
-        /* Barre de confiance statique */
         .confidence-bar-wrap { background: #2a2e39; border-radius: 4px; height: 6px; width: 100%; overflow: hidden; }
-        .confidence-bar {
-            height: 6px;
-            border-radius: 4px;
-            transition: width 1s ease;
-            width: 0%;
-        }
+        .confidence-bar { height: 6px; border-radius: 4px; transition: width 1s ease; width: 0%; }
 
-        .decision-badge {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-            margin-right: 8px;
-        }
+        .decision-badge { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; letter-spacing: 0.5px; margin-right: 8px; }
         .decision-ACHAT { background: #00e67622; color: #00e676; border: 1px solid #00e67644; }
         .decision-VENTE { background: #ff525222; color: #ff5252; border: 1px solid #ff525244; }
         .decision-ATTENTE { background: #ffb30022; color: #ffb300; border: 1px solid #ffb30044; }
 
-        /* Dots animés pendant l'analyse */
         @keyframes dotPulse {
             0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
             40% { opacity: 1; transform: scale(1); }
         }
-        .thinking-dots span {
-            display: inline-block;
-            width: 5px; height: 5px;
-            border-radius: 50%;
-            background: #2962ff;
-            margin: 0 2px;
-            animation: dotPulse 1.4s ease-in-out infinite;
-        }
+        .thinking-dots span { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #2962ff; margin: 0 2px; animation: dotPulse 1.4s ease-in-out infinite; }
         .thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
         .thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
 
-        /* Countdown prochain cycle */
-        .next-cycle {
-            font-size: 11px;
-            color: #787b86;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+        .next-cycle { font-size: 11px; color: #787b86; display: flex; align-items: center; gap: 6px; }
+        .next-cycle-bar { flex: 1; height: 3px; background: #2a2e39; border-radius: 2px; overflow: hidden; }
+        .next-cycle-fill { height: 100%; background: #2962ff44; border-radius: 2px; transition: width 1s linear; }
+
+        /* Nouvelle ligne clignotante pour ordre récent */
+        @keyframes newOrder {
+            0%, 100% { background: transparent; }
+            50% { background: rgba(41, 98, 255, 0.08); }
         }
-        .next-cycle-bar {
-            flex: 1;
-            height: 3px;
-            background: #2a2e39;
-            border-radius: 2px;
-            overflow: hidden;
-        }
-        .next-cycle-fill {
-            height: 100%;
-            background: #2962ff44;
-            border-radius: 2px;
-            transition: width 1s linear;
-        }
+        .order-new-row { animation: newOrder 1.5s ease-in-out 3; }
 
         .error-msg { color: #ff5252; text-align: center; padding: 40px; background: rgba(255,82,82,0.1); border-radius: 6px; }
         .refresh { font-size: 11px; color: #787b86; text-align: right; margin-top: 20px; opacity: 0.7; }
@@ -164,45 +115,29 @@
 
 <script>
     const DATA_URL = 'https://incorporated-wit-accessibility-forever.trycloudflare.com/data';
-    const REFRESH_INTERVAL = 30000; // 30 secondes
-    const BOT_CYCLE = 300;          // 5 minutes en secondes
+    const REFRESH_INTERVAL = 30000;
+    const BOT_CYCLE = 300;
 
-    let lastUpdateTime = null;
     let cycleTimer = null;
+    let lastOrderIds = [];
 
     function parseAiAnalysis(aiText) {
         if (!aiText) return null;
         const match = aiText.match(/\[(.*?)\]\s+(ACHAT|VENTE|ATTENTE)\s+\((\d+)%\)\s*[-—]\s*(.+)/);
-        if (match) {
-            return { source: match[1], decision: match[2], confiance: parseInt(match[3]), raison: match[4] };
-        }
+        if (match) return { source: match[1], decision: match[2], confiance: parseInt(match[3]), raison: match[4] };
         return { source: null, decision: null, confiance: null, raison: aiText };
     }
 
-    function isAnalyzing(ai) {
-        // Le bot est en train d'analyser si la dernière analyse date de moins de 10s
-        return false; // On simule via l'animation toutes les 30s
-    }
-
-    function buildAiBlock(aiText, isRefreshing) {
+    function buildAiBlock(aiText) {
         const ai = parseAiAnalysis(aiText);
         if (!ai) return '';
 
         const isGemini = ai.source && ai.source.toLowerCase().includes('gemini');
-        const isFallback = ai.source && ai.source.toLowerCase().includes('fallback');
-        const sourceLabel = isGemini ? 'Gemini AI' : isFallback ? 'Logique classique' : (ai.source || 'IA');
+        const sourceLabel = isGemini ? 'Gemini AI' : 'Logique classique';
         const sourceColor = isGemini ? '#ff6d00' : '#787b86';
 
-        let decisionHtml = ai.decision
-            ? `<span class="decision-badge decision-${ai.decision}">${ai.decision}</span>`
-            : '';
-
-        let barColor = '#2962ff';
-        if (ai.confiance >= 70) barColor = '#00e676';
-        else if (ai.confiance >= 50) barColor = '#ffb300';
-        else if (ai.confiance !== null) barColor = '#ff5252';
-
-        const scanClass = isRefreshing ? 'scan-bar-active' : '';
+        let decisionHtml = ai.decision ? `<span class="decision-badge decision-${ai.decision}">${ai.decision}</span>` : '';
+        let barColor = ai.confiance >= 70 ? '#00e676' : ai.confiance >= 50 ? '#ffb300' : '#ff5252';
 
         return `
         <div class="ai-box">
@@ -211,23 +146,15 @@
                     🤖 Analyse IA
                     <span style="color:${sourceColor}; font-size:10px; font-weight:normal; text-transform:none; letter-spacing:0;">${sourceLabel}</span>
                 </div>
-                ${isRefreshing ? `<div class="thinking-dots"><span></span><span></span><span></span></div>` : ''}
             </div>
-
-            <!-- Jauge scanning -->
             <div class="ai-scanning">
-                <span class="ai-scanning-label">${isRefreshing ? 'Analyse en cours' : 'Dernier cycle'}</span>
-                <div class="scan-bar-wrap ${scanClass}">
-                    ${!isRefreshing && ai.confiance !== null ? `
-                        <div class="confidence-bar" id="conf-bar" style="width:0%; background:${barColor};"></div>
-                    ` : ''}
+                <span class="ai-scanning-label">Confiance</span>
+                <div class="scan-bar-wrap">
+                    <div class="confidence-bar" id="conf-bar" style="width:0%; background:${barColor};" data-target="${ai.confiance || 0}%"></div>
                 </div>
                 ${ai.confiance !== null ? `<span style="font-size:11px; color:${barColor}; font-weight:bold; min-width:30px;">${ai.confiance}%</span>` : ''}
             </div>
-
             <div class="ai-text">${decisionHtml}${ai.raison}</div>
-
-            <!-- Prochain cycle -->
             <div class="next-cycle" id="next-cycle-row">
                 <span>Prochain cycle</span>
                 <div class="next-cycle-bar"><div class="next-cycle-fill" id="cycle-fill" style="width:0%"></div></div>
@@ -236,20 +163,46 @@
         </div>`;
     }
 
-    function animateConfBar() {
-        setTimeout(() => {
-            const bar = document.getElementById('conf-bar');
-            if (bar) {
-                const target = bar.style.width === '0%' ? bar.getAttribute('data-target') || '50%' : bar.style.width;
-                bar.style.width = target;
-            }
-        }, 100);
+    function buildOrdersBlock(orders) {
+        if (!orders || orders.length === 0) {
+            return `<p style="color:#787b86; font-style:italic; padding:10px 0;">Aucun ordre récent.</p>`;
+        }
+
+        let html = `<table>
+            <thead><tr><th>Date</th><th>Symbole</th><th>Côté</th><th>Qté</th><th>Prix</th><th>Statut</th></tr></thead>
+            <tbody>`;
+
+        orders.forEach((o, i) => {
+            const isNew = !lastOrderIds.includes(o.id) && i === 0;
+            const rowClass = isNew ? 'order-new-row' : '';
+            const sideClass = o.side === 'buy' ? 'side-buy' : 'side-sell';
+            const sideLabel = o.side === 'buy' ? '▲ ACHAT' : '▼ VENTE';
+            const statusClass = `order-${o.status}`;
+            const statusLabel = o.status === 'filled' ? 'Exécuté' :
+                                o.status === 'partially_filled' ? 'Partiel' :
+                                o.status === 'new' || o.status === 'accepted' ? 'En attente' :
+                                o.status === 'canceled' ? 'Annulé' :
+                                o.status === 'rejected' ? 'Rejeté' : o.status;
+            const price = o.filled_price ? o.filled_price.toFixed(2) + '$' : '—';
+
+            html += `<tr class="${rowClass}">
+                <td style="color:#787b86; font-size:12px;">${o.created_at}</td>
+                <td><b>${o.symbol}</b></td>
+                <td class="${sideClass}">${sideLabel}</td>
+                <td>${o.filled_qty}/${o.qty}</td>
+                <td>${price}</td>
+                <td><span class="order-badge ${statusClass}">${statusLabel}</span></td>
+            </tr>`;
+        });
+
+        html += `</tbody></table>`;
+        lastOrderIds = orders.map(o => o.id);
+        return html;
     }
 
-    let cycleSeconds = 0;
     function startCycleCountdown() {
         clearInterval(cycleTimer);
-        cycleSeconds = 0;
+        let cycleSeconds = 0;
         cycleTimer = setInterval(() => {
             cycleSeconds++;
             const remaining = BOT_CYCLE - (cycleSeconds % BOT_CYCLE);
@@ -265,106 +218,6 @@
         }, 1000);
     }
 
-    let isRefreshing = false;
-
-    function updateDashboard() {
-        isRefreshing = true;
-
-        // Activer l'animation scanning
-        const scanBar = document.querySelector('.scan-bar-wrap');
-        if (scanBar) scanBar.classList.add('scan-bar-active');
-        const dots = document.querySelector('.thinking-dots');
-        if (dots) dots.style.display = 'flex';
-
-        fetch(DATA_URL)
-            .then(response => {
-                if (!response.ok) throw new Error("Connexion impossible");
-                return response.json();
-            })
-            .then(data => {
-                isRefreshing = false;
-                const isRunning = data.status === 'Running';
-                const statusHtml = `<span class="status-badge ${isRunning ? 'status-running' : 'status-stopped'}">${data.status}</span>`;
-
-                const pnlClass = data.daily_pnl >= 0 ? 'profit' : 'loss';
-                const pnlSign = data.daily_pnl >= 0 ? '+' : '';
-
-                let positionsHtml = `<p style="color:#787b86; font-style:italic; padding:10px 0;">Aucune position ouverte.</p>`;
-                if (data.positions && data.positions.length > 0) {
-                    positionsHtml = `<table>
-                        <thead><tr><th>Symbole</th><th>Quantité</th><th>Performance</th></tr></thead>
-                        <tbody>`;
-                    data.positions.forEach(p => {
-                        const pClass = p.pnl >= 0 ? 'profit' : 'loss';
-                        const pSign = p.pnl >= 0 ? '+' : '';
-                        positionsHtml += `<tr>
-                            <td><b>${p.symbol}</b></td>
-                            <td>${p.qty}</td>
-                            <td class="${pClass}">${pSign}${p.pnl.toFixed(2)}%</td>
-                        </tr>`;
-                    });
-                    positionsHtml += `</tbody></table>`;
-                }
-
-                const aiBlock = buildAiBlock(data.ai_analysis, false);
-
-                document.getElementById('main').innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                        <div>Statut du système : ${statusHtml}</div>
-                    </div>
-
-                    <div class="grid">
-                        <div class="stat-box">
-                            <div class="stat-label">Valeur Totale</div>
-                            <div class="stat-value">${data.portfolio_value.toFixed(2)} €</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-label">Cash Disponible</div>
-                            <div class="stat-value">${data.cash.toFixed(2)} €</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-label">Performance Jour</div>
-                            <div class="stat-value ${pnlClass}">${pnlSign}${data.daily_pnl.toFixed(2)} %</div>
-                        </div>
-                    </div>
-
-                    <h3>📈 Positions en cours</h3>
-                    ${positionsHtml}
-
-                    ${aiBlock}
-
-                    <p style="margin-top:16px; color:#787b86; font-size:13px;">
-                        <strong>Log :</strong> ${data.message}
-                    </p>
-                `;
-
-                // Animer la barre de confiance après rendu
-                const ai = parseAiAnalysis(data.ai_analysis);
-                if (ai && ai.confiance !== null) {
-                    const bar = document.getElementById('conf-bar');
-                    if (bar) {
-                        bar.setAttribute('data-target', ai.confiance + '%');
-                        setTimeout(() => { bar.style.width = ai.confiance + '%'; }, 200);
-                    }
-                }
-
-                startCycleCountdown();
-                lastUpdateTime = new Date();
-                document.getElementById('refresh-time').innerText = "Dernière mise à jour : " + lastUpdateTime.toLocaleTimeString();
-            })
-            .catch(error => {
-                isRefreshing = false;
-                document.getElementById('main').innerHTML = `
-                    <div class="error-msg">
-                        <strong>⚠️ Erreur de connexion</strong><br><br>
-                        Impossible de joindre le serveur.<br>
-                        Vérifiez que le VPS et le tunnel sont actifs.
-                    </div>`;
-                console.error(error);
-            });
-    }
-
-    // Afficher animation scanning toutes les 30s juste avant le refresh
     function triggerScanAnimation() {
         const scanBar = document.querySelector('.scan-bar-wrap');
         if (scanBar) {
@@ -373,12 +226,59 @@
         }
     }
 
-    updateDashboard();
-    setInterval(() => {
+    function updateDashboard() {
         triggerScanAnimation();
-        setTimeout(updateDashboard, 500);
-    }, REFRESH_INTERVAL);
-</script>
+        fetch(DATA_URL)
+            .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+            .then(data => {
+                const isRunning = data.status === 'Running';
+                const statusHtml = `<span class="status-badge ${isRunning ? 'status-running' : 'status-stopped'}">${data.status}</span>`;
+                const pnlClass = data.daily_pnl >= 0 ? 'profit' : 'loss';
+                const pnlSign = data.daily_pnl >= 0 ? '+' : '';
 
+                let positionsHtml = `<p style="color:#787b86; font-style:italic; padding:10px 0;">Aucune position ouverte.</p>`;
+                if (data.positions && data.positions.length > 0) {
+                    positionsHtml = `<table><thead><tr><th>Symbole</th><th>Quantité</th><th>Performance</th></tr></thead><tbody>`;
+                    data.positions.forEach(p => {
+                        const pClass = p.pnl >= 0 ? 'profit' : 'loss';
+                        const pSign = p.pnl >= 0 ? '+' : '';
+                        positionsHtml += `<tr><td><b>${p.symbol}</b></td><td>${p.qty}</td><td class="${pClass}">${pSign}${p.pnl.toFixed(2)}%</td></tr>`;
+                    });
+                    positionsHtml += `</tbody></table>`;
+                }
+
+                document.getElementById('main').innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <div>Statut du système : ${statusHtml}</div>
+                    </div>
+                    <div class="grid">
+                        <div class="stat-box"><div class="stat-label">Valeur Totale</div><div class="stat-value">${data.portfolio_value.toFixed(2)} €</div></div>
+                        <div class="stat-box"><div class="stat-label">Cash Disponible</div><div class="stat-value">${data.cash.toFixed(2)} €</div></div>
+                        <div class="stat-box"><div class="stat-label">Performance Jour</div><div class="stat-value ${pnlClass}">${pnlSign}${data.daily_pnl.toFixed(2)} %</div></div>
+                    </div>
+                    <h3>📈 Positions en cours</h3>
+                    ${positionsHtml}
+                    ${buildAiBlock(data.ai_analysis)}
+                    <h3>📋 Ordres récents</h3>
+                    ${buildOrdersBlock(data.orders)}
+                    <p style="margin-top:16px; color:#787b86; font-size:13px;"><strong>Log :</strong> ${data.message}</p>
+                `;
+
+                // Animer barre de confiance
+                const bar = document.getElementById('conf-bar');
+                if (bar) setTimeout(() => { bar.style.width = bar.getAttribute('data-target'); }, 200);
+
+                startCycleCountdown();
+                document.getElementById('refresh-time').innerText = "Dernière mise à jour : " + new Date().toLocaleTimeString();
+            })
+            .catch(() => {
+                document.getElementById('main').innerHTML = `
+                    <div class="error-msg"><strong>⚠️ Erreur de connexion</strong><br><br>Impossible de joindre le serveur.<br>Vérifiez que le VPS et le tunnel sont actifs.</div>`;
+            });
+    }
+
+    updateDashboard();
+    setInterval(updateDashboard, REFRESH_INTERVAL);
+</script>
 </body>
 </html>
