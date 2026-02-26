@@ -36,14 +36,64 @@
             border-radius: 8px;
             padding: 16px 20px;
             margin-top: 20px;
-            display: flex;
-            align-items: flex-start;
-            gap: 14px;
         }
-        .ai-icon { font-size: 22px; margin-top: 2px; }
-        .ai-content { flex: 1; }
-        .ai-title { font-size: 11px; color: #2962ff; text-transform: uppercase; letter-spacing: 0.8px; font-weight: bold; margin-bottom: 6px; }
-        .ai-text { font-size: 14px; color: #d1d4dc; line-height: 1.5; }
+        .ai-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .ai-title { font-size: 11px; color: #2962ff; text-transform: uppercase; letter-spacing: 0.8px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .ai-text { font-size: 14px; color: #d1d4dc; line-height: 1.5; margin-bottom: 10px; }
+
+        /* Jauge d'analyse animée */
+        .ai-scanning {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .ai-scanning-label {
+            font-size: 11px;
+            color: #787b86;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        .scan-bar-wrap {
+            flex: 1;
+            height: 6px;
+            background: #2a2e39;
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animation scanning — barre qui parcourt de gauche à droite */
+        @keyframes scanning {
+            0% { left: -40%; }
+            100% { left: 110%; }
+        }
+        .scan-bar-active::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -40%;
+            width: 40%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, #2962ff, #00e676, transparent);
+            border-radius: 3px;
+            animation: scanning 1.4s ease-in-out infinite;
+        }
+
+        /* Barre de confiance statique */
+        .confidence-bar-wrap { background: #2a2e39; border-radius: 4px; height: 6px; width: 100%; overflow: hidden; }
+        .confidence-bar {
+            height: 6px;
+            border-radius: 4px;
+            transition: width 1s ease;
+            width: 0%;
+        }
 
         .decision-badge {
             display: inline-block;
@@ -58,8 +108,43 @@
         .decision-VENTE { background: #ff525222; color: #ff5252; border: 1px solid #ff525244; }
         .decision-ATTENTE { background: #ffb30022; color: #ffb300; border: 1px solid #ffb30044; }
 
-        .confidence-bar-wrap { margin-top: 8px; background: #2a2e39; border-radius: 4px; height: 4px; width: 100%; }
-        .confidence-bar { height: 4px; border-radius: 4px; background: #2962ff; transition: width 0.5s ease; }
+        /* Dots animés pendant l'analyse */
+        @keyframes dotPulse {
+            0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+            40% { opacity: 1; transform: scale(1); }
+        }
+        .thinking-dots span {
+            display: inline-block;
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: #2962ff;
+            margin: 0 2px;
+            animation: dotPulse 1.4s ease-in-out infinite;
+        }
+        .thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        /* Countdown prochain cycle */
+        .next-cycle {
+            font-size: 11px;
+            color: #787b86;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .next-cycle-bar {
+            flex: 1;
+            height: 3px;
+            background: #2a2e39;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .next-cycle-fill {
+            height: 100%;
+            background: #2962ff44;
+            border-radius: 2px;
+            transition: width 1s linear;
+        }
 
         .error-msg { color: #ff5252; text-align: center; padding: 40px; background: rgba(255,82,82,0.1); border-radius: 6px; }
         .refresh { font-size: 11px; color: #787b86; text-align: right; margin-top: 20px; opacity: 0.7; }
@@ -79,63 +164,125 @@
 
 <script>
     const DATA_URL = 'https://incorporated-wit-accessibility-forever.trycloudflare.com/data';
+    const REFRESH_INTERVAL = 30000; // 30 secondes
+    const BOT_CYCLE = 300;          // 5 minutes en secondes
+
+    let lastUpdateTime = null;
+    let cycleTimer = null;
 
     function parseAiAnalysis(aiText) {
         if (!aiText) return null;
-
-        // Format attendu : "[Claude] ACHAT (85%) — raison"
-        const match = aiText.match(/\[(.*?)\]\s+(ACHAT|VENTE|ATTENTE)\s+\((\d+)%\)\s+[—-]\s+(.+)/);
+        const match = aiText.match(/\[(.*?)\]\s+(ACHAT|VENTE|ATTENTE)\s+\((\d+)%\)\s*[-—]\s*(.+)/);
         if (match) {
-            return {
-                source: match[1],
-                decision: match[2],
-                confiance: parseInt(match[3]),
-                raison: match[4]
-            };
+            return { source: match[1], decision: match[2], confiance: parseInt(match[3]), raison: match[4] };
         }
-        // Fallback : afficher le texte brut
         return { source: null, decision: null, confiance: null, raison: aiText };
     }
 
-    function buildAiBlock(aiText) {
+    function isAnalyzing(ai) {
+        // Le bot est en train d'analyser si la dernière analyse date de moins de 10s
+        return false; // On simule via l'animation toutes les 30s
+    }
+
+    function buildAiBlock(aiText, isRefreshing) {
         const ai = parseAiAnalysis(aiText);
         if (!ai) return '';
 
-        let decisionHtml = '';
-        let barHtml = '';
+        const isGemini = ai.source && ai.source.toLowerCase().includes('gemini');
+        const isFallback = ai.source && ai.source.toLowerCase().includes('fallback');
+        const sourceLabel = isGemini ? 'Gemini AI' : isFallback ? 'Logique classique' : (ai.source || 'IA');
+        const sourceColor = isGemini ? '#ff6d00' : '#787b86';
 
-        if (ai.decision) {
-            decisionHtml = `<span class="decision-badge decision-${ai.decision}">${ai.decision}</span>`;
-        }
-        if (ai.confiance !== null) {
-            const color = ai.confiance >= 70 ? '#00e676' : ai.confiance >= 50 ? '#ffb300' : '#ff5252';
-            barHtml = `
-                <div style="margin-top:8px; display:flex; align-items:center; gap:10px;">
-                    <div class="confidence-bar-wrap" style="flex:1;">
-                        <div class="confidence-bar" style="width:${ai.confiance}%; background:${color};"></div>
-                    </div>
-                    <span style="font-size:12px; color:${color}; font-weight:bold; min-width:36px;">${ai.confiance}%</span>
-                </div>`;
-        }
+        let decisionHtml = ai.decision
+            ? `<span class="decision-badge decision-${ai.decision}">${ai.decision}</span>`
+            : '';
+
+        let barColor = '#2962ff';
+        if (ai.confiance >= 70) barColor = '#00e676';
+        else if (ai.confiance >= 50) barColor = '#ffb300';
+        else if (ai.confiance !== null) barColor = '#ff5252';
+
+        const scanClass = isRefreshing ? 'scan-bar-active' : '';
 
         return `
         <div class="ai-box">
-            <div class="ai-icon">🤖</div>
-            <div class="ai-content">
-                <div class="ai-title">Analyse Claude${ai.source ? ' — ' + ai.source : ''}</div>
-                <div class="ai-text">${decisionHtml}${ai.raison}</div>
-                ${barHtml}
+            <div class="ai-header">
+                <div class="ai-title">
+                    🤖 Analyse IA
+                    <span style="color:${sourceColor}; font-size:10px; font-weight:normal; text-transform:none; letter-spacing:0;">${sourceLabel}</span>
+                </div>
+                ${isRefreshing ? `<div class="thinking-dots"><span></span><span></span><span></span></div>` : ''}
+            </div>
+
+            <!-- Jauge scanning -->
+            <div class="ai-scanning">
+                <span class="ai-scanning-label">${isRefreshing ? 'Analyse en cours' : 'Dernier cycle'}</span>
+                <div class="scan-bar-wrap ${scanClass}">
+                    ${!isRefreshing && ai.confiance !== null ? `
+                        <div class="confidence-bar" id="conf-bar" style="width:0%; background:${barColor};"></div>
+                    ` : ''}
+                </div>
+                ${ai.confiance !== null ? `<span style="font-size:11px; color:${barColor}; font-weight:bold; min-width:30px;">${ai.confiance}%</span>` : ''}
+            </div>
+
+            <div class="ai-text">${decisionHtml}${ai.raison}</div>
+
+            <!-- Prochain cycle -->
+            <div class="next-cycle" id="next-cycle-row">
+                <span>Prochain cycle</span>
+                <div class="next-cycle-bar"><div class="next-cycle-fill" id="cycle-fill" style="width:0%"></div></div>
+                <span id="cycle-countdown">5:00</span>
             </div>
         </div>`;
     }
 
+    function animateConfBar() {
+        setTimeout(() => {
+            const bar = document.getElementById('conf-bar');
+            if (bar) {
+                const target = bar.style.width === '0%' ? bar.getAttribute('data-target') || '50%' : bar.style.width;
+                bar.style.width = target;
+            }
+        }, 100);
+    }
+
+    let cycleSeconds = 0;
+    function startCycleCountdown() {
+        clearInterval(cycleTimer);
+        cycleSeconds = 0;
+        cycleTimer = setInterval(() => {
+            cycleSeconds++;
+            const remaining = BOT_CYCLE - (cycleSeconds % BOT_CYCLE);
+            const pct = ((cycleSeconds % BOT_CYCLE) / BOT_CYCLE) * 100;
+            const fill = document.getElementById('cycle-fill');
+            const countdown = document.getElementById('cycle-countdown');
+            if (fill) fill.style.width = pct + '%';
+            if (countdown) {
+                const m = Math.floor(remaining / 60);
+                const s = remaining % 60;
+                countdown.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+            }
+        }, 1000);
+    }
+
+    let isRefreshing = false;
+
     function updateDashboard() {
+        isRefreshing = true;
+
+        // Activer l'animation scanning
+        const scanBar = document.querySelector('.scan-bar-wrap');
+        if (scanBar) scanBar.classList.add('scan-bar-active');
+        const dots = document.querySelector('.thinking-dots');
+        if (dots) dots.style.display = 'flex';
+
         fetch(DATA_URL)
             .then(response => {
                 if (!response.ok) throw new Error("Connexion impossible");
                 return response.json();
             })
             .then(data => {
+                isRefreshing = false;
                 const isRunning = data.status === 'Running';
                 const statusHtml = `<span class="status-badge ${isRunning ? 'status-running' : 'status-stopped'}">${data.status}</span>`;
 
@@ -159,7 +306,7 @@
                     positionsHtml += `</tbody></table>`;
                 }
 
-                const aiBlock = buildAiBlock(data.ai_analysis);
+                const aiBlock = buildAiBlock(data.ai_analysis, false);
 
                 document.getElementById('main').innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
@@ -191,9 +338,22 @@
                     </p>
                 `;
 
-                document.getElementById('refresh-time').innerText = "Dernière mise à jour : " + new Date().toLocaleTimeString();
+                // Animer la barre de confiance après rendu
+                const ai = parseAiAnalysis(data.ai_analysis);
+                if (ai && ai.confiance !== null) {
+                    const bar = document.getElementById('conf-bar');
+                    if (bar) {
+                        bar.setAttribute('data-target', ai.confiance + '%');
+                        setTimeout(() => { bar.style.width = ai.confiance + '%'; }, 200);
+                    }
+                }
+
+                startCycleCountdown();
+                lastUpdateTime = new Date();
+                document.getElementById('refresh-time').innerText = "Dernière mise à jour : " + lastUpdateTime.toLocaleTimeString();
             })
             .catch(error => {
+                isRefreshing = false;
                 document.getElementById('main').innerHTML = `
                     <div class="error-msg">
                         <strong>⚠️ Erreur de connexion</strong><br><br>
@@ -204,8 +364,20 @@
             });
     }
 
+    // Afficher animation scanning toutes les 30s juste avant le refresh
+    function triggerScanAnimation() {
+        const scanBar = document.querySelector('.scan-bar-wrap');
+        if (scanBar) {
+            scanBar.classList.add('scan-bar-active');
+            setTimeout(() => scanBar.classList.remove('scan-bar-active'), 2000);
+        }
+    }
+
     updateDashboard();
-    setInterval(updateDashboard, 30000);
+    setInterval(() => {
+        triggerScanAnimation();
+        setTimeout(updateDashboard, 500);
+    }, REFRESH_INTERVAL);
 </script>
 
 </body>
