@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Trading - NabilH</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #131722; color: #d1d4dc; margin: 0; padding: 20px; }
         .container { max-width: 800px; margin: 0 auto; }
@@ -29,72 +30,44 @@
         th { color: #787b86; font-weight: 500; font-size: 12px; text-transform: uppercase; }
         td { font-size: 14px; }
 
-        /* Statuts des ordres */
+        /* Graphique */
+        .chart-wrap { position: relative; height: 180px; margin-top: 10px; }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .chart-title { font-size: 13px; color: #787b86; text-transform: uppercase; letter-spacing: 0.5px; }
+        .chart-value { font-size: 20px; font-weight: bold; }
+        .chart-tabs { display: flex; gap: 8px; margin-bottom: 10px; }
+        .chart-tab { padding: 4px 12px; border-radius: 4px; font-size: 11px; cursor: pointer; border: 1px solid #2a2e39; background: transparent; color: #787b86; transition: all 0.2s; }
+        .chart-tab.active { background: #2962ff22; border-color: #2962ff44; color: #2962ff; }
+
+        /* Ordres */
         .order-badge { padding: 2px 8px; border-radius: 3px; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
         .order-filled { background: #00e67622; color: #00e676; border: 1px solid #00e67644; }
         .order-partially_filled { background: #ffb30022; color: #ffb300; border: 1px solid #ffb30044; }
         .order-pending_new, .order-new, .order-accepted { background: #2962ff22; color: #2962ff; border: 1px solid #2962ff44; }
         .order-canceled, .order-expired, .order-rejected { background: #ff525222; color: #ff5252; border: 1px solid #ff525244; }
-
-        /* Côté achat/vente */
         .side-buy { color: #00e676; font-weight: bold; }
         .side-sell { color: #ff5252; font-weight: bold; }
 
         /* Bloc IA */
-        .ai-box {
-            background: #1a1f35;
-            border: 1px solid #2962ff44;
-            border-radius: 8px;
-            padding: 16px 20px;
-            margin-top: 20px;
-        }
+        .ai-box { background: #1a1f35; border: 1px solid #2962ff44; border-radius: 8px; padding: 16px 20px; margin-top: 20px; }
         .ai-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
         .ai-title { font-size: 11px; color: #2962ff; text-transform: uppercase; letter-spacing: 0.8px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
         .ai-text { font-size: 14px; color: #d1d4dc; line-height: 1.5; margin-bottom: 10px; }
-
         .ai-scanning { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
         .ai-scanning-label { font-size: 11px; color: #787b86; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
         .scan-bar-wrap { flex: 1; height: 6px; background: #2a2e39; border-radius: 3px; overflow: hidden; position: relative; }
-
-        @keyframes scanning {
-            0% { left: -40%; }
-            100% { left: 110%; }
-        }
-        .scan-bar-active::after {
-            content: '';
-            position: absolute;
-            top: 0; left: -40%;
-            width: 40%; height: 100%;
-            background: linear-gradient(90deg, transparent, #2962ff, #00e676, transparent);
-            border-radius: 3px;
-            animation: scanning 1.4s ease-in-out infinite;
-        }
-
-        .confidence-bar-wrap { background: #2a2e39; border-radius: 4px; height: 6px; width: 100%; overflow: hidden; }
+        @keyframes scanning { 0% { left: -40%; } 100% { left: 110%; } }
+        .scan-bar-active::after { content: ''; position: absolute; top: 0; left: -40%; width: 40%; height: 100%; background: linear-gradient(90deg, transparent, #2962ff, #00e676, transparent); border-radius: 3px; animation: scanning 1.4s ease-in-out infinite; }
         .confidence-bar { height: 6px; border-radius: 4px; transition: width 1s ease; width: 0%; }
-
         .decision-badge { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; letter-spacing: 0.5px; margin-right: 8px; }
         .decision-ACHAT { background: #00e67622; color: #00e676; border: 1px solid #00e67644; }
         .decision-VENTE { background: #ff525222; color: #ff5252; border: 1px solid #ff525244; }
         .decision-ATTENTE { background: #ffb30022; color: #ffb300; border: 1px solid #ffb30044; }
-
-        @keyframes dotPulse {
-            0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
-            40% { opacity: 1; transform: scale(1); }
-        }
-        .thinking-dots span { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #2962ff; margin: 0 2px; animation: dotPulse 1.4s ease-in-out infinite; }
-        .thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
-        .thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
-
         .next-cycle { font-size: 11px; color: #787b86; display: flex; align-items: center; gap: 6px; }
         .next-cycle-bar { flex: 1; height: 3px; background: #2a2e39; border-radius: 2px; overflow: hidden; }
         .next-cycle-fill { height: 100%; background: #2962ff44; border-radius: 2px; transition: width 1s linear; }
 
-        /* Nouvelle ligne clignotante pour ordre récent */
-        @keyframes newOrder {
-            0%, 100% { background: transparent; }
-            50% { background: rgba(41, 98, 255, 0.08); }
-        }
+        @keyframes newOrder { 0%, 100% { background: transparent; } 50% { background: rgba(41,98,255,0.08); } }
         .order-new-row { animation: newOrder 1.5s ease-in-out 3; }
 
         .error-msg { color: #ff5252; text-align: center; padding: 40px; background: rgba(255,82,82,0.1); border-radius: 6px; }
@@ -102,13 +75,10 @@
     </style>
 </head>
 <body>
-
 <div class="container">
     <div class="card">
         <h1>📊 Trading Bot Dashboard</h1>
-        <div id="main">
-            <p style="text-align:center;">Connexion au VPS en cours...</p>
-        </div>
+        <div id="main"><p style="text-align:center;">Connexion au VPS en cours...</p></div>
         <div class="refresh" id="refresh-time">--:--:--</div>
     </div>
 </div>
@@ -120,6 +90,8 @@
 
     let cycleTimer = null;
     let lastOrderIds = [];
+    let chartInstance = null;
+    let currentMode = 'value'; // 'value' ou 'pnl'
 
     function parseAiAnalysis(aiText) {
         if (!aiText) return null;
@@ -128,24 +100,99 @@
         return { source: null, decision: null, confiance: null, raison: aiText };
     }
 
+    function buildChart(history) {
+        if (!history || history.length < 2) return `
+            <div style="height:180px; display:flex; align-items:center; justify-content:center; color:#787b86; font-size:13px;">
+                Données insuffisantes — le graphique apparaîtra après quelques cycles.
+            </div>`;
+
+        return `
+        <div class="chart-tabs">
+            <button class="chart-tab ${currentMode === 'value' ? 'active' : ''}" onclick="switchChart('value')">Valeur du portefeuille</button>
+            <button class="chart-tab ${currentMode === 'pnl' ? 'active' : ''}" onclick="switchChart('pnl')">Performance %</button>
+        </div>
+        <div class="chart-wrap"><canvas id="perfChart"></canvas></div>`;
+    }
+
+    function renderChart(history) {
+        if (!history || history.length < 2) return;
+        const ctx = document.getElementById('perfChart');
+        if (!ctx) return;
+
+        const labels = history.map(h => h.t);
+        const values = currentMode === 'value'
+            ? history.map(h => h.v)
+            : history.map(h => h.pnl);
+
+        const lastVal = values[values.length - 1];
+        const firstVal = values[0];
+        const isPositive = lastVal >= firstVal;
+        const lineColor = isPositive ? '#00e676' : '#ff5252';
+        const fillColor = isPositive ? 'rgba(0,230,118,0.08)' : 'rgba(255,82,82,0.08)';
+
+        if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{
+                    data: values,
+                    borderColor: lineColor,
+                    backgroundColor: fillColor,
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    pointHoverRadius: 4,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: {
+                    callbacks: {
+                        label: ctx => currentMode === 'value'
+                            ? ctx.parsed.y.toFixed(2) + ' €'
+                            : (ctx.parsed.y >= 0 ? '+' : '') + ctx.parsed.y.toFixed(4) + ' %'
+                    },
+                    backgroundColor: '#1e222d',
+                    borderColor: '#2a2e39',
+                    borderWidth: 1,
+                    titleColor: '#787b86',
+                    bodyColor: '#d1d4dc'
+                }},
+                scales: {
+                    x: { grid: { color: '#2a2e39', drawBorder: false }, ticks: { color: '#787b86', maxTicksLimit: 6, font: { size: 10 } } },
+                    y: { grid: { color: '#2a2e39', drawBorder: false }, ticks: { color: '#787b86', font: { size: 10 },
+                        callback: v => currentMode === 'value' ? v.toFixed(0) + '€' : v.toFixed(2) + '%'
+                    }, position: 'right' }
+                }
+            }
+        });
+    }
+
+    window.switchChart = function(mode) {
+        currentMode = mode;
+        const tabs = document.querySelectorAll('.chart-tab');
+        tabs.forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+        if (window._lastHistory) renderChart(window._lastHistory);
+    };
+
     function buildAiBlock(aiText) {
         const ai = parseAiAnalysis(aiText);
         if (!ai) return '';
-
         const isGemini = ai.source && ai.source.toLowerCase().includes('gemini');
         const sourceLabel = isGemini ? 'Gemini AI' : 'Logique classique';
         const sourceColor = isGemini ? '#ff6d00' : '#787b86';
-
         let decisionHtml = ai.decision ? `<span class="decision-badge decision-${ai.decision}">${ai.decision}</span>` : '';
         let barColor = ai.confiance >= 70 ? '#00e676' : ai.confiance >= 50 ? '#ffb300' : '#ff5252';
 
         return `
         <div class="ai-box">
             <div class="ai-header">
-                <div class="ai-title">
-                    🤖 Analyse IA
-                    <span style="color:${sourceColor}; font-size:10px; font-weight:normal; text-transform:none; letter-spacing:0;">${sourceLabel}</span>
-                </div>
+                <div class="ai-title">🤖 Analyse IA <span style="color:${sourceColor}; font-size:10px; font-weight:normal; text-transform:none; letter-spacing:0;">${sourceLabel}</span></div>
             </div>
             <div class="ai-scanning">
                 <span class="ai-scanning-label">Confiance</span>
@@ -155,7 +202,7 @@
                 ${ai.confiance !== null ? `<span style="font-size:11px; color:${barColor}; font-weight:bold; min-width:30px;">${ai.confiance}%</span>` : ''}
             </div>
             <div class="ai-text">${decisionHtml}${ai.raison}</div>
-            <div class="next-cycle" id="next-cycle-row">
+            <div class="next-cycle">
                 <span>Prochain cycle</span>
                 <div class="next-cycle-bar"><div class="next-cycle-fill" id="cycle-fill" style="width:0%"></div></div>
                 <span id="cycle-countdown">5:00</span>
@@ -164,37 +211,18 @@
     }
 
     function buildOrdersBlock(orders) {
-        if (!orders || orders.length === 0) {
-            return `<p style="color:#787b86; font-style:italic; padding:10px 0;">Aucun ordre récent.</p>`;
-        }
-
-        let html = `<table>
-            <thead><tr><th>Date</th><th>Symbole</th><th>Côté</th><th>Qté</th><th>Prix</th><th>Statut</th></tr></thead>
-            <tbody>`;
-
+        if (!orders || orders.length === 0) return `<p style="color:#787b86; font-style:italic; padding:10px 0;">Aucun ordre récent.</p>`;
+        let html = `<table><thead><tr><th>Date</th><th>Symbole</th><th>Côté</th><th>Qté</th><th>Prix</th><th>Statut</th></tr></thead><tbody>`;
         orders.forEach((o, i) => {
             const isNew = !lastOrderIds.includes(o.id) && i === 0;
             const rowClass = isNew ? 'order-new-row' : '';
             const sideClass = o.side === 'buy' ? 'side-buy' : 'side-sell';
             const sideLabel = o.side === 'buy' ? '▲ ACHAT' : '▼ VENTE';
             const statusClass = `order-${o.status}`;
-            const statusLabel = o.status === 'filled' ? 'Exécuté' :
-                                o.status === 'partially_filled' ? 'Partiel' :
-                                o.status === 'new' || o.status === 'accepted' ? 'En attente' :
-                                o.status === 'canceled' ? 'Annulé' :
-                                o.status === 'rejected' ? 'Rejeté' : o.status;
+            const statusLabel = o.status === 'filled' ? 'Exécuté' : o.status === 'partially_filled' ? 'Partiel' : o.status === 'new' || o.status === 'accepted' ? 'En attente' : o.status === 'canceled' ? 'Annulé' : o.status === 'rejected' ? 'Rejeté' : o.status;
             const price = o.filled_price ? o.filled_price.toFixed(2) + '$' : '—';
-
-            html += `<tr class="${rowClass}">
-                <td style="color:#787b86; font-size:12px;">${o.created_at}</td>
-                <td><b>${o.symbol}</b></td>
-                <td class="${sideClass}">${sideLabel}</td>
-                <td>${o.filled_qty}/${o.qty}</td>
-                <td>${price}</td>
-                <td><span class="order-badge ${statusClass}">${statusLabel}</span></td>
-            </tr>`;
+            html += `<tr class="${rowClass}"><td style="color:#787b86; font-size:12px;">${o.created_at}</td><td><b>${o.symbol}</b></td><td class="${sideClass}">${sideLabel}</td><td>${o.filled_qty}/${o.qty}</td><td>${price}</td><td><span class="order-badge ${statusClass}">${statusLabel}</span></td></tr>`;
         });
-
         html += `</tbody></table>`;
         lastOrderIds = orders.map(o => o.id);
         return html;
@@ -210,20 +238,13 @@
             const fill = document.getElementById('cycle-fill');
             const countdown = document.getElementById('cycle-countdown');
             if (fill) fill.style.width = pct + '%';
-            if (countdown) {
-                const m = Math.floor(remaining / 60);
-                const s = remaining % 60;
-                countdown.textContent = `${m}:${s.toString().padStart(2, '0')}`;
-            }
+            if (countdown) { const m = Math.floor(remaining / 60); const s = remaining % 60; countdown.textContent = `${m}:${s.toString().padStart(2, '0')}`; }
         }, 1000);
     }
 
     function triggerScanAnimation() {
         const scanBar = document.querySelector('.scan-bar-wrap');
-        if (scanBar) {
-            scanBar.classList.add('scan-bar-active');
-            setTimeout(() => scanBar.classList.remove('scan-bar-active'), 2000);
-        }
+        if (scanBar) { scanBar.classList.add('scan-bar-active'); setTimeout(() => scanBar.classList.remove('scan-bar-active'), 2000); }
     }
 
     function updateDashboard() {
@@ -247,6 +268,22 @@
                     positionsHtml += `</tbody></table>`;
                 }
 
+                // Stocker l'historique pour le graphique
+                window._lastHistory = data.history || [];
+                const chartHtml = buildChart(window._lastHistory);
+
+                // Calcul gain/perte total depuis début
+                let gainTotal = '';
+                if (window._lastHistory && window._lastHistory.length > 1) {
+                    const first = window._lastHistory[0].v;
+                    const last = window._lastHistory[window._lastHistory.length - 1].v;
+                    const diff = last - first;
+                    const diffPct = ((diff / first) * 100).toFixed(3);
+                    const diffClass = diff >= 0 ? 'profit' : 'loss';
+                    const diffSign = diff >= 0 ? '+' : '';
+                    gainTotal = `<span class="${diffClass}" style="font-size:13px; font-weight:bold;">${diffSign}${diff.toFixed(2)}€ (${diffSign}${diffPct}%)</span>`;
+                }
+
                 document.getElementById('main').innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                         <div>Statut du système : ${statusHtml}</div>
@@ -256,15 +293,25 @@
                         <div class="stat-box"><div class="stat-label">Cash Disponible</div><div class="stat-value">${data.cash.toFixed(2)} €</div></div>
                         <div class="stat-box"><div class="stat-label">Performance Jour</div><div class="stat-value ${pnlClass}">${pnlSign}${data.daily_pnl.toFixed(2)} %</div></div>
                     </div>
+
                     <h3>📈 Positions en cours</h3>
                     ${positionsHtml}
+
+                    <h3>📉 Performance en temps réel ${gainTotal}</h3>
+                    ${chartHtml}
+
                     ${buildAiBlock(data.ai_analysis)}
+
                     <h3>📋 Ordres récents</h3>
                     ${buildOrdersBlock(data.orders)}
+
                     <p style="margin-top:16px; color:#787b86; font-size:13px;"><strong>Log :</strong> ${data.message}</p>
                 `;
 
-                // Animer barre de confiance
+                // Render chart après injection HTML
+                setTimeout(() => renderChart(window._lastHistory), 50);
+
+                // Animer barre confiance
                 const bar = document.getElementById('conf-bar');
                 if (bar) setTimeout(() => { bar.style.width = bar.getAttribute('data-target'); }, 200);
 
@@ -272,8 +319,7 @@
                 document.getElementById('refresh-time').innerText = "Dernière mise à jour : " + new Date().toLocaleTimeString();
             })
             .catch(() => {
-                document.getElementById('main').innerHTML = `
-                    <div class="error-msg"><strong>⚠️ Erreur de connexion</strong><br><br>Impossible de joindre le serveur.<br>Vérifiez que le VPS et le tunnel sont actifs.</div>`;
+                document.getElementById('main').innerHTML = `<div class="error-msg"><strong>⚠️ Erreur de connexion</strong><br><br>Impossible de joindre le serveur.<br>Vérifiez que le VPS et le tunnel sont actifs.</div>`;
             });
     }
 
