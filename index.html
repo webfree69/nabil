@@ -201,6 +201,13 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);min-hei
 .error-card p{font-size:12px;color:var(--m)}
 .footer{font-size:10px;color:var(--m);text-align:right;margin-top:8px;font-family:'JetBrains Mono',monospace}
 
+
+/* NEWS */
+.news-list{display:flex;flex-direction:column;gap:6px}
+.news-item{background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:10px 14px;display:flex;gap:10px;align-items:flex-start}
+.news-source{font-size:9px;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--blue);min-width:70px;padding-top:1px;flex-shrink:0}
+.news-title{font-size:12px;color:var(--t);line-height:1.4}
+.news-count-badge{font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--m);background:var(--s2);border:1px solid var(--b);border-radius:4px;padding:2px 7px;margin-left:auto}
 /* RESPONSIVE */
 @media(max-width:600px){
   .stats-grid{grid-template-columns:repeat(2,1fr)}
@@ -304,6 +311,10 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);min-hei
     </div>
     <div class="ai-content" id="ai-content"><div class="ai-src">Initialisation...</div></div>
   </div>
+
+  <!-- ACTUALITÉS -->
+  <div class="stitle">📰 Actualités <span id="news-count-badge" class="news-count-badge">— sources</span></div>
+  <div id="news-section"><div class="card"><p style="color:var(--m);font-size:13px">Chargement...</p></div></div>
 
   <!-- ORDRES -->
   <div class="stitle">📋 Ordres récents</div>
@@ -580,6 +591,26 @@ function updateAiBlock(ai,thinking){
   setTimeout(()=>{const f=document.getElementById('conf-fill');if(f)f.style.width=conf+'%';},200);
 }
 
+
+// ── News ──
+function buildNews(news){
+  if(!news||!news.length)
+    return `<div class="card"><p style="color:var(--m);font-size:13px">Actualités en cours de récupération... (premier cycle)</p></div>`;
+  const sources={Yahoo:'#3d7fff',Reuters:'#ff7c3a',AP:'#00d97e','Seeking Alpha':'#8b5cf6'};
+  let html=`<div class="news-list">`;
+  news.forEach(n=>{
+    const match=n.match(/\[([^\]]+)\]\s*(.*)/);
+    if(!match)return;
+    const src=match[1], title=match[2];
+    const col=Object.entries(sources).find(([k])=>src.includes(k))?.[1]||'var(--m)';
+    html+=`<div class="news-item">
+      <span class="news-source" style="color:${col}">${src}</span>
+      <span class="news-title">${title}</span>
+    </div>`;
+  });
+  return html+`</div>`;
+}
+
 // ── Orders ──
 function buildOrders(orders){
   if(!orders||!orders.length)
@@ -690,6 +721,24 @@ function updateDashboard(){
 
     // Orders
     document.getElementById('orders-section').innerHTML=buildOrders(data.orders||[]);
+
+    // News
+    const latestNews=data.latest_news||[];
+    document.getElementById('news-section').innerHTML=buildNews(latestNews);
+    const nb=document.getElementById('news-count-badge');
+    if(nb)nb.textContent=latestNews.length+' titres';
+
+    // Badge news count sur IA
+    const aiSrc=document.querySelector('.ai-src');
+    if(aiSrc&&data.ai_analysis&&data.ai_analysis.news_count!=null){
+      const nc=data.ai_analysis.news_count;
+      if(!aiSrc.querySelector('.nc-badge')){
+        const badge=document.createElement('span');
+        badge.className='news-count-badge nc-badge';
+        badge.textContent=nc+' news';
+        aiSrc.appendChild(badge);
+      }
+    }
 
     startCycle();
     document.getElementById('refresh-time').textContent=`Mise à jour : ${new Date().toLocaleTimeString()} · ${latency}ms`;
