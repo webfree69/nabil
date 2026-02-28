@@ -202,6 +202,46 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);min-hei
 .footer{font-size:10px;color:var(--m);text-align:right;margin-top:8px;font-family:'JetBrains Mono',monospace}
 
 
+
+/* TRADE STATS JOURNALIER */
+.tday-card{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:0;margin-bottom:10px;overflow:hidden}
+.tday-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--b);cursor:pointer;user-select:none}
+.tday-header:hover{background:var(--s2)}
+.tday-date{font-size:13px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.tday-pnl-big{font-size:20px;font-weight:800;font-family:'JetBrains Mono',monospace}
+.tday-badges{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.tbadge{padding:3px 9px;border-radius:5px;font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;display:flex;align-items:center;gap:4px}
+.tb-buy{background:rgba(61,127,255,.15);color:var(--blue);border:1px solid rgba(61,127,255,.3)}
+.tb-sell{background:rgba(0,217,126,.1);color:var(--green);border:1px solid rgba(0,217,126,.25)}
+.tb-win{background:var(--gbg);color:var(--green);border:1px solid rgba(0,217,126,.3)}
+.tb-loss{background:var(--rbg);color:var(--red);border:1px solid rgba(255,71,87,.3)}
+.tb-neutral{background:var(--s2);color:var(--m);border:1px solid var(--b)}
+.tday-body{padding:14px 18px;display:none}
+.tday-body.open{display:block}
+.tday-kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:12px}
+.tday-kpi{background:var(--s2);border-radius:8px;padding:10px 12px}
+.tday-kpi-label{font-size:9px;color:var(--m);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-family:'JetBrains Mono',monospace}
+.tday-kpi-val{font-size:18px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.tday-trades-title{font-size:10px;color:var(--m);text-transform:uppercase;letter-spacing:1px;font-family:'JetBrains Mono',monospace;margin-bottom:8px}
+.tday-trade-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--s2);border-radius:7px;margin-bottom:5px;flex-wrap:wrap}
+.tday-trade-row:last-child{margin-bottom:0}
+.tt-time{font-size:9px;color:var(--m);font-family:'JetBrains Mono',monospace;min-width:32px}
+.tt-side-buy{color:var(--blue);font-weight:700;font-size:11px;font-family:'JetBrains Mono',monospace;min-width:48px}
+.tt-side-sell{color:var(--green);font-weight:700;font-size:11px;font-family:'JetBrains Mono',monospace;min-width:48px}
+.tt-sym{font-weight:700;font-size:13px;font-family:'JetBrains Mono',monospace}
+.tt-qty{font-size:11px;color:var(--m);font-family:'JetBrains Mono',monospace}
+.tt-price{font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--t)}
+.tt-pnl{font-size:13px;font-weight:700;font-family:'JetBrains Mono',monospace;margin-left:auto}
+.tt-reason{font-size:10px;color:var(--m);width:100%}
+.best-worst-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.bw-card{background:var(--s2);border-radius:8px;padding:10px 12px;border:1px solid var(--b)}
+.bw-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;font-family:'JetBrains Mono',monospace;margin-bottom:5px}
+.bw-val{font-size:16px;font-weight:800;font-family:'JetBrains Mono',monospace}
+.chevron{transition:transform .2s;font-size:12px;color:var(--m)}
+.chevron.open{transform:rotate(180deg)}
+.wr-bar-wrap{height:5px;background:var(--b);border-radius:3px;overflow:hidden;margin-top:6px}
+.wr-bar{height:100%;border-radius:3px;background:var(--green);transition:width .8s ease}
+.no-trades{color:var(--m);font-size:12px;padding:4px 0;font-style:italic}
 /* NEWS */
 .news-list{display:flex;flex-direction:column;gap:6px}
 .news-item{background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:10px 14px;display:flex;gap:10px;align-items:flex-start}
@@ -298,8 +338,8 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);min-hei
   <div class="stitle">📉 Performance intraday</div>
   <div class="card" id="chart-card"><div style="height:150px;display:flex;align-items:center;justify-content:center;color:var(--m);font-size:13px">Données en cours...</div></div>
 
-  <!-- JOURNALIER -->
-  <div class="stitle">📅 Historique journalier</div>
+  <!-- JOURNALIER ENRICHI -->
+  <div class="stitle">📅 Journal de trading</div>
   <div id="daily-section"><div class="card"><p style="color:var(--m);font-size:13px">Chargement...</p></div></div>
 
   <!-- IA -->
@@ -537,29 +577,123 @@ window.switchChart=function(e,mode){
   if(window._lastHistory)renderChart(window._lastHistory);
 };
 
-// ── Daily ──
+// ── Daily Journal ──
 function buildDaily(daily){
   if(!daily||!daily.length)
-    return `<div class="card"><p style="color:var(--m);font-size:13px;padding:4px 0">Les données journalières apparaîtront après la première journée.</p></div>`;
+    return `<div class="card"><p style="color:var(--m);font-size:13px;padding:4px 0">Le journal apparaîtra après la première journée de trading.</p></div>`;
+
   const sorted=[...daily].reverse();
-  const maxAbs=Math.max(...daily.map(d=>Math.abs(d.pnl||0)),.01);
-  let html=`<div class="daily-grid">`;
-  sorted.forEach(d=>{
-    const pnl=d.pnl||0,pct=d.pnl_pct||0;
-    const isPos=pnl>0,isZero=Math.abs(pnl)<.01;
-    const cls=isZero?'':isPos?'day-green':'day-red';
-    const pcls=isZero?'':isPos?'green':'red';
-    const barPct=Math.round(Math.abs(pnl)/maxAbs*100);
-    const date=d.date?d.date.split('-').slice(1).reverse().join('/'):'—';
-    html+=`<div class="day-card ${cls}">
-      <div class="day-date">${date}</div>
-      <div class="day-pnl ${pcls}">${pnl>=0?'+':''}${pnl.toFixed(2)}€</div>
-      <div class="day-sub">${pct>=0?'+':''}${pct.toFixed(3)}%</div>
-      <div class="day-bar-wrap"><div class="day-bar ${pcls}" style="width:${barPct}%"></div></div>
+  let html='';
+
+  sorted.forEach((d,i)=>{
+    const pnl    = d.pnl    || 0;
+    const pct    = d.pnl_pct || 0;
+    const isPos  = pnl > 0;
+    const isZero = Math.abs(pnl) < 0.01;
+    const pnlCls = isZero ? 'stat-value' : isPos ? 'stat-value green' : 'stat-value red';
+    const date   = d.date ? d.date.split('-').slice(1).reverse().join('/') : '—';
+    const trades = d.trades || [];
+    const nb_a   = d.nb_achats  || 0;
+    const nb_v   = d.nb_ventes  || 0;
+    const nb_w   = d.nb_wins    || 0;
+    const nb_l   = d.nb_losses  || 0;
+    const wr     = nb_v > 0 ? Math.round(nb_w/nb_v*100) : null;
+    const best   = d.best_trade;
+    const worst  = d.worst_trade;
+    const uid    = 'day-'+i;
+
+    // Badges résumé
+    let badges='';
+    if(nb_a>0) badges+=`<span class="tbadge tb-buy">▲ ${nb_a} achat${nb_a>1?'s':''}</span>`;
+    if(nb_v>0) badges+=`<span class="tbadge tb-sell">▼ ${nb_v} vente${nb_v>1?'s':''}</span>`;
+    if(nb_w>0) badges+=`<span class="tbadge tb-win">✓ ${nb_w} gagnant${nb_w>1?'s':''}</span>`;
+    if(nb_l>0) badges+=`<span class="tbadge tb-loss">✗ ${nb_l} perdant${nb_l>1?'s':''}</span>`;
+    if(!badges) badges=`<span class="tbadge tb-neutral">Aucun trade</span>`;
+
+    // Détail trades
+    let tradesHtml='';
+    if(trades.length){
+      tradesHtml+=`<div class="tday-trades-title">Détail des trades</div>`;
+      trades.forEach(t=>{
+        const isBuy = t.side==='buy';
+        const pnlT  = t.pnl!=null ? t.pnl : null;
+        const pnlCl = pnlT==null?'':pnlT>=0?'green':'red';
+        tradesHtml+=`<div class="tday-trade-row">
+          <span class="tt-time">${t.time||'—'}</span>
+          <span class="${isBuy?'tt-side-buy':'tt-side-sell'}">${isBuy?'▲ ACHAT':'▼ VENTE'}</span>
+          <span class="tt-sym">${t.symbol}</span>
+          <span class="tt-qty">${t.qty} actions</span>
+          <span class="tt-price">@ ${t.price?.toFixed(2)||'—'}$</span>
+          ${pnlT!=null?`<span class="tt-pnl ${pnlCl}">${pnlT>=0?'+':''}${pnlT.toFixed(2)}€</span>`:''}
+          ${t.raison?`<span class="tt-reason">${t.raison}</span>`:''}
+        </div>`;
+      });
+    } else {
+      tradesHtml+=`<p class="no-trades">Aucun trade exécuté ce jour.</p>`;
+    }
+
+    // Best / Worst
+    let bwHtml='';
+    if(best||worst){
+      bwHtml=`<div class="best-worst-row">`;
+      if(best) bwHtml+=`<div class="bw-card"><div class="bw-label" style="color:var(--green)">🏆 Meilleur trade</div>
+        <div class="bw-val green">+${best.pnl?.toFixed(2)||'?'}€</div>
+        <div style="font-size:10px;color:var(--m);margin-top:2px;font-family:'JetBrains Mono',monospace">${best.symbol} @ ${best.price?.toFixed(2)||'?'}$</div></div>`;
+      if(worst) bwHtml+=`<div class="bw-card"><div class="bw-label" style="color:var(--red)">💀 Pire trade</div>
+        <div class="bw-val red">${worst.pnl?.toFixed(2)||'?'}€</div>
+        <div style="font-size:10px;color:var(--m);margin-top:2px;font-family:'JetBrains Mono',monospace">${worst.symbol} @ ${worst.price?.toFixed(2)||'?'}$</div></div>`;
+      bwHtml+=`</div>`;
+    }
+
+    // Win rate bar
+    let wrHtml='';
+    if(wr!=null) wrHtml=`
+      <div style="margin-top:12px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:10px;color:var(--m);font-family:'JetBrains Mono',monospace">Taux de réussite</span>
+          <span style="font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;color:${wr>=50?'var(--green)':'var(--red)'}">${wr}%</span>
+        </div>
+        <div class="wr-bar-wrap"><div class="wr-bar" style="width:${wr}%;background:${wr>=50?'var(--green)':'var(--red)'}"></div></div>
+      </div>`;
+
+    html+=`<div class="tday-card">
+      <div class="tday-header" onclick="toggleDay('${uid}')">
+        <div>
+          <div class="tday-date">${date}</div>
+          <div class="tday-badges" style="margin-top:6px">${badges}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+          <div class="${pnlCls}" style="font-size:18px">${pnl>=0?'+':''}${pnl.toFixed(2)}€</div>
+          <div style="font-size:11px;color:${isPos?'var(--green)':isZero?'var(--m)':'var(--red)'};font-family:'JetBrains Mono',monospace">${pct>=0?'+':''}${pct.toFixed(3)}%</div>
+          <span class="chevron" id="chev-${uid}">▼</span>
+        </div>
+      </div>
+      <div class="tday-body ${i===0?'open':''}" id="body-${uid}">
+        <div class="tday-kpi-row">
+          <div class="tday-kpi"><div class="tday-kpi-label">Trades total</div><div class="tday-kpi-val">${nb_a+nb_v}</div></div>
+          <div class="tday-kpi"><div class="tday-kpi-label">Achats</div><div class="tday-kpi-val" style="color:var(--blue)">${nb_a}</div></div>
+          <div class="tday-kpi"><div class="tday-kpi-label">Ventes</div><div class="tday-kpi-val" style="color:var(--green)">${nb_v}</div></div>
+          <div class="tday-kpi"><div class="tday-kpi-label">Gagnants</div><div class="tday-kpi-val" style="color:var(--green)">${nb_w}</div></div>
+          <div class="tday-kpi"><div class="tday-kpi-label">Perdants</div><div class="tday-kpi-val" style="color:${nb_l>0?'var(--red)':'var(--m)'}">${nb_l}</div></div>
+          <div class="tday-kpi"><div class="tday-kpi-label">P&L net</div><div class="tday-kpi-val ${isPos?'green':isZero?'':'red'}">${pnl>=0?'+':''}${pnl.toFixed(2)}€</div></div>
+        </div>
+        ${wrHtml}
+        ${bwHtml}
+        <div style="margin-top:14px">${tradesHtml}</div>
+      </div>
     </div>`;
   });
-  return html+`</div>`;
+
+  return html || `<div class="card"><p style="color:var(--m);font-size:13px">Aucune donnée disponible.</p></div>`;
 }
+
+window.toggleDay = function(uid){
+  const body=document.getElementById('body-'+uid);
+  const chev=document.getElementById('chev-'+uid);
+  if(!body)return;
+  const isOpen=body.classList.toggle('open');
+  if(chev)chev.classList.toggle('open',isOpen);
+};
 
 // ── IA ──
 function updateAiBlock(ai,thinking){
