@@ -7,27 +7,36 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-chart-financial/0.1.1/chartjs-chart-financial.min.js"></script>
 <style>
 :root{
-  --bg:#0c0e14; --s:#13161f; --s2:#1c2030; --b:#252a3a;
-  --t:#e2e8f0; --m:#4a5568;
-  --green:#00d97e; --red:#ff4757; --blue:#3d7fff;
-  --orange:#ff7c3a; --purple:#8b5cf6;
-  --gbg:rgba(0,217,126,.1); --rbg:rgba(255,71,87,.1); --bbg:rgba(61,127,255,.1);
+  --bg:#0c0e14;--s:#13161f;--s2:#1c2030;--b:#252a3a;
+  --t:#e2e8f0;--m:#4a5568;
+  --green:#00d97e;--red:#ff4757;--blue:#3d7fff;
+  --orange:#ff7c3a;--purple:#8b5cf6;
+  --gbg:rgba(0,217,126,.1);--rbg:rgba(255,71,87,.1);--bbg:rgba(61,127,255,.1);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);min-height:100vh;overflow-x:hidden}
 
 /* HEADER */
-.header{background:var(--s);border-bottom:1px solid var(--b);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.header{background:var(--s);border-bottom:1px solid var(--b);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
 .header-logo{font-weight:800;font-size:18px;color:var(--blue);letter-spacing:-.5px}
 .header-sub{font-size:10px;color:var(--m);font-family:'JetBrains Mono',monospace;margin-top:1px}
-.header-right{display:flex;align-items:center;gap:10px}
+.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
 .live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 1.5s infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
-.live-label{font-size:11px;color:var(--green);font-weight:700;font-family:'JetBrains Mono',monospace}
+.live-label{font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.latency-badge{font-size:9px;font-family:'JetBrains Mono',monospace;padding:2px 7px;border-radius:4px;border:1px solid var(--b);color:var(--m)}
+.latency-good{color:var(--green);border-color:rgba(0,217,126,.3);background:var(--gbg)}
+.latency-mid{color:var(--orange);border-color:rgba(255,124,58,.3);background:rgba(255,124,58,.1)}
+.latency-bad{color:var(--red);border-color:rgba(255,71,87,.3);background:var(--rbg)}
 
-/* LAYOUT */
+/* BANNER reconnexion */
+.reconnect-banner{display:none;background:rgba(255,71,87,.15);border-bottom:1px solid rgba(255,71,87,.3);padding:8px 20px;text-align:center;font-size:12px;color:var(--red);font-family:'JetBrains Mono',monospace}
+.reconnect-banner.show{display:block}
+
+/* PAGE */
 .page{max-width:980px;margin:0 auto;padding:18px 16px 40px}
 
 /* CLOCKS */
@@ -55,6 +64,18 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);min-hei
 .stat-sub{font-size:10px;color:var(--m);margin-top:3px}
 .green{color:var(--green)}.red{color:var(--red)}
 
+/* OBJECTIFS */
+.obj-card{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:16px;margin-bottom:10px}
+.obj-title{font-size:11px;color:var(--m);font-family:'JetBrains Mono',monospace;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.obj-row{margin-bottom:10px}
+.obj-row:last-child{margin-bottom:0}
+.obj-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.obj-label{font-size:12px;font-weight:600}
+.obj-pct{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--m)}
+.obj-track{height:6px;background:var(--s2);border-radius:3px;overflow:hidden}
+.obj-fill{height:100%;border-radius:3px;transition:width 1s ease}
+.obj-check{font-size:14px}
+
 /* SECTION TITLE */
 .stitle{font-size:10px;font-weight:700;color:var(--m);text-transform:uppercase;letter-spacing:2px;font-family:'JetBrains Mono',monospace;margin:22px 0 10px;display:flex;align-items:center;gap:8px}
 .stitle::after{content:'';flex:1;height:1px;background:var(--b)}
@@ -62,13 +83,12 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);min-hei
 /* CARD */
 .card{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:18px;margin-bottom:10px}
 
-/* MULTI-ETF GRID */
-.etf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
-.etf-card{background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:12px 14px;transition:transform .15s,border-color .2s;cursor:default}
+/* ETF GRID */
+.etf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:8px}
+.etf-card{background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:12px 14px;transition:transform .15s,border-color .2s}
 .etf-card:hover{transform:translateY(-2px)}
 .etf-card.sig-achat{border-color:rgba(0,217,126,.35);background:rgba(0,217,126,.05)}
 .etf-card.sig-vente{border-color:rgba(255,71,87,.35);background:rgba(255,71,87,.05)}
-.etf-card.sig-attente{border-color:var(--b)}
 .etf-symbol{font-size:16px;font-weight:800;font-family:'JetBrains Mono',monospace;margin-bottom:2px}
 .etf-name{font-size:9px;color:var(--m);margin-bottom:8px}
 .etf-price{font-size:13px;font-weight:600;font-family:'JetBrains Mono',monospace;margin-bottom:6px}
@@ -77,8 +97,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);min-hei
 .ec-VENTE{background:var(--rbg);color:var(--red);border:1px solid rgba(255,71,87,.3)}
 .ec-ATTENTE{background:rgba(255,124,58,.1);color:var(--orange);border:1px solid rgba(255,124,58,.3)}
 .ec-NA{background:var(--s);color:var(--m);border:1px solid var(--b)}
-.etf-conf{font-size:9px;color:var(--m);margin-top:5px;font-family:'JetBrains Mono',monospace}
-.etf-rsi{font-size:9px;color:var(--m);font-family:'JetBrains Mono',monospace}
+.etf-conf{font-size:9px;color:var(--m);margin-top:4px;font-family:'JetBrains Mono',monospace}
 
 /* POSITIONS */
 .pos-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--b)}
@@ -87,11 +106,25 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);min-hei
 .pos-qty{font-size:11px;color:var(--m);margin-top:2px}
 .pos-pnl{font-size:17px;font-weight:700;font-family:'JetBrains Mono',monospace}
 
-/* CHART */
-.chart-tabs{display:flex;gap:6px;margin-bottom:12px}
+/* GRAPHIQUE TABS */
+.chart-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
 .chart-tab{padding:4px 12px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid var(--b);background:transparent;color:var(--m);transition:all .2s;font-family:'JetBrains Mono',monospace}
 .chart-tab.active{background:var(--bbg);border-color:rgba(61,127,255,.4);color:var(--blue)}
-.chart-wrap{height:150px;position:relative}
+.chart-wrap{height:180px;position:relative}
+
+/* CANDLESTICK CARD */
+.candle-card{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:18px;margin-bottom:10px}
+.candle-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.candle-sym{font-size:16px;font-weight:800;font-family:'JetBrains Mono',monospace}
+.candle-price{font-size:22px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.candle-change{font-size:12px;font-family:'JetBrains Mono',monospace;padding:3px 8px;border-radius:5px}
+.cc-up{background:var(--gbg);color:var(--green)}
+.cc-dn{background:var(--rbg);color:var(--red)}
+.candle-wrap{height:200px;position:relative}
+.candle-info{display:flex;gap:16px;margin-top:10px;flex-wrap:wrap}
+.ci-item{font-size:10px;font-family:'JetBrains Mono',monospace}
+.ci-label{color:var(--m)}
+.ci-val{color:var(--t);font-weight:700}
 
 /* DAILY */
 .daily-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
@@ -163,15 +196,10 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);min-hei
 @keyframes flashNew{0%,100%{background:var(--s2)}40%{background:rgba(61,127,255,.12)}}
 .order-new-anim{animation:flashNew 1.5s ease 3}
 
-/* ERROR */
 .error-card{background:var(--rbg);border:1px solid rgba(255,71,87,.3);border-radius:12px;padding:28px;text-align:center;color:var(--red)}
 .error-card strong{font-size:15px;display:block;margin-bottom:6px}
 .error-card p{font-size:12px;color:var(--m)}
-
 .footer{font-size:10px;color:var(--m);text-align:right;margin-top:8px;font-family:'JetBrains Mono',monospace}
-
-/* ETF NAMES */
-.etf-names-map{display:none}
 
 /* RESPONSIVE */
 @media(max-width:600px){
@@ -183,6 +211,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);min-hei
   .etf-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
   .ord-price{margin-left:0}
   .header-sub{display:none}
+  .candle-price{font-size:18px}
 }
 @media(max-width:380px){
   .stats-grid{grid-template-columns:1fr 1fr}
@@ -193,14 +222,20 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);min-hei
 </head>
 <body>
 
+<!-- Banner reconnexion -->
+<div class="reconnect-banner" id="reconnect-banner">
+  ⚡ Connexion perdue — tentative de reconnexion automatique...
+</div>
+
 <header class="header">
   <div>
     <div class="header-logo">NabilH</div>
     <div class="header-sub">Multi-ETF · SPY VGK EWU EEM EWJ EWG EWQ</div>
   </div>
   <div class="header-right">
+    <span class="latency-badge" id="latency-badge">— ms</span>
     <div class="live-dot" id="live-dot"></div>
-    <span class="live-label" id="live-label">LIVE</span>
+    <span class="live-label green" id="live-label">LIVE</span>
   </div>
 </header>
 
@@ -208,20 +243,9 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);min-hei
 
   <!-- HORLOGES -->
   <div class="clock-bar">
-    <div class="clock-cell">
-      <div class="clock-flag">🇫🇷</div>
-      <div class="clock-city">Paris</div>
-      <div class="clock-time" id="clock-paris">--:--:--</div>
-    </div>
-    <div class="clock-cell">
-      <div class="clock-flag">🇺🇸</div>
-      <div class="clock-city">New York</div>
-      <div class="clock-time" id="clock-ny">--:--:--</div>
-    </div>
-    <div class="clock-cell">
-      <div class="clock-city">NYSE</div>
-      <div id="market-badge" style="margin-top:4px"></div>
-    </div>
+    <div class="clock-cell"><div class="clock-flag">🇫🇷</div><div class="clock-city">Paris</div><div class="clock-time" id="clock-paris">--:--:--</div></div>
+    <div class="clock-cell"><div class="clock-flag">🇺🇸</div><div class="clock-city">New York</div><div class="clock-time" id="clock-ny">--:--:--</div></div>
+    <div class="clock-cell"><div class="clock-city">NYSE</div><div id="market-badge" style="margin-top:4px"></div></div>
   </div>
 
   <!-- STATS -->
@@ -231,7 +255,31 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);min-hei
     <div class="stat-card"><div class="stat-label">Perf. Jour</div><div class="stat-value" id="s-pnl">—</div><div class="stat-sub" id="s-status">—</div></div>
   </div>
 
-  <!-- ANALYSE MULTI-ETF -->
+  <!-- OBJECTIFS -->
+  <div class="stitle">🎯 Objectifs de performance</div>
+  <div class="obj-card" id="obj-card">
+    <div class="obj-title"><span>Capital de référence : 500€</span><span id="obj-current-val" style="color:var(--t);font-weight:700">—</span></div>
+    <div id="obj-rows"></div>
+  </div>
+
+  <!-- CANDLESTICK SPY -->
+  <div class="stitle">📊 SPY — Graphique temps réel</div>
+  <div class="candle-card">
+    <div class="candle-header">
+      <div>
+        <div class="candle-sym">SPY 🇺🇸</div>
+        <div style="font-size:10px;color:var(--m);font-family:'JetBrains Mono',monospace">S&P 500 ETF · Données horaires</div>
+      </div>
+      <div style="text-align:right">
+        <div class="candle-price" id="candle-price">—</div>
+        <div class="candle-change" id="candle-change">—</div>
+      </div>
+    </div>
+    <div class="candle-wrap"><canvas id="candleChart"></canvas></div>
+    <div class="candle-info" id="candle-info"></div>
+  </div>
+
+  <!-- ETF SIGNALS -->
   <div class="stitle">🌍 Signaux par ETF</div>
   <div id="etf-grid-section"><div class="card"><p style="color:var(--m);font-size:13px">Chargement...</p></div></div>
 
@@ -239,7 +287,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);min-hei
   <div class="stitle">📈 Positions ouvertes</div>
   <div class="card" id="positions-card"><p style="color:var(--m);font-size:13px">Chargement...</p></div>
 
-  <!-- GRAPHIQUE -->
+  <!-- GRAPHIQUE INTRADAY -->
   <div class="stitle">📉 Performance intraday</div>
   <div class="card" id="chart-card"><div style="height:150px;display:flex;align-items:center;justify-content:center;color:var(--m);font-size:13px">Données en cours...</div></div>
 
@@ -247,7 +295,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);min-hei
   <div class="stitle">📅 Historique journalier</div>
   <div id="daily-section"><div class="card"><p style="color:var(--m);font-size:13px">Chargement...</p></div></div>
 
-  <!-- IA (SPY) -->
+  <!-- IA -->
   <div class="stitle">🤖 Analyse IA — SPY</div>
   <div class="ai-card" id="ai-card">
     <div class="brain-wrap">
@@ -268,21 +316,26 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);min-hei
 const DATA_URL  = 'https://incorporated-wit-accessibility-forever.trycloudflare.com/api/state';
 const REFRESH   = 30000;
 const BOT_CYCLE = 300;
+const CAPITAL_REF = 500; // Capital de référence pour les objectifs
 
-let chartInstance = null;
-let currentMode   = 'value';
-let cycleTimer    = null;
-let lastOrderIds  = [];
+const OBJECTIFS = [
+  { label:'+5%',  target: CAPITAL_REF * 1.05,  color:'#3d7fff' },
+  { label:'+10%', target: CAPITAL_REF * 1.10,  color:'#00d97e' },
+  { label:'+20%', target: CAPITAL_REF * 1.20,  color:'#ff7c3a' },
+  { label:'+50%', target: CAPITAL_REF * 1.50,  color:'#8b5cf6' },
+  { label:'×2',   target: CAPITAL_REF * 2.00,  color:'#ff4757' },
+];
 
-const ETF_NAMES = {
-  SPY:'S&P 500 USA', VGK:'Europe entière',
-  EWU:'FTSE UK', EEM:'Marchés émergents',
-  EWJ:'Nikkei Japon', EWG:'DAX Allemagne', EWQ:'CAC 40 France'
-};
-const ETF_FLAGS = {
-  SPY:'🇺🇸', VGK:'🇪🇺', EWU:'🇬🇧',
-  EEM:'🌍', EWJ:'🇯🇵', EWG:'🇩🇪', EWQ:'🇫🇷'
-};
+let chartInstance   = null;
+let candleInstance  = null;
+let currentMode     = 'value';
+let cycleTimer      = null;
+let lastOrderIds    = [];
+let failCount       = 0;
+let retryTimer      = null;
+
+const ETF_NAMES = {SPY:'S&P 500',VGK:'Europe',EWU:'UK',EEM:'Émergents',EWJ:'Japon',EWG:'Allemagne',EWQ:'France'};
+const ETF_FLAGS = {SPY:'🇺🇸',VGK:'🇪🇺',EWU:'🇬🇧',EEM:'🌍',EWJ:'🇯🇵',EWG:'🇩🇪',EWQ:'🇫🇷'};
 
 // ── Horloges ──
 function updateClocks(){
@@ -290,20 +343,24 @@ function updateClocks(){
   document.getElementById('clock-paris').textContent=now.toLocaleTimeString('fr-FR',{timeZone:'Europe/Paris',hour12:false});
   document.getElementById('clock-ny').textContent=now.toLocaleTimeString('fr-FR',{timeZone:'America/New_York',hour12:false});
   const ny=new Date(now.toLocaleString('en-US',{timeZone:'America/New_York'}));
-  const t=ny.getHours()*60+ny.getMinutes(), day=ny.getDay();
+  const t=ny.getHours()*60+ny.getMinutes(),day=ny.getDay();
   const el=document.getElementById('market-badge');
-  if(day===0||day===6)
-    el.innerHTML=`<div class="ms ms-closed"><div class="ms-dot ms-dot-closed"></div>Weekend</div>`;
-  else if(t>=570&&t<960)
-    el.innerHTML=`<div class="ms ms-open"><div class="ms-dot ms-dot-open"></div>Ouvert</div>`;
-  else if((t>=240&&t<570)||(t>=960&&t<1200))
-    el.innerHTML=`<div class="ms ms-pre"><div class="ms-dot ms-dot-pre"></div>Pré/Post</div>`;
-  else
-    el.innerHTML=`<div class="ms ms-closed"><div class="ms-dot ms-dot-closed"></div>Fermé</div>`;
+  if(day===0||day===6) el.innerHTML=`<div class="ms ms-closed"><div class="ms-dot ms-dot-closed"></div>Weekend</div>`;
+  else if(t>=570&&t<960) el.innerHTML=`<div class="ms ms-open"><div class="ms-dot ms-dot-open"></div>Ouvert</div>`;
+  else if((t>=240&&t<570)||(t>=960&&t<1200)) el.innerHTML=`<div class="ms ms-pre"><div class="ms-dot ms-dot-pre"></div>Pré/Post</div>`;
+  else el.innerHTML=`<div class="ms ms-closed"><div class="ms-dot ms-dot-closed"></div>Fermé</div>`;
 }
 setInterval(updateClocks,1000); updateClocks();
 
-// ── Brain SVG ──
+// ── Latence ──
+function setLatency(ms){
+  const el=document.getElementById('latency-badge');
+  if(!el)return;
+  el.textContent=ms+'ms';
+  el.className='latency-badge '+(ms<300?'latency-good':ms<800?'latency-mid':'latency-bad');
+}
+
+// ── Brain ──
 function brainSVG(){
   return `<svg class="brain-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
     <path class="brain-fill" d="M50,20 C35,18 18,25 15,40 C12,52 16,60 22,66 C26,70 30,72 30,78 C30,82 34,85 38,85 L50,85 L50,20 Z"/>
@@ -316,40 +373,184 @@ function brainSVG(){
   </svg>`;
 }
 function setBrain(state){
-  const c=document.getElementById('brain-container'), l=document.getElementById('brain-lbl');
-  if(!c||!l) return;
+  const c=document.getElementById('brain-container'),l=document.getElementById('brain-lbl');
+  if(!c||!l)return;
   const waves=state==='thinking'?'<div class="bwave bw1"></div><div class="bwave bw2"></div><div class="bwave bw3"></div>':'';
   c.innerHTML=`${waves}<div class="brain-${state}">${brainSVG()}</div>`;
   l.textContent={idle:'En veille',thinking:'Analyse...',done:'Décision'}[state]||'';
   l.className=`brain-lbl bl-${state}`;
 }
 
+// ── Objectifs ──
+function buildObjectifs(equity){
+  const val = equity || CAPITAL_REF;
+  document.getElementById('obj-current-val').textContent = val.toFixed(2)+'€';
+  const pct = ((val - CAPITAL_REF) / CAPITAL_REF) * 100;
+  let html='';
+  OBJECTIFS.forEach(obj=>{
+    const progress = Math.min((val / obj.target) * 100, 100);
+    const reached  = val >= obj.target;
+    html+=`<div class="obj-row">
+      <div class="obj-header">
+        <span class="obj-label" style="color:${reached?obj.color:''}">${obj.label} ${reached?'✅':''}</span>
+        <span class="obj-pct">${val.toFixed(0)}€ / ${obj.target.toFixed(0)}€ · ${progress.toFixed(1)}%</span>
+      </div>
+      <div class="obj-track">
+        <div class="obj-fill" style="width:${progress}%;background:${obj.color}${reached?'':'88'}"></div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('obj-rows').innerHTML=html;
+}
+
+// ── Candlestick SPY (simulé depuis history) ──
+function buildCandleChart(history, spyAnalysis){
+  if(!history||history.length<4){
+    document.getElementById('candle-price').textContent='—';
+    document.getElementById('candle-change').textContent='—';
+    document.getElementById('candle-info').innerHTML='';
+    return;
+  }
+
+  const price = spyAnalysis && spyAnalysis.price ? spyAnalysis.price : null;
+  const rsi   = spyAnalysis && spyAnalysis.rsi   ? spyAnalysis.rsi   : null;
+
+  if(price){
+    const first = history[0].v;
+    const chg   = price - first;
+    const chgPct= (chg/first*100).toFixed(2);
+    const isUp  = chg >= 0;
+    document.getElementById('candle-price').textContent = price.toFixed(2)+'$';
+    document.getElementById('candle-price').style.color = isUp ? 'var(--green)' : 'var(--red)';
+    const chgEl = document.getElementById('candle-change');
+    chgEl.textContent = `${isUp?'+':''}${chg.toFixed(2)}$ (${isUp?'+':''}${chgPct}%)`;
+    chgEl.className = `candle-change ${isUp?'cc-up':'cc-dn'}`;
+  }
+
+  // Infos RSI/EMA
+  let infoHtml='';
+  if(rsi) infoHtml+=`<div class="ci-item"><span class="ci-label">RSI </span><span class="ci-val" style="color:${rsi>70?'var(--red)':rsi<40?'var(--blue)':'var(--t)'}">${rsi}</span></div>`;
+  if(spyAnalysis&&spyAnalysis.decision) infoHtml+=`<div class="ci-item"><span class="ci-label">Signal </span><span class="ci-val">${spyAnalysis.decision}</span></div>`;
+  document.getElementById('candle-info').innerHTML=infoHtml;
+
+  // Graphique ligne SPY (fallback candlestick si pas de données OHLC)
+  const ctx=document.getElementById('candleChart');
+  if(!ctx)return;
+  const vals=history.map(h=>h.v);
+  const isPos=vals[vals.length-1]>=vals[0];
+  const col=isPos?'#00d97e':'#ff4757';
+  if(candleInstance){candleInstance.destroy();candleInstance=null;}
+  candleInstance=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:history.map(h=>h.t),
+      datasets:[{
+        data:vals,
+        borderColor:col,
+        backgroundColor:isPos?'rgba(0,217,126,.08)':'rgba(255,71,87,.08)',
+        borderWidth:2,
+        pointRadius:0,
+        pointHoverRadius:5,
+        fill:true,
+        tension:.3
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          mode:'index',intersect:false,
+          callbacks:{label:c=>c.parsed.y.toFixed(2)+'€'},
+          backgroundColor:'#13161f',borderColor:'#252a3a',borderWidth:1,
+          titleColor:'#4a5568',bodyColor:'#e2e8f0',padding:10
+        }
+      },
+      scales:{
+        x:{grid:{color:'rgba(37,42,58,.7)'},ticks:{color:'#4a5568',maxTicksLimit:8,font:{size:9,family:'JetBrains Mono'}}},
+        y:{grid:{color:'rgba(37,42,58,.7)'},ticks:{color:'#4a5568',font:{size:9,family:'JetBrains Mono'},callback:v=>v.toFixed(0)+'€'},position:'right'}
+      }
+    }
+  });
+}
+
 // ── ETF Grid ──
 function buildEtfGrid(sa){
   if(!sa||!Object.keys(sa).length)
-    return `<div class="card"><p style="color:var(--m);font-size:13px">Pas encore de données — le bot n'a pas encore complété un cycle multi-ETF.</p></div>`;
+    return `<div class="card"><p style="color:var(--m);font-size:13px">Pas encore de données — attendez le prochain cycle.</p></div>`;
   const symbols=['SPY','VGK','EWU','EEM','EWJ','EWG','EWQ'];
   let html=`<div class="etf-grid">`;
   symbols.forEach(sym=>{
     const a=sa[sym];
     if(!a){html+=`<div class="etf-card"><div class="etf-symbol">${sym}</div><div class="etf-name">${ETF_FLAGS[sym]||''} ${ETF_NAMES[sym]||''}</div><div class="etf-chip ec-NA">N/A</div></div>`;return;}
     const dec=a.decision||'ATTENTE';
-    const cls=`sig-${dec.toLowerCase()}`;
-    html+=`<div class="etf-card ${cls}">
+    html+=`<div class="etf-card sig-${dec.toLowerCase()}">
       <div class="etf-symbol">${sym}</div>
       <div class="etf-name">${ETF_FLAGS[sym]||''} ${ETF_NAMES[sym]||''}</div>
       ${a.price?`<div class="etf-price">${a.price.toFixed(2)}$</div>`:''}
       <div class="etf-chip ec-${dec}">${dec}</div>
-      ${a.confiance!=null?`<div class="etf-conf">Conf. ${a.confiance}%</div>`:''}
-      ${a.rsi!=null?`<div class="etf-rsi">RSI ${a.rsi}</div>`:''}
+      ${a.confiance!=null?`<div class="etf-conf">Conf. ${a.confiance}% · RSI ${a.rsi||'—'}</div>`:''}
       ${a.trailing_stop?`<div style="margin-top:4px;font-size:9px;color:var(--purple)">🛡 Trailing</div>`:''}
     </div>`;
   });
-  html+=`</div>`;
-  return html;
+  return html+`</div>`;
 }
 
-// ── Bloc IA ──
+// ── Chart intraday ──
+function buildChartHtml(history){
+  if(!history||history.length<2)
+    return `<div style="height:150px;display:flex;align-items:center;justify-content:center;color:var(--m);font-size:13px">Données en cours d'accumulation...</div>`;
+  return `<div class="chart-tabs">
+    <button class="chart-tab ${currentMode==='value'?'active':''}" onclick="switchChart(event,'value')">Valeur €</button>
+    <button class="chart-tab ${currentMode==='pnl'?'active':''}" onclick="switchChart(event,'pnl')">Perf. %</button>
+  </div><div class="chart-wrap"><canvas id="perfChart"></canvas></div>`;
+}
+function renderChart(history){
+  if(!history||history.length<2)return;
+  const ctx=document.getElementById('perfChart');if(!ctx)return;
+  const vals=currentMode==='value'?history.map(h=>h.v):history.map(h=>h.pnl);
+  const isPos=vals[vals.length-1]>=vals[0];
+  const col=isPos?'#00d97e':'#ff4757';
+  if(chartInstance){chartInstance.destroy();chartInstance=null;}
+  chartInstance=new Chart(ctx,{type:'line',
+    data:{labels:history.map(h=>h.t),datasets:[{data:vals,borderColor:col,backgroundColor:isPos?'rgba(0,217,126,.07)':'rgba(255,71,87,.07)',borderWidth:2,pointRadius:0,pointHoverRadius:4,fill:true,tension:.3}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,callbacks:{label:c=>currentMode==='value'?c.parsed.y.toFixed(2)+' €':(c.parsed.y>=0?'+':'')+c.parsed.y.toFixed(4)+' %'},backgroundColor:'#13161f',borderColor:'#252a3a',borderWidth:1,titleColor:'#4a5568',bodyColor:'#e2e8f0',padding:10}},
+      scales:{x:{grid:{color:'rgba(37,42,58,.7)'},ticks:{color:'#4a5568',maxTicksLimit:6,font:{size:9,family:'JetBrains Mono'}}},y:{grid:{color:'rgba(37,42,58,.7)'},ticks:{color:'#4a5568',font:{size:9,family:'JetBrains Mono'},callback:v=>currentMode==='value'?v.toFixed(0)+'€':v.toFixed(2)+'%'},position:'right'}}}
+  });
+}
+window.switchChart=function(e,mode){
+  currentMode=mode;
+  document.querySelectorAll('.chart-tab').forEach(t=>t.classList.remove('active'));
+  e.target.classList.add('active');
+  if(window._lastHistory)renderChart(window._lastHistory);
+};
+
+// ── Daily ──
+function buildDaily(daily){
+  if(!daily||!daily.length)
+    return `<div class="card"><p style="color:var(--m);font-size:13px;padding:4px 0">Les données journalières apparaîtront après la première journée.</p></div>`;
+  const sorted=[...daily].reverse();
+  const maxAbs=Math.max(...daily.map(d=>Math.abs(d.pnl||0)),.01);
+  let html=`<div class="daily-grid">`;
+  sorted.forEach(d=>{
+    const pnl=d.pnl||0,pct=d.pnl_pct||0;
+    const isPos=pnl>0,isZero=Math.abs(pnl)<.01;
+    const cls=isZero?'':isPos?'day-green':'day-red';
+    const pcls=isZero?'':isPos?'green':'red';
+    const barPct=Math.round(Math.abs(pnl)/maxAbs*100);
+    const date=d.date?d.date.split('-').slice(1).reverse().join('/'):'—';
+    html+=`<div class="day-card ${cls}">
+      <div class="day-date">${date}</div>
+      <div class="day-pnl ${pcls}">${pnl>=0?'+':''}${pnl.toFixed(2)}€</div>
+      <div class="day-sub">${pct>=0?'+':''}${pct.toFixed(3)}%</div>
+      <div class="day-bar-wrap"><div class="day-bar ${pcls}" style="width:${barPct}%"></div></div>
+    </div>`;
+  });
+  return html+`</div>`;
+}
+
+// ── IA ──
 function updateAiBlock(ai,thinking){
   const state=thinking?'thinking':(ai&&ai.decision?'done':'idle');
   const isGemini=ai&&ai.source&&ai.source.toLowerCase().includes('gemini');
@@ -377,61 +578,6 @@ function updateAiBlock(ai,thinking){
       <span class="cycle-cd" id="cycle-cd">5:00</span>
     </div>`;
   setTimeout(()=>{const f=document.getElementById('conf-fill');if(f)f.style.width=conf+'%';},200);
-}
-
-// ── Chart ──
-function buildChartHtml(history){
-  if(!history||history.length<2)
-    return `<div style="height:150px;display:flex;align-items:center;justify-content:center;color:var(--m);font-size:13px">Données en cours d'accumulation...</div>`;
-  return `<div class="chart-tabs">
-    <button class="chart-tab ${currentMode==='value'?'active':''}" onclick="switchChart(event,'value')">Valeur €</button>
-    <button class="chart-tab ${currentMode==='pnl'?'active':''}" onclick="switchChart(event,'pnl')">Perf. %</button>
-  </div><div class="chart-wrap"><canvas id="perfChart"></canvas></div>`;
-}
-function renderChart(history){
-  if(!history||history.length<2)return;
-  const ctx=document.getElementById('perfChart');if(!ctx)return;
-  const vals=currentMode==='value'?history.map(h=>h.v):history.map(h=>h.pnl);
-  const isPos=vals[vals.length-1]>=vals[0];
-  const col=isPos?'#00d97e':'#ff4757';
-  const fill=isPos?'rgba(0,217,126,.07)':'rgba(255,71,87,.07)';
-  if(chartInstance){chartInstance.destroy();chartInstance=null;}
-  chartInstance=new Chart(ctx,{type:'line',
-    data:{labels:history.map(h=>h.t),datasets:[{data:vals,borderColor:col,backgroundColor:fill,borderWidth:2,pointRadius:0,pointHoverRadius:4,fill:true,tension:.3}]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,callbacks:{label:c=>currentMode==='value'?c.parsed.y.toFixed(2)+' €':(c.parsed.y>=0?'+':'')+c.parsed.y.toFixed(4)+' %'},backgroundColor:'#13161f',borderColor:'#252a3a',borderWidth:1,titleColor:'#4a5568',bodyColor:'#e2e8f0',padding:10}},
-      scales:{x:{grid:{color:'rgba(37,42,58,.7)'},ticks:{color:'#4a5568',maxTicksLimit:6,font:{size:9,family:'JetBrains Mono'}}},y:{grid:{color:'rgba(37,42,58,.7)'},ticks:{color:'#4a5568',font:{size:9,family:'JetBrains Mono'},callback:v=>currentMode==='value'?v.toFixed(0)+'€':v.toFixed(2)+'%'},position:'right'}}}
-  });
-}
-window.switchChart=function(e,mode){
-  currentMode=mode;
-  document.querySelectorAll('.chart-tab').forEach(t=>t.classList.remove('active'));
-  e.target.classList.add('active');
-  if(window._lastHistory)renderChart(window._lastHistory);
-};
-
-// ── Daily ──
-function buildDaily(daily){
-  if(!daily||!daily.length)
-    return `<div class="card"><p style="color:var(--m);font-size:13px;padding:4px 0">Les données journalières apparaîtront après la première journée complète.</p></div>`;
-  const sorted=[...daily].reverse();
-  const maxAbs=Math.max(...daily.map(d=>Math.abs(d.pnl||0)),.01);
-  let html=`<div class="daily-grid">`;
-  sorted.forEach(d=>{
-    const pnl=d.pnl||0, pct=d.pnl_pct||0;
-    const isPos=pnl>0, isZero=Math.abs(pnl)<.01;
-    const cls=isZero?'':isPos?'day-green':'day-red';
-    const pcls=isZero?'':isPos?'green':'red';
-    const barPct=Math.round(Math.abs(pnl)/maxAbs*100);
-    const date=d.date?d.date.split('-').slice(1).reverse().join('/'):'—';
-    html+=`<div class="day-card ${cls}">
-      <div class="day-date">${date}</div>
-      <div class="day-pnl ${pcls}">${pnl>=0?'+':''}${pnl.toFixed(2)}€</div>
-      <div class="day-sub">${pct>=0?'+':''}${pct.toFixed(3)}%</div>
-      <div class="day-bar-wrap"><div class="day-bar ${pcls}" style="width:${barPct}%"></div></div>
-    </div>`;
-  });
-  return html+`</div>`;
 }
 
 // ── Orders ──
@@ -464,33 +610,59 @@ function startCycle(){
   let s=0;
   cycleTimer=setInterval(()=>{
     s++;
-    const rem=BOT_CYCLE-(s%BOT_CYCLE), pct=((s%BOT_CYCLE)/BOT_CYCLE)*100;
-    const f=document.getElementById('cycle-fill'), c=document.getElementById('cycle-cd');
+    const rem=BOT_CYCLE-(s%BOT_CYCLE),pct=((s%BOT_CYCLE)/BOT_CYCLE)*100;
+    const f=document.getElementById('cycle-fill'),c=document.getElementById('cycle-cd');
     if(f)f.style.width=pct+'%';
     if(c)c.textContent=`${Math.floor(rem/60)}:${(rem%60).toString().padStart(2,'0')}`;
   },1000);
 }
 
-// ── Update ──
+// ── Reconnexion auto ──
+function scheduleRetry(delay){
+  clearTimeout(retryTimer);
+  retryTimer=setTimeout(()=>updateDashboard(),delay);
+}
+
+// ── Update principal ──
 function updateDashboard(){
   setBrain('thinking');
-  document.getElementById('live-label').textContent='SYNC';
+  const lbl=document.getElementById('live-label');
+  const dot=document.getElementById('live-dot');
+  lbl.textContent='SYNC'; lbl.className='live-label';
+
+  const t0=Date.now();
 
   fetch(DATA_URL)
   .then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
   .then(data=>{
-    const ai=data.ai_analysis||{}, pos=data.positions||[], pnl=data.daily_pnl||0;
+    const latency=Date.now()-t0;
+    setLatency(latency);
+    failCount=0;
+    document.getElementById('reconnect-banner').classList.remove('show');
+    dot.style.background='var(--green)';
+    lbl.textContent='LIVE'; lbl.className='live-label green';
+
+    const ai=data.ai_analysis||{},pos=data.positions||[],pnl=data.daily_pnl||0;
+    const sa=data.symbols_analysis||{};
 
     // Stats
-    document.getElementById('s-equity').textContent=(data.portfolio_value||0).toFixed(2)+' €';
+    const equity=data.portfolio_value||0;
+    document.getElementById('s-equity').textContent=equity.toFixed(2)+' €';
     document.getElementById('s-cash').textContent=(data.cash||0).toFixed(2)+' €';
     const pe=document.getElementById('s-pnl');
     pe.textContent=(pnl>=0?'+':'')+pnl.toFixed(3)+' %';
     pe.className='stat-value '+(pnl>=0?'green':'red');
     document.getElementById('s-status').textContent=data.status||'—';
 
+    // Objectifs
+    buildObjectifs(equity);
+
+    // Candlestick SPY
+    window._lastHistory=data.history||[];
+    buildCandleChart(window._lastHistory, sa['SPY']);
+
     // ETF Grid
-    document.getElementById('etf-grid-section').innerHTML=buildEtfGrid(data.symbols_analysis||{});
+    document.getElementById('etf-grid-section').innerHTML=buildEtfGrid(sa);
 
     // Positions
     let posHtml=`<p style="color:var(--m);font-size:13px;padding:4px 0">Aucune position ouverte.</p>`;
@@ -499,45 +671,52 @@ function updateDashboard(){
       pos.forEach(p=>{
         const isP=p.pnl>=0;
         posHtml+=`<div class="pos-row">
-          <div>
-            <div class="pos-symbol">${ETF_FLAGS[p.symbol]||''} ${p.symbol}</div>
-            <div class="pos-qty">${p.qty} actions · ${ETF_NAMES[p.symbol]||''}</div>
-          </div>
+          <div><div class="pos-symbol">${ETF_FLAGS[p.symbol]||''} ${p.symbol}</div><div class="pos-qty">${p.qty} actions · ${ETF_NAMES[p.symbol]||''}</div></div>
           <div class="pos-pnl ${isP?'green':'red'}">${isP?'+':''}${p.pnl.toFixed(2)}%</div>
         </div>`;
       });
     }
     document.getElementById('positions-card').innerHTML=posHtml;
 
-    // Chart
-    window._lastHistory=data.history||[];
+    // Chart intraday
     document.getElementById('chart-card').innerHTML=buildChartHtml(window._lastHistory);
     setTimeout(()=>renderChart(window._lastHistory),50);
 
     // Daily
     document.getElementById('daily-section').innerHTML=buildDaily(data.daily_history||[]);
 
-    // AI
+    // IA
     updateAiBlock(ai,false);
 
     // Orders
     document.getElementById('orders-section').innerHTML=buildOrders(data.orders||[]);
 
-    document.getElementById('live-dot').style.background='var(--green)';
-    document.getElementById('live-label').textContent='LIVE';
     startCycle();
-    document.getElementById('refresh-time').textContent='Mise à jour : '+new Date().toLocaleTimeString();
+    document.getElementById('refresh-time').textContent=`Mise à jour : ${new Date().toLocaleTimeString()} · ${latency}ms`;
   })
   .catch(err=>{
-    document.getElementById('positions-card').innerHTML=`<div class="error-card"><strong>⚠️ Connexion perdue</strong><p>${err.message}</p></div>`;
-    document.getElementById('live-dot').style.background='var(--red)';
-    document.getElementById('live-label').textContent='OFFLINE';
+    failCount++;
+    dot.style.background='var(--red)';
+    lbl.textContent='OFFLINE'; lbl.className='live-label red';
     setBrain('idle');
+    setLatency(9999);
+
+    // Banner reconnexion
+    document.getElementById('reconnect-banner').classList.add('show');
+
+    // Retry exponentiel : 5s, 10s, 30s, 60s, 60s...
+    const delays=[5000,10000,30000,60000];
+    const delay=delays[Math.min(failCount-1,delays.length-1)];
+    document.getElementById('reconnect-banner').textContent=
+      `⚡ Connexion perdue (${err.message}) — reconnexion dans ${delay/1000}s...`;
+    scheduleRetry(delay);
+
+    document.getElementById('refresh-time').textContent=`Dernière tentative : ${new Date().toLocaleTimeString()} · Erreur`;
   });
 }
 
 updateDashboard();
-setInterval(updateDashboard,REFRESH);
+setInterval(updateDashboard, REFRESH);
 </script>
 </body>
 </html>
