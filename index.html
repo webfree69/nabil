@@ -2,38 +2,51 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trading Dashboard - 150.241.230.207</title>
+    <title>Trading Dashboard - nabilh.eu</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #121212;
-            color: #ffffff;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        body { background-color: #121212; color: white; font-family: sans-serif; text-align: center; padding: 50px; }
+        .card { background: #1e1e1e; padding: 20px; border-radius: 10px; border: 1px solid #333; margin: 10px; display: inline-block; min-width: 300px; }
+        .error-msg { color: #ff1744; font-weight: bold; font-size: 0.8rem; }
+        h1 { color: #00e676; }
+    </style>
+</head>
+<body>
+    <h1>Terminal de Trading</h1>
+    
+    <div class="card">
+        <h2>État du Serveur</h2>
+        <p id="status">Vérification de la connexion au VPS...</p>
+    </div>
+
+    <div class="card">
+        <h2>Portefeuille</h2>
+        <div id="portfolio-data">Chargement des 500 $...</div>
+    </div>
+
+    <script>
+        // On teste le port 5001 sur ton IP
+        const API_URL = 'http://150.241.230.207:5001/api/portfolio';
+
+        async function testConnection() {
+            const statusEl = document.getElementById('status');
+            const portEl = document.getElementById('portfolio-data');
+
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error('Réponse serveur non valide');
+                const data = await response.json();
+                
+                statusEl.innerHTML = "✅ Connecté au VPS";
+                portEl.innerHTML = `Capital : ${data.capital_actuel} $`;
+            } catch (err) {
+                statusEl.innerHTML = "❌ Erreur de Connexion";
+                portEl.innerHTML = `<span class="error-msg">Impossible de contacter le VPS sur le port 5001.<br>
+                Cause probable : Blocage HTTPS/HTTP (Mixed Content).</span>`;
+                console.error(err);
+            }
         }
-        h1 {
-            color: #00e676;
-            margin-bottom: 30px;
-        }
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            width: 100%;
-            max-width: 1200px;
-        }
-        .card {
-            background-color: #1e1e1e;
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #333;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
-        .card h2 {
-            font-size: 1.2rem;
-            color: #b0bec5;
-            border-bottom: 1px solid
+
+        testConnection();
+    </script>
+</body>
+</html>
