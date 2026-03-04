@@ -48,4 +48,285 @@
     .market-badge.open .dot { background:var(--green); animation:pulse 1.5s infinite; }
     .market-badge.closed .dot { background:var(--red); }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-    main {
+    main { max-width:1200px; margin:0 auto; padding:28px 24px; }
+    .kpi-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(175px, 1fr));
+      gap:16px; margin-bottom:32px;
+    }
+    .kpi-card {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:12px; padding:20px;
+      transition:border-color 0.2s, transform 0.2s;
+    }
+    .kpi-card:hover { border-color:var(--blue); transform:translateY(-2px); }
+    .kpi-label {
+      font-size:0.72rem; color:var(--text-muted);
+      text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px;
+    }
+    .kpi-value { font-size:1.6rem; font-weight:700; line-height:1; }
+    .kpi-sub   { font-size:0.78rem; color:var(--text-muted); margin-top:6px; }
+    .green { color:var(--green); }
+    .red   { color:var(--red); }
+    .blue  { color:var(--blue); }
+    .pnl-bar-bg { background:var(--border); border-radius:4px; height:6px; margin-top:10px; overflow:hidden; }
+    .pnl-bar    { height:6px; border-radius:4px; width:0%; transition:width 1s ease; }
+    .section { margin-bottom:32px; }
+    .section-header { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+    .section-header h2 {
+      font-size:0.85rem; text-transform:uppercase;
+      letter-spacing:1px; color:var(--text-muted); font-weight:600;
+    }
+    .count {
+      background:var(--border); color:var(--text-muted);
+      border-radius:10px; padding:2px 8px; font-size:0.72rem;
+    }
+    .table-wrapper {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:12px; overflow:hidden;
+    }
+    table { width:100%; border-collapse:collapse; }
+    thead tr { background:var(--bg-hover); }
+    th {
+      padding:12px 16px; text-align:left;
+      font-size:0.75rem; color:var(--text-muted);
+      font-weight:600; text-transform:uppercase;
+      letter-spacing:0.5px; border-bottom:1px solid var(--border);
+    }
+    td { padding:13px 16px; font-size:0.875rem; border-bottom:1px solid var(--border); }
+    tr:last-child td { border-bottom:none; }
+    tbody tr:hover td { background:var(--bg-hover); }
+    .symbol-badge {
+      display:inline-block; background:var(--bg-hover);
+      border:1px solid var(--border); border-radius:6px;
+      padding:2px 8px; font-weight:700; font-size:0.82rem; color:var(--blue);
+    }
+    .side-badge { display:inline-block; padding:3px 10px; border-radius:6px; font-size:0.75rem; font-weight:700; }
+    .side-badge.buy  { background:var(--green-bg); color:var(--green); }
+    .side-badge.sell { background:var(--red-bg);   color:var(--red); }
+    .status-badge {
+      display:inline-block; padding:3px 10px; border-radius:6px;
+      font-size:0.72rem; font-weight:600;
+      background:var(--bg-hover); color:var(--text-muted);
+    }
+    .empty-state { text-align:center; padding:40px; color:var(--text-muted); font-size:0.875rem; }
+    .empty-state .icon { font-size:2rem; margin-bottom:8px; }
+    .loader {
+      display:flex; justify-content:center; align-items:center;
+      height:60vh; flex-direction:column; gap:16px; color:var(--text-muted);
+    }
+    .spinner {
+      width:36px; height:36px;
+      border:3px solid var(--border); border-top-color:var(--blue);
+      border-radius:50%; animation:spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    #content   { display:none; }
+    #error-msg { display:none; text-align:center; padding:60px 20px; color:var(--red); }
+    footer {
+      text-align:center; padding:24px;
+      color:var(--text-muted); font-size:0.75rem;
+      border-top:1px solid var(--border); margin-top:16px;
+    }
+    @media (max-width:640px) {
+      header { padding:12px 16px; }
+      main   { padding:16px; }
+      .kpi-value { font-size:1.3rem; }
+      th, td { padding:10px; font-size:0.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">📈 <span>nabilh</span>.eu &nbsp;·&nbsp; Trading Dashboard</div>
+  <div class="header-right">
+    <span class="updated-header" id="updated-at">Chargement...</span>
+    <div class="market-badge closed" id="market-badge">
+      <div class="dot"></div>
+      <span id="market-text">--</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="loader" id="loader">
+    <div class="spinner"></div>
+    <span>Chargement des données...</span>
+  </div>
+
+  <div id="error-msg">
+    ⚠️ Impossible de charger les données.<br>
+    <small>Vérifie le Bin ID et la clé JSONBin.</small>
+  </div>
+
+  <div id="content">
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">💼 Capital départ</div>
+        <div class="kpi-value blue">500,00 $</div>
+        <div class="kpi-sub">Paper Trading</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">📊 Equity actuelle</div>
+        <div class="kpi-value" id="equity">--</div>
+        <div class="kpi-sub" id="equity-diff">--</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">📅 Gain / Perte du jour</div>
+        <div class="kpi-value" id="daily-pnl">--</div>
+        <div class="pnl-bar-bg"><div class="pnl-bar" id="pnl-bar"></div></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">🚀 Performance totale</div>
+        <div class="kpi-value" id="total-perf">--</div>
+        <div class="kpi-sub">Depuis 500,00 $</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">🔁 Trades aujourd'hui</div>
+        <div class="kpi-value blue" id="trade-count">--</div>
+        <div class="kpi-sub" id="trade-sub">--</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">📂 Positions ouvertes</div>
+        <div class="kpi-value blue" id="pos-count">--</div>
+        <div class="kpi-sub">Actives en ce moment</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <h2>📂 Positions ouvertes</h2>
+        <span class="count" id="pos-count-badge">0</span>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Symbole</th><th>Qté</th><th>Prix entrée</th>
+              <th>Prix actuel</th><th>P&L $</th><th>P&L %</th>
+            </tr>
+          </thead>
+          <tbody id="positions-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <h2>📋 Trades du jour</h2>
+        <span class="count" id="trades-count-badge">0</span>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Heure</th><th>Symbole</th><th>Direction</th>
+              <th>Quantité</th><th>Prix</th><th>Statut</th>
+            </tr>
+          </thead>
+          <tbody id="trades-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  nabilh.eu — Bot de trading automatisé &nbsp;·&nbsp; Paper Trading uniquement &nbsp;·&nbsp; Refresh auto 60s
+</footer>
+
+<script>
+  const PORTFOLIO_START = 500;
+  const BIN_ID     = "69a8a99643b1c97be9b3f08c";
+  const ACCESS_KEY = "$2a$10$OTrOojoAdAvLTpLSoKfmqu6uhN04f2qug6TgvFD2gx7KmZFrX8jzi";
+
+  function fmt(val, d=2) {
+    return parseFloat(val).toLocaleString('fr-FR', {
+      minimumFractionDigits:d, maximumFractionDigits:d
+    });
+  }
+  function sc(val) { return parseFloat(val) >= 0 ? 'green' : 'red'; }
+  function ss(val) { return parseFloat(val) >= 0 ? '+' : ''; }
+
+  fetch('https://api.jsonbin.io/v3/b/' + BIN_ID + '/latest', {
+    headers: { 'X-Master-Key': ACCESS_KEY }
+  })
+  .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+  .then(response => {
+    const d = response.record;
+    document.getElementById('loader').style.display  = 'none';
+    document.getElementById('content').style.display = 'block';
+
+    const badge = document.getElementById('market-badge');
+    badge.className = 'market-badge ' + (d.market_open ? 'open' : 'closed');
+    document.getElementById('market-text').textContent = d.market_open ? 'Bourse ouverte' : 'Bourse fermée';
+    document.getElementById('updated-at').textContent  = 'Mis à jour : ' + d.updated_at;
+
+    const diff = d.equity - PORTFOLIO_START;
+    document.getElementById('equity').textContent = '$' + fmt(d.equity);
+    document.getElementById('equity-diff').innerHTML =
+      '<span class="' + sc(diff) + '">' + ss(diff) + '$' + fmt(diff) + ' depuis le départ</span>';
+
+    const pnlEl = document.getElementById('daily-pnl');
+    pnlEl.textContent = ss(d.daily_pnl) + '$' + fmt(d.daily_pnl) +
+                        ' (' + ss(d.daily_pnl_pct) + fmt(d.daily_pnl_pct) + '%)';
+    pnlEl.className = 'kpi-value ' + sc(d.daily_pnl);
+    const bar = document.getElementById('pnl-bar');
+    bar.style.width      = Math.min(Math.abs(d.daily_pnl_pct) * 10, 100) + '%';
+    bar.style.background = parseFloat(d.daily_pnl) >= 0 ? 'var(--green)' : 'var(--red)';
+
+    const tp   = ((d.equity - PORTFOLIO_START) / PORTFOLIO_START * 100);
+    const tpEl = document.getElementById('total-perf');
+    tpEl.textContent = ss(tp) + fmt(tp) + '%';
+    tpEl.className   = 'kpi-value ' + sc(tp);
+
+    const buys  = d.trades_today.filter(t => t.side.toLowerCase().includes('buy')).length;
+    const sells = d.trades_today.filter(t => t.side.toLowerCase().includes('sell')).length;
+    document.getElementById('trade-count').textContent        = d.trades_today.length;
+    document.getElementById('trades-count-badge').textContent = d.trades_today.length;
+    document.getElementById('trade-sub').textContent          = buys + ' achats · ' + sells + ' ventes';
+
+    document.getElementById('pos-count').textContent        = d.open_positions.length;
+    document.getElementById('pos-count-badge').textContent  = d.open_positions.length;
+
+    const posTbody = document.getElementById('positions-table');
+    posTbody.innerHTML = d.open_positions.length === 0
+      ? '<tr><td colspan="6"><div class="empty-state"><div class="icon">📭</div>Aucune position ouverte</div></td></tr>'
+      : d.open_positions.map(p => {
+          const pnl    = parseFloat(p.pnl);
+          const pnlPct = (parseFloat(p.pnl_pct) * 100).toFixed(2);
+          return '<tr>' +
+            '<td><span class="symbol-badge">' + p.symbol + '</span></td>' +
+            '<td>' + p.qty + '</td>' +
+            '<td>$' + fmt(p.entry) + '</td>' +
+            '<td>$' + fmt(p.current) + '</td>' +
+            '<td class="' + sc(pnl) + '">' + ss(pnl) + '$' + fmt(pnl) + '</td>' +
+            '<td class="' + sc(pnl) + '">' + ss(pnl) + pnlPct + '%</td>' +
+            '</tr>';
+        }).join('');
+
+    const tradeTbody = document.getElementById('trades-table');
+    tradeTbody.innerHTML = d.trades_today.length === 0
+      ? '<tr><td colspan="6"><div class="empty-state"><div class="icon">📋</div>Aucun trade aujourd\'hui</div></td></tr>'
+      : [...d.trades_today].reverse().map(t => {
+          const isBuy = t.side.toLowerCase().includes('buy');
+          return '<tr>' +
+            '<td>' + t.time + '</td>' +
+            '<td><span class="symbol-badge">' + t.symbol + '</span></td>' +
+            '<td><span class="side-badge ' + (isBuy ? 'buy' : 'sell') + '">' +
+              (isBuy ? '▲ BUY' : '▼ SELL') + '</span></td>' +
+            '<td>' + t.qty + '</td>' +
+            '<td>$' + fmt(t.price) + '</td>' +
+            '<td><span class="status-badge">' + t.status + '</span></td>' +
+            '</tr>';
+        }).join('');
+  })
+  .catch(() => {
+    document.getElementById('loader').style.display    = 'none';
+    document.getElementById('error-msg').style.display = 'block';
+  });
+</script>
+
+</body>
+</html>
