@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Tableau de bord â 2026-03-05</title>
+<title>Tableau de bord â 2026-03-05</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;line-height:1.5}
@@ -11,281 +11,448 @@ a{color:#58a6ff}
 h1{font-size:22px;font-weight:700;color:#f0f6fc}
 h2{font-size:15px;font-weight:600;color:#8b949e;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
 .header{background:#161b22;border-bottom:1px solid #30363d;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
-.header-right{font-size:12px;color:#6e7681}
+.header-right{font-size:12px;color:#6e7681;display:flex;align-items:center;gap:16px}
+.market-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent}
+.market-open{background:rgba(63,185,80,0.12);border-color:rgba(63,185,80,0.35);color:#3fb950}
+.market-closed{background:rgba(248,81,73,0.12);border-color:rgba(248,81,73,0.35);color:#f85149}
+.market-countdown{font-size:11px;color:#8b949e;margin-top:2px}
 .main{padding:24px;max-width:1400px;margin:0 auto}
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:28px}
 .kpi{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px}
 .kpi label{font-size:11px;color:#6e7681;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px}
 .kpi .val{font-size:22px;font-weight:700;color:#f0f6fc}
 .kpi .sub{font-size:12px;color:#6e7681;margin-top:4px}
-.card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;margin-bottom:24px;overflow-x:auto}
-table{width:100%;border-collapse:collapse;min-width:500px}
-th{background:#0d1117;color:#6e7681;font-size:11px;text-transform:uppercase;letter-spacing:.06em;padding:8px 12px;text-align:left;border-bottom:1px solid #30363d;white-space:nowrap}
-td{padding:9px 12px;border-bottom:1px solid #21262d;vertical-align:middle}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:#1c2128}
-.pos{color:#3fb950}
-.neg{color:#f85149}
-.dim{color:#6e7681}
-.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;letter-spacing:.04em}
-.badge-buy{background:#1a3a2a;color:#3fb950;border:1px solid #2ea043}
-.badge-sell{background:#3a1a1a;color:#f85149;border:1px solid #da3633}
-.badge-filled{background:#1a2a3a;color:#58a6ff;border:1px solid #388bfd}
-.badge-cancel{background:#2a2a1a;color:#d29922;border:1px solid #bb8009}
-.badge-new{background:#1a2a1a;color:#3fb950;border:1px solid #2ea043}
-.section-title{display:flex;align-items:center;gap:8px;margin-bottom:16px}
-.dot{width:8px;height:8px;border-radius:50%;background:#3fb950;display:inline-block;flex-shrink:0}
-.dot-red{background:#f85149}
-.footer{text-align:center;padding:24px;color:#484f58;font-size:12px;border-top:1px solid #21262d;margin-top:8px}
+
+/* Gain/Perte du jour â special card */
+.kpi-pnl{border:1px solid rgba(248,81,73,0.3);background:rgba(248,81,73,0.08)}
+.kpi-pnl .val{color:#f85149;font-size:26px}
+.kpi-pnl .sub{color:#f85149;opacity:0.8}
+
+.card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;margin-bottom:20px}
+table{width:100%;border-collapse:collapse}
+thead th{font-size:11px;color:#6e7681;text-transform:uppercase;letter-spacing:.06em;padding:8px 12px;text-align:left;border-bottom:1px solid #30363d}
+tbody tr{border-bottom:1px solid #21262d}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#1c2128}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+
+/* Trades per day chart card */
+.trades-card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;margin-bottom:20px;display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
+.trades-kpi{min-width:140px}
+.trades-chart-wrap{flex:1;min-width:280px}
+canvas{display:block;width:100%;height:90px}
 </style>
 </head>
 <body>
-<header class="header">
+
+<div class="header">
   <div>
-    <h1>&#128202; Tableau de bord de trading</h1>
-    <div class="header-right">Compte papier Alpaca &nbsp;|&nbsp; Mis &#224; jour&#160;: 08:41:32 PM UTC</div>
+    <h1>ð Tableau de bord Trading</h1>
+    <div style="font-size:12px;color:#6e7681;margin-top:4px">Mise Ã  jour : 2026-03-05 20:43 UTC â¢ Compte paper Alpaca</div>
   </div>
-  <div class="header-right">03/05/2026</div>
-</header>
-<main class="main">
+  <div class="header-right">
+    <div>
+      <div id="market-badge" class="market-badge">â³ Chargementâ¦</div>
+      <div id="market-countdown" class="market-countdown"></div>
+    </div>
+    <div>
+      <div style="color:#f0f6fc;font-weight:600">$93782.28</div>
+      <div>Valeur du portefeuille</div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- KPI ROW 1 -->
   <div class="kpi-grid">
+
+    <!-- GAIN/PERTE DU JOUR -->
+    <div class="kpi kpi-pnl" style="grid-column:span 2">
+      <label>ð Gain / Perte du jour</label>
+      <div class="val">$529.1157724633667</div>
+      <div class="sub">-0.56% vs portefeuille Â· Equity hier : $94311.39577246337</div>
+    </div>
+
     <div class="kpi">
       <label>Valeur du portefeuille</label>
-      <div class="val">93740.46Â $</div>
-      <div class="sub">Compte papier</div>
+      <div class="val">$93782.28</div>
+      <div class="sub">Hier : $94311.39577246337</div>
     </div>
+
     <div class="kpi">
-      <label>P&amp;L du jour</label>
-      <div class="val neg">-570.94Â $</div>
-      <div class="sub">Vs clÃ´ture prÃ©c.Â : 94311.4Â $</div>
+      <label>Cash disponible</label>
+      <div class="val">$130676.99</div>
+      <div class="sub">Pouvoir d'achat : $150667.95</div>
     </div>
+
     <div class="kpi">
-      <label>LiquiditÃ©s</label>
-      <div class="val">102770.73Â $</div>
-      <div class="sub">Disponible immÃ©diatement</div>
+      <label>P&amp;L non rÃ©alisÃ©</label>
+      <div class="val" style="color:#3fb950">+$37.17</div>
+      <div class="sub">Intraday : +$37.17</div>
     </div>
-    <div class="kpi">
-      <label>Pouvoir d&apos;achat</label>
-      <div class="val">178448.75Â $</div>
-      <div class="sub">Marge incluse</div>
-    </div>
+
     <div class="kpi">
       <label>Positions ouvertes</label>
-      <div class="val">2</div>
-      <div class="sub">Actives en ce moment</div>
+      <div class="val">4</div>
+      <div class="sub">Long : $0.95 Â· Short : $36896</div>
     </div>
-    <div class="kpi">
-      <label>Ordres rÃ©cents</label>
-      <div class="val">20</div>
-      <div class="sub">DerniÃ¨re session</div>
+
+  </div>
+
+  <!-- TRADES PAR JOUR CARD -->
+  <div class="trades-card">
+    <div class="trades-kpi">
+      <label style="font-size:11px;color:#6e7681;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px">ð Trades aujourd'hui</label>
+      <div style="font-size:36px;font-weight:700;color:#f0f6fc">89</div>
+      <div style="font-size:12px;color:#6e7681;margin-top:4px">ordres exÃ©cutÃ©s<br>le 2026-03-05</div>
+    </div>
+    <div class="trades-chart-wrap">
+      <label style="font-size:11px;color:#6e7681;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:8px">Trades par jour â 30 derniers jours</label>
+      <canvas id="tradesChart" height="90"></canvas>
     </div>
   </div>
+
+  <!-- POSITIONS -->
   <div class="card">
-    <div class="section-title">
-      <span class="dot"></span>
-      <h2 style="margin:0">Signaux actifs</h2>
-    </div>
+    <h2>Positions ouvertes</h2>
+    <div style="overflow-x:auto">
     <table>
-      <thead><tr>
-        <th>Titre</th>
-        <th>Signal</th>
-        <th>Variation du jour</th>
-        <th>Prix actuel</th>
-        <th>Valeur de marchÃ©</th>
-      </tr></thead>
-      <tbody><tr>
-      <td><strong>MSFT</strong></td>
-      <td><span class="badge badge-sell">Baissier</span></td>
-      <td class="pos">+1.31Â %</td>
-      <td>410.51Â $</td>
-      <td>-9031.22Â $</td>
-    </tr><tr>
-      <td><strong>NVDA</strong></td>
-      <td><span class="badge badge-buy">Haussier</span></td>
-      <td class="neg">-0.36Â %</td>
-      <td>182.385Â $</td>
-      <td>0.952352Â $</td>
-    </tr></tbody>
+      <thead>
+        <tr>
+          <th>Symbole</th><th>Sens</th><th>QuantitÃ©</th><th>Prix moyen</th><th>Prix actuel</th><th>ClÃ´ture veille</th><th>P&amp;L intraday</th><th>Valeur marchÃ©</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+    <tr>
+      <td style="padding:10px 12px;font-weight:600">COIN</td>
+      <td style="padding:10px 12px"><span style="background:#4d1f1f;color:#f85149;padding:2px 8px;border-radius:4px;font-size:11px">Short</span></td>
+      <td style="padding:10px 12px">45</td>
+      <td style="padding:10px 12px">$205.97</td>
+      <td style="padding:10px 12px">$205.82</td>
+      <td style="padding:10px 12px">$208.93</td>
+      <td style="padding:10px 12px;color:#3fb950;font-weight:600">+$6.62 <span style="color:#3fb950">(+0.07%)</span></td>
+      <td style="padding:10px 12px">$9261.90</td>
+    </tr>
+    <tr>
+      <td style="padding:10px 12px;font-weight:600">MSFT</td>
+      <td style="padding:10px 12px"><span style="background:#4d1f1f;color:#f85149;padding:2px 8px;border-radius:4px;font-size:11px">Short</span></td>
+      <td style="padding:10px 12px">22</td>
+      <td style="padding:10px 12px">$410.30</td>
+      <td style="padding:10px 12px">$409.78</td>
+      <td style="padding:10px 12px">$405.20</td>
+      <td style="padding:10px 12px;color:#3fb950;font-weight:600">+$11.41 <span style="color:#3fb950">(+0.13%)</span></td>
+      <td style="padding:10px 12px">$9015.16</td>
+    </tr>
+    <tr>
+      <td style="padding:10px 12px;font-weight:600">MSTR</td>
+      <td style="padding:10px 12px"><span style="background:#4d1f1f;color:#f85149;padding:2px 8px;border-radius:4px;font-size:11px">Short</span></td>
+      <td style="padding:10px 12px">132</td>
+      <td style="padding:10px 12px">$141.19</td>
+      <td style="padding:10px 12px">$141.05</td>
+      <td style="padding:10px 12px">$146.44</td>
+      <td style="padding:10px 12px;color:#3fb950;font-weight:600">+$19.14 <span style="color:#3fb950">(+0.10%)</span></td>
+      <td style="padding:10px 12px">$18618.60</td>
+    </tr>
+    <tr>
+      <td style="padding:10px 12px;font-weight:600">NVDA</td>
+      <td style="padding:10px 12px"><span style="background:#1f4d2a;color:#3fb950;padding:2px 8px;border-radius:4px;font-size:11px">Long</span></td>
+      <td style="padding:10px 12px">0.005221659</td>
+      <td style="padding:10px 12px">$181.98</td>
+      <td style="padding:10px 12px">$182.34</td>
+      <td style="padding:10px 12px">$183.04</td>
+      <td style="padding:10px 12px;color:#f85149;font-weight:600">$0.00 <span style="color:#f85149">(-0.38%)</span></td>
+      <td style="padding:10px 12px">$0.95</td>
+    </tr>
+      </tbody>
     </table>
+    </div>
   </div>
+
+  <!-- DERNIERS ORDRES -->
   <div class="card">
-    <div class="section-title">
-      <span class="dot"></span>
-      <h2 style="margin:0">Positions ouvertes</h2>
-    </div>
+    <h2>Derniers ordres exÃ©cutÃ©s</h2>
+    <div style="overflow-x:auto">
     <table>
-      <thead><tr>
-        <th>Titre</th>
-        <th>Direction</th>
-        <th>QuantitÃ©</th>
-        <th>Prix d&apos;entrÃ©e</th>
-        <th>Prix actuel</th>
-        <th>Valeur de marchÃ©</th>
-        <th>P&amp;L non rÃ©alisÃ©</th>
-        <th>P&amp;L %</th>
-      </tr></thead>
-      <tbody><tr>
-      <td><strong>MSFT</strong></td>
-      <td><span class="badge badge-sell">Vente</span></td>
-      <td>22</td>
-      <td>410.298637Â $</td>
-      <td>410.51Â $</td>
-      <td>-9031.22Â $</td>
-      <td class="neg">-4.65Â $</td>
-      <td class="neg">-0.05Â %</td>
-    </tr><tr>
-      <td><strong>NVDA</strong></td>
-      <td><span class="badge badge-buy">Achat</span></td>
-      <td>0.005221659</td>
-      <td>181.982363Â $</td>
-      <td>182.385Â $</td>
-      <td>0.952352Â $</td>
-      <td class="pos">+0Â $</td>
-      <td class="pos">+0.22Â %</td>
-    </tr></tbody>
+      <thead>
+        <tr><th>Symbole</th><th>Sens</th><th>QuantitÃ©</th><th>Prix exÃ©cutÃ©</th><th>Date/Heure</th></tr>
+      </thead>
+      <tbody>
+        
+    <tr>
+      <td style="padding:8px 12px">MSTR</td>
+      <td style="padding:8px 12px;color:#f85149;font-weight:600">Vente</td>
+      <td style="padding:8px 12px">66</td>
+      <td style="padding:8px 12px">$141.22</td>
+      <td style="padding:8px 12px;font-size:11px;color:#6e7681">2026-03-05 20:40 UTC</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px">MSTR</td>
+      <td style="padding:8px 12px;color:#f85149;font-weight:600">Vente</td>
+      <td style="padding:8px 12px">66</td>
+      <td style="padding:8px 12px">$141.17</td>
+      <td style="padding:8px 12px;font-size:11px;color:#6e7681">2026-03-05 20:40 UTC</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px">COIN</td>
+      <td style="padding:8px 12px;color:#f85149;font-weight:600">Vente</td>
+      <td style="padding:8px 12px">45</td>
+      <td style="padding:8px 12px">$205.97</td>
+      <td style="padding:8px 12px;font-size:11px;color:#6e7681">2026-03-05 20:40 UTC</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px">MSTR</td>
+      <td style="padding:8px 12px;color:#3fb950;font-weight:600">Achat</td>
+      <td style="padding:8px 12px">66</td>
+      <td style="padding:8px 12px">$141.38</td>
+      <td style="padding:8px 12px;font-size:11px;color:#6e7681">2026-03-05 20:35 UTC</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px">MSTR</td>
+      <td style="padding:8px 12px;color:#3fb950;font-weight:600">Achat</td>
+      <td style="padding:8px 12px">66</td>
+      <td style="padding:8px 12px">$141.38</td>
+      <td style="padding:8px 12px;font-size:11px;color:#6e7681">2026-03-05 20:35 UTC</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px">COIN</td>
+      <td style="padding:8px 12px;color:#3fb950;font-weight:600">Achat</td>
+      <td style="padding:8px 12px">45</td>
+      <td style="padding:8px 12px">$205.71</td>
+      <td style="padding:8px 12px;font-size:11px;color:#6e7681">2026-03-05 20:35 UTC</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px">MSFT</td>
+      <td style="padding:8px 12px;color:#f85149;font-weight:600">Vente</td>
+      <td style="padding:8px 12px">22</td>
+      <td style="padding:8px 12px">$410.30</td>
+      <td style="padding:8px 12px;font-size:11px;color:#6e7681">2026-03-05 20:35 UTC</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px">COIN</td>
+      <td style="padding:8px 12px;color:#f85149;font-weight:600">Vente</td>
+      <td style="padding:8px 12px">45</td>
+      <td style="padding:8px 12px">$205.00</td>
+      <td style="padding:8px 12px;font-size:11px;color:#6e7681">2026-03-05 20:30 UTC</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px">MSFT</td>
+      <td style="padding:8px 12px;color:#3fb950;font-weight:600">Achat</td>
+      <td style="padding:8px 12px">22</td>
+      <td style="padding:8px 12px">$410.28</td>
+      <td style="padding:8px 12px;font-size:11px;color:#6e7681">2026-03-05 20:26 UTC</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px">MSTR</td>
+      <td style="padding:8px 12px;color:#f85149;font-weight:600">Vente</td>
+      <td style="padding:8px 12px">66</td>
+      <td style="padding:8px 12px">$140.90</td>
+      <td style="padding:8px 12px;font-size:11px;color:#6e7681">2026-03-05 20:25 UTC</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px">MSFT</td>
+      <td style="padding:8px 12px;color:#f85149;font-weight:600">Vente</td>
+      <td style="padding:8px 12px">22</td>
+      <td style="padding:8px 12px">$409.77</td>
+      <td style="padding:8px 12px;font-size:11px;color:#6e7681">2026-03-05 20:25 UTC</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px">MSTR</td>
+      <td style="padding:8px 12px;color:#f85149;font-weight:600">Vente</td>
+      <td style="padding:8px 12px">66</td>
+      <td style="padding:8px 12px">$140.76</td>
+      <td style="padding:8px 12px;font-size:11px;color:#6e7681">2026-03-05 20:25 UTC</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px">AAPL</td>
+      <td style="padding:8px 12px;color:#f85149;font-weight:600">Vente</td>
+      <td style="padding:8px 12px">2</td>
+      <td style="padding:8px 12px">$259.19</td>
+      <td style="padding:8px 12px;font-size:11px;color:#6e7681">2026-03-05 20:24 UTC</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px">MSFT</td>
+      <td style="padding:8px 12px;color:#3fb950;font-weight:600">Achat</td>
+      <td style="padding:8px 12px">22</td>
+      <td style="padding:8px 12px">$409.80</td>
+      <td style="padding:8px 12px;font-size:11px;color:#6e7681">2026-03-05 20:23 UTC</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px">COIN</td>
+      <td style="padding:8px 12px;color:#3fb950;font-weight:600">Achat</td>
+      <td style="padding:8px 12px">45</td>
+      <td style="padding:8px 12px">$205.20</td>
+      <td style="padding:8px 12px;font-size:11px;color:#6e7681">2026-03-05 20:21 UTC</td>
+    </tr>
+      </tbody>
     </table>
-  </div>
-  <div class="card">
-    <div class="section-title">
-      <span class="dot dot-red"></span>
-      <h2 style="margin:0">Historique des trades</h2>
     </div>
-    <table>
-      <thead><tr>
-        <th>Date</th>
-        <th>Titre</th>
-        <th>Sens</th>
-        <th>QuantitÃ©</th>
-        <th>Type d&apos;ordre</th>
-        <th>Prix exÃ©cutÃ©</th>
-        <th>Statut</th>
-      </tr></thead>
-      <tbody><tr>
-      <td class="dim">03/05/2026 08:35:45 PM</td>
-      <td><strong>MSTR</strong></td>
-      <td><span class="badge badge-buy">Achat</span></td>
-      <td>66</td>
-      <td>Stop</td>
-      <td>141.38Â $</td>
-      <td><span class="badge badge-filled">ExÃ©cutÃ©</span></td>
-    </tr><tr>
-      <td class="dim">03/05/2026 08:35:45 PM</td>
-      <td><strong>MSTR</strong></td>
-      <td><span class="badge badge-buy">Achat</span></td>
-      <td>66</td>
-      <td>Stop</td>
-      <td>141.375Â $</td>
-      <td><span class="badge badge-filled">ExÃ©cutÃ©</span></td>
-    </tr><tr>
-      <td class="dim">03/05/2026 08:35:45 PM</td>
-      <td><strong>COIN</strong></td>
-      <td><span class="badge badge-buy">Achat</span></td>
-      <td>45</td>
-      <td>Stop</td>
-      <td>205.71Â $</td>
-      <td><span class="badge badge-filled">ExÃ©cutÃ©</span></td>
-    </tr><tr>
-      <td class="dim">03/05/2026 08:35:21 PM</td>
-      <td><strong>MSFT</strong></td>
-      <td><span class="badge badge-sell">Vente</span></td>
-      <td>22</td>
-      <td>MarchÃ©</td>
-      <td>410.298637Â $</td>
-      <td><span class="badge badge-filled">ExÃ©cutÃ©</span></td>
-    </tr><tr>
-      <td class="dim">03/05/2026 08:30:22 PM</td>
-      <td><strong>COIN</strong></td>
-      <td><span class="badge badge-buy">Achat</span></td>
-      <td>45</td>
-      <td>Limite</td>
-      <td>â</td>
-      <td><span class="badge badge-cancel">AnnulÃ©</span></td>
-    </tr><tr>
-      <td class="dim">03/05/2026 08:30:20 PM</td>
-      <td><strong>COIN</strong></td>
-      <td><span class="badge badge-sell">Vente</span></td>
-      <td>45</td>
-      <td>MarchÃ©</td>
-      <td>205Â $</td>
-      <td><span class="badge badge-filled">ExÃ©cutÃ©</span></td>
-    </tr><tr>
-      <td class="dim">03/05/2026 08:26:04 PM</td>
-      <td><strong>MSFT</strong></td>
-      <td><span class="badge badge-buy">Achat</span></td>
-      <td>22</td>
-      <td>Stop</td>
-      <td>410.277273Â $</td>
-      <td><span class="badge badge-filled">ExÃ©cutÃ©</span></td>
-    </tr><tr>
-      <td class="dim">03/05/2026 08:25:13 PM</td>
-      <td><strong>MSTR</strong></td>
-      <td><span class="badge badge-buy">Achat</span></td>
-      <td>66</td>
-      <td>Limite</td>
-      <td>â</td>
-      <td><span class="badge badge-cancel">AnnulÃ©</span></td>
-    </tr><tr>
-      <td class="dim">03/05/2026 08:25:12 PM</td>
-      <td><strong>MSTR</strong></td>
-      <td><span class="badge badge-sell">Vente</span></td>
-      <td>66</td>
-      <td>MarchÃ©</td>
-      <td>140.9Â $</td>
-      <td><span class="badge badge-filled">ExÃ©cutÃ©</span></td>
-    </tr><tr>
-      <td class="dim">03/05/2026 08:25:11 PM</td>
-      <td><strong>MSFT</strong></td>
-      <td><span class="badge badge-buy">Achat</span></td>
-      <td>22</td>
-      <td>Limite</td>
-      <td>â</td>
-      <td><span class="badge badge-cancel">AnnulÃ©</span></td>
-    </tr><tr>
-      <td class="dim">03/05/2026 08:25:09 PM</td>
-      <td><strong>MSFT</strong></td>
-      <td><span class="badge badge-sell">Vente</span></td>
-      <td>22</td>
-      <td>MarchÃ©</td>
-      <td>409.768182Â $</td>
-      <td><span class="badge badge-filled">ExÃ©cutÃ©</span></td>
-    </tr><tr>
-      <td class="dim">03/05/2026 08:25:07 PM</td>
-      <td><strong>MSTR</strong></td>
-      <td><span class="badge badge-buy">Achat</span></td>
-      <td>66</td>
-      <td>Limite</td>
-      <td>â</td>
-      <td><span class="badge badge-cancel">AnnulÃ©</span></td>
-    </tr><tr>
-      <td class="dim">03/05/2026 08:25:07 PM</td>
-      <td><strong>MSTR</strong></td>
-      <td><span class="badge badge-sell">Vente</span></td>
-      <td>66</td>
-      <td>MarchÃ©</td>
-      <td>140.76Â $</td>
-      <td><span class="badge badge-filled">ExÃ©cutÃ©</span></td>
-    </tr><tr>
-      <td class="dim">03/05/2026 08:24:40 PM</td>
-      <td><strong>AAPL</strong></td>
-      <td><span class="badge badge-sell">Vente</span></td>
-      <td>2</td>
-      <td>MarchÃ©</td>
-      <td>259.185Â $</td>
-      <td><span class="badge badge-filled">ExÃ©cutÃ©</span></td>
-    </tr><tr>
-      <td class="dim">03/05/2026 08:23:25 PM</td>
-      <td><strong>MSFT</strong></td>
-      <td><span class="badge badge-buy">Achat</span></td>
-      <td>22</td>
-      <td>Stop</td>
-      <td>409.797273Â $</td>
-      <td><span class="badge badge-filled">ExÃ©cutÃ©</span></td>
-    </tr></tbody>
-    </table>
   </div>
-</main>
-<footer class="footer">
-  Tableau de bord de trading algorithmique &nbsp;|&nbsp; DonnÃ©es en temps rÃ©el via Alpaca Paper Trading &nbsp;|&nbsp; GÃ©nÃ©rÃ© le 03/05/2026 Ã  08:41:32 PM UTC
-</footer>
+
+  <div style="font-size:11px;color:#6e7681;text-align:center;padding:16px 0">
+    DonnÃ©es Alpaca Paper Trading Â· GÃ©nÃ©rÃ© le 2026-03-05 20:43 UTC Â· <a href="https://github.com/webfree69/nabil" target="_blank">webfree69/nabil</a>
+  </div>
+
+</div>
+
+<script>
+// ââ 1. INDICATEUR BOURSE OUVERTE / FERMÃE ââââââââââââââââââââââââââââââââââ
+(function marketStatus() {
+  function updateMarket() {
+    const now = new Date();
+    // Convert local time to Eastern Time (ET)
+    // ET = UTC-5 (EST) or UTC-4 (EDT)
+    // Determine DST: US DST starts 2nd Sunday March, ends 1st Sunday November
+    function isUSDST(date) {
+      const y = date.getUTCFullYear();
+      // 2nd Sunday in March
+      const mar = new Date(Date.UTC(y, 2, 1));
+      const marDay = mar.getUTCDay(); // 0=Sun
+      const marStart = new Date(Date.UTC(y, 2, 8 + (7 - marDay) % 7, 7, 0, 0)); // 2am ET = 7am UTC (EST)
+      // 1st Sunday in November
+      const nov = new Date(Date.UTC(y, 10, 1));
+      const novDay = nov.getUTCDay();
+      const novEnd = new Date(Date.UTC(y, 10, 1 + (7 - novDay) % 7, 6, 0, 0)); // 2am ET = 6am UTC (EDT)
+      return date >= marStart && date < novEnd;
+    }
+    const dst = isUSDST(now);
+    const etOffset = dst ? -4 : -5; // hours from UTC
+    const etNow = new Date(now.getTime() + etOffset * 3600000);
+    const dayET = etNow.getUTCDay(); // 0=Sun, 6=Sat
+    const hET = etNow.getUTCHours();
+    const mET = etNow.getUTCMinutes();
+    const timeDecimalET = hET + mET / 60;
+
+    const isWeekday = dayET >= 1 && dayET <= 5;
+    const isOpen = isWeekday && timeDecimalET >= 9.5 && timeDecimalET < 16;
+
+    const badge = document.getElementById('market-badge');
+    const countdown = document.getElementById('market-countdown');
+
+    if (isOpen) {
+      badge.className = 'market-badge market-open';
+      badge.textContent = 'ð¢ Bourse ouverte';
+      // Time until close: 16:00 ET
+      const closeH = 16, closeM = 0;
+      const diffMin = Math.round((closeH * 60 + closeM) - (hET * 60 + mET));
+      const h = Math.floor(diffMin / 60);
+      const m = diffMin % 60;
+      countdown.textContent = 'Fermeture dans ' + (h > 0 ? h + 'h ' : '') + m + 'min';
+    } else {
+      badge.className = 'market-badge market-closed';
+      badge.textContent = 'ð´ Bourse fermÃ©e';
+      // Calculate next open
+      let nextOpenMs;
+      // Next 9:30 ET weekday
+      const candidate = new Date(etNow);
+      candidate.setUTCHours(9, 30, 0, 0);
+      if (timeDecimalET >= 16 || !isWeekday) {
+        // move to next day
+        candidate.setUTCDate(candidate.getUTCDate() + 1);
+      }
+      // Skip weekends
+      while (candidate.getUTCDay() === 0 || candidate.getUTCDay() === 6) {
+        candidate.setUTCDate(candidate.getUTCDate() + 1);
+      }
+      // candidate is next open in ET (UTC offset already applied)
+      const diffMs = candidate.getTime() - etNow.getTime();
+      const totalMin = Math.round(diffMs / 60000);
+      const h = Math.floor(totalMin / 60);
+      const m = totalMin % 60;
+      countdown.textContent = 'Ouverture dans ' + (h > 0 ? h + 'h ' : '') + m + 'min';
+    }
+  }
+  updateMarket();
+  setInterval(updateMarket, 30000);
+})();
+
+// ââ 2. GRAPHIQUE TRADES PAR JOUR (Canvas pur) âââââââââââââââââââââââââââââ
+(function tradesChart() {
+  const data = [{"count":0,"date":"2026-02-04"},{"count":0,"date":"2026-02-05"},{"count":0,"date":"2026-02-06"},{"count":0,"date":"2026-02-07"},{"count":0,"date":"2026-02-08"},{"count":0,"date":"2026-02-09"},{"count":0,"date":"2026-02-10"},{"count":0,"date":"2026-02-11"},{"count":0,"date":"2026-02-12"},{"count":0,"date":"2026-02-13"},{"count":0,"date":"2026-02-14"},{"count":0,"date":"2026-02-15"},{"count":0,"date":"2026-02-16"},{"count":0,"date":"2026-02-17"},{"count":0,"date":"2026-02-18"},{"count":0,"date":"2026-02-19"},{"count":0,"date":"2026-02-20"},{"count":0,"date":"2026-02-21"},{"count":0,"date":"2026-02-22"},{"count":4,"date":"2026-02-23"},{"count":1,"date":"2026-02-24"},{"count":0,"date":"2026-02-25"},{"count":1,"date":"2026-02-26"},{"count":137,"date":"2026-02-27"},{"count":0,"date":"2026-02-28"},{"count":0,"date":"2026-03-01"},{"count":5,"date":"2026-03-02"},{"count":0,"date":"2026-03-03"},{"count":0,"date":"2026-03-04"},{"count":89,"date":"2026-03-05"}];
+  const canvas = document.getElementById('tradesChart');
+  if (!canvas) return;
+  // Responsive sizing
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.parentElement.clientWidth || 400;
+  const H = 90;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const counts = data.map(d => d.count);
+  const dates = data.map(d => d.date);
+  const maxVal = Math.max(...counts, 1);
+  const n = counts.length;
+
+  const padL = 28, padR = 8, padT = 8, padB = 22;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+  const barW = Math.max(2, chartW / n - 2);
+  const gap = (chartW - barW * n) / (n - 1);
+
+  // Grid lines
+  ctx.strokeStyle = '#21262d';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + chartH - (i / 4) * chartH;
+    ctx.beginPath();
+    ctx.moveTo(padL, y);
+    ctx.lineTo(padL + chartW, y);
+    ctx.stroke();
+  }
+
+  // Y-axis labels
+  ctx.fillStyle = '#6e7681';
+  ctx.font = '9px sans-serif';
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const val = Math.round((i / 4) * maxVal);
+    const y = padT + chartH - (i / 4) * chartH;
+    ctx.fillText(val, padL - 3, y + 3);
+  }
+
+  // Bars
+  counts.forEach((c, i) => {
+    const x = padL + i * (barW + gap);
+    const barH2 = (c / maxVal) * chartH;
+    const y = padT + chartH - barH2;
+    // Highlight today (last bar)
+    const isToday = i === n - 1;
+    ctx.fillStyle = isToday ? '#58a6ff' : 'rgba(88,166,255,0.45)';
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(x, y, barW, barH2, [2, 2, 0, 0]) : ctx.rect(x, y, barW, barH2);
+    ctx.fill();
+  });
+
+  // X-axis: show every ~7th label + last
+  ctx.fillStyle = '#6e7681';
+  ctx.font = '9px sans-serif';
+  ctx.textAlign = 'center';
+  counts.forEach((c, i) => {
+    if (i === 0 || i === n - 1 || i % 7 === 0) {
+      const x = padL + i * (barW + gap) + barW / 2;
+      const label = dates[i].substring(5); // MM-DD
+      ctx.fillStyle = i === n - 1 ? '#58a6ff' : '#6e7681';
+      ctx.fillText(label, x, H - 4);
+    }
+  });
+
+  // Today value label on top of last bar
+  const lastCount = counts[n - 1];
+  if (lastCount > 0) {
+    const x = padL + (n - 1) * (barW + gap) + barW / 2;
+    const barH2 = (lastCount / maxVal) * chartH;
+    const y = padT + chartH - barH2;
+    ctx.fillStyle = '#f0f6fc';
+    ctx.font = 'bold 10px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(lastCount, x, y - 3);
+  }
+})();
+</script>
 </body>
 </html>
