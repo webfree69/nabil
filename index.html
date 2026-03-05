@@ -2,376 +2,607 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tableau de bord Trading - 2026-03-05</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tableau de Bord Trading</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-/* ===== RESET & BASE ===== */
 *{box-sizing:border-box;margin:0;padding:0}
-html{font-size:16px}
-body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;font-size:0.875rem;line-height:1.5;min-width:0}
-a{color:#58a6ff}
-code{font-family:monospace;background:#21262d;padding:1px 5px;border-radius:4px;font-size:0.8rem}
-
-/* ===== TYPOGRAPHY ===== */
-h1{font-size:clamp(1.1rem,4vw,1.375rem);font-weight:700;color:#f0f6fc}
-h2{font-size:0.8125rem;font-weight:600;color:#8b949e;text-transform:uppercase;letter-spacing:.08em;margin-bottom:0.75rem}
-
-/* ===== HEADER ===== */
-.header{background:#161b22;border-bottom:1px solid #30363d;padding:1rem 1.5rem;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:0.75rem}
-.header-left{min-width:0}
-.header-subtitle{font-size:0.75rem;color:#6e7681;margin-top:0.25rem}
-.header-right{font-size:0.75rem;color:#6e7681;display:flex;align-items:center;flex-wrap:wrap;gap:1rem}
-.market-badge{display:inline-flex;align-items:center;gap:6px;padding:0.3rem 0.75rem;border-radius:20px;font-size:0.75rem;font-weight:600;border:1px solid rgba(231,76,60,0.35);background:rgba(231,76,60,0.12);color:#e74c3c;min-height:2rem}
-.dot{display:inline-block;border-radius:50%;flex-shrink:0}
-.dot-red{background:#e74c3c;width:8px;height:8px}
-.dot-green{background:#3fb950;width:8px;height:8px}
-.dot-yellow{background:#d29922;width:8px;height:8px}
-
-/* ===== MAIN LAYOUT ===== */
-.main{padding:1.5rem;max-width:1400px;margin:0 auto}
-
-/* ===== KPI CARDS GRID ===== */
-/* Desktop: 4 columns, Tablet: 2 columns, Mobile: 1 column */
-.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.75rem}
-.card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:1rem}
-.card-label{font-size:0.6875rem;color:#8b949e;text-transform:uppercase;letter-spacing:.06em;margin-bottom:0.375rem}
-.card-value{font-size:1.375rem;font-weight:700;color:#f0f6fc}
-.card-sub{font-size:0.75rem;color:#8b949e;margin-top:0.25rem}
-
-/* ===== SECTIONS ===== */
-.section{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:1.25rem;margin-bottom:1.25rem}
-
-/* ===== TABLE WRAPPER (horizontal scroll on mobile) ===== */
-.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-
-/* ===== TABLES ===== */
-table{width:100%;border-collapse:collapse;min-width:480px}
-th{text-align:left;padding:0.5rem 0.75rem;font-size:0.6875rem;font-weight:600;color:#8b949e;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #21262d;white-space:nowrap}
-td{padding:0.625rem 0.75rem;border-bottom:1px solid #21262d;vertical-align:middle;font-size:0.875rem}
+body{background:#0f172a;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;padding:20px}
+.header{text-align:center;padding:30px 20px;background:linear-gradient(135deg,#1e293b,#0f172a);border-radius:16px;margin-bottom:24px;border:1px solid #1e293b}
+.header h1{font-size:28px;font-weight:800;color:#f1f5f9;letter-spacing:-0.5px}
+.header p{color:#64748b;margin-top:6px;font-size:14px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px}
+.card{background:#1e293b;border-radius:12px;padding:20px;border:1px solid #334155}
+.card-title{font-size:11px;text-transform:uppercase;color:#64748b;letter-spacing:1px;margin-bottom:10px;font-weight:600}
+.card-value{font-size:26px;font-weight:800;color:#f1f5f9}
+.card-sub{font-size:12px;color:#64748b;margin-top:4px}
+.kpi-positive{color:#22c55e!important}
+.kpi-negative{color:#ef4444!important}
+.section{background:#1e293b;border-radius:12px;border:1px solid #334155;margin-bottom:24px;overflow:hidden}
+.section-header{padding:16px 20px;border-bottom:1px solid #334155;display:flex;align-items:center;gap:10px}
+.section-header h2{font-size:15px;font-weight:700;color:#f1f5f9}
+.badge{background:#334155;color:#94a3b8;font-size:11px;padding:2px 8px;border-radius:6px}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;border-bottom:1px solid #334155;white-space:nowrap}
+td{border-bottom:1px solid #1e293b}
 tr:last-child td{border-bottom:none}
-.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:0.6875rem;font-weight:600}
-
-/* ===== ALLOCATION NOTE ===== */
-.alloc-note{margin-top:0.875rem;padding:0.625rem 0.875rem;background:#0d1117;border:1px solid #30363d;border-radius:6px;font-size:0.75rem;color:#8b949e;display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap}
-
-/* ===== CHART ===== */
-.chart-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
-.chart-inner{min-width:320px;width:100%}
-.bar-chart{display:flex;align-items:flex-end;gap:6px;height:160px;padding:0 0 1.5rem;position:relative;width:100%}
-.bar-col{display:flex;flex-direction:column;align-items:center;flex:1;min-width:32px;height:100%}
-.bar{width:100%;background:linear-gradient(180deg,#388bfd,#1f6feb);border-radius:4px 4px 0 0;position:relative;transition:opacity .2s;min-height:4px}
-.bar-val{font-size:0.625rem;color:#8b949e;margin-top:3px;text-align:center}
-.bar-lbl{font-size:0.625rem;color:#6e7681;position:absolute;bottom:-1.375rem;width:100%;text-align:center;white-space:nowrap}
-
-/* ===== FOOTER ===== */
-.footer{text-align:center;padding:1.25rem;font-size:0.75rem;color:#484f58;border-top:1px solid #21262d;margin-top:0.75rem}
-
-/* ===== TOUCH TARGETS ===== */
-button,.btn{min-height:44px;min-width:44px;cursor:pointer}
-
-/* ===== RESPONSIVE: TABLET (601px - 1024px) ===== */
-@media (max-width:1024px){
-  .cards{grid-template-columns:repeat(2,1fr)}
-  .main{padding:1.25rem}
-  .header{padding:0.875rem 1.25rem}
-}
-
-/* ===== RESPONSIVE: MOBILE (max 600px) ===== */
-@media (max-width:600px){
-  html{font-size:15px}
-  .header{padding:0.75rem 1rem;flex-direction:column;align-items:flex-start;gap:0.5rem}
-  .header-right{flex-direction:column;align-items:flex-start;gap:0.5rem;font-size:0.75rem}
-  .main{padding:0.75rem}
-  .cards{grid-template-columns:1fr;gap:0.75rem;margin-bottom:1rem}
-  .card{padding:0.875rem}
-  .card-value{font-size:1.25rem}
-  .section{padding:0.875rem;margin-bottom:0.875rem}
-  h1{font-size:1.0625rem}
-  h2{font-size:0.75rem;margin-bottom:0.5rem}
-  .alloc-note{font-size:0.6875rem}
-  .bar-chart{height:120px}
-  th,td{padding:0.5rem 0.625rem;font-size:0.8125rem}
-  .chart-inner{min-width:280px}
-}
+tr:hover td{background:#243047}
+.alert-banner{background:#7f1d1d;border:1px solid #991b1b;border-radius:10px;padding:14px 20px;margin-bottom:20px;color:#fca5a5;font-size:14px;display:flex;align-items:center;gap:10px}
+.filter-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px 20px}
+.filter-card{background:#0f172a;border-radius:8px;padding:12px;border:1px solid #334155}
+.filter-card h3{font-size:11px;text-transform:uppercase;color:#64748b;margin-bottom:8px}
+.filter-card p{font-size:13px;color:#e2e8f0;line-height:1.5}
+.perf-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid #334155}
+.perf-cell{padding:16px 20px;border-right:1px solid #334155;text-align:center}
+.perf-cell:last-child{border-right:none}
+.perf-label{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+.perf-val{font-size:20px;font-weight:800}
+@media(max-width:768px){.grid-4,.grid-3{grid-template-columns:repeat(2,1fr)}.grid-2{grid-template-columns:1fr}.filter-grid{grid-template-columns:1fr}.perf-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.grid-4{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
-<!-- ===== HEADER ===== -->
 <div class="header">
-  <div class="header-left">
-    <h1>Tableau de bord Trading</h1>
-    <div class="header-subtitle">Strat&eacute;gie MA20/MA50 &mdash; AAPL, MSFT, TSLA, NVDA, COIN, AMZN</div>
+  <h1>&#x1F4C8; Tableau de Bord Trading &mdash; Strat&eacute;gie Multi-Filtres</h1>
+  <p>Mise &agrave; jour: 2026-03-05 &bull; Univers: AAPL, MSFT, TSLA, NVDA, AMZN &bull; Capital: $500 &bull; Max 3 positions simultan&eacute;es</p>
+</div>
+
+
+
+<!-- KPI Cards Row 1 -->
+<div class="grid-4">
+  <div class="card">
+    <div class="card-title">Valeur Portefeuille</div>
+    <div class="card-value">$93876.55</div>
+    <div class="card-sub">Capital de r&eacute;f&eacute;rence: $500</div>
   </div>
-  <div class="header-right">
-    <span>Mis &agrave; jour&nbsp;: 2026-03-05</span>
-    <span class="market-badge">
-      <span class="dot dot-red"></span>
-      March&eacute; ferm&eacute;
-    </span>
+  <div class="card">
+    <div class="card-title">Gain / Perte du Jour</div>
+    <div class="card-value kpi-negative">$434.85</div>
+    <div class="card-sub" style="color:#ef4444">-0.46% vs hier ($94311.4)</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Positions Ouvertes</div>
+    <div class="card-value">2 <span style="font-size:14px;color:#64748b;">/ 3 max</span></div>
+    <div class="card-sub">COIN, NVDA</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Garde-Fous Actifs</div>
+    <div class="card-value" style="font-size:16px;color:#22c55e;">Non</div>
+    <div class="card-sub">Drawdown: -0.46% (seuil: -10%)</div>
   </div>
 </div>
 
-<!-- ===== MAIN ===== -->
-<div class="main">
-
-  <!-- KPI CARDS -->
-  <div class="cards">
-
-    <!-- KPI 1: P&L total -->
-    <div class="card">
-      <div class="card-label">P&amp;L total</div>
-      <div class="card-value">
-        <span style="color:#f85149">$-14.98 (-3.00%)</span>
+<!-- Gain/Perte du Jour Detail Card -->
+<div class="section" style="margin-bottom:24px;">
+  <div class="section-header">
+    <h2>Gain / Perte du Jour &mdash; D&eacute;tail</h2>
+    <span class="badge">2026-03-05</span>
+  </div>
+  <div style="padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    <div style="background:#0f172a;border-radius:10px;padding:20px;border:1px solid #334155;text-align:center;">
+      <div style="font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">P&amp;L R&eacute;alis&eacute; + Non R&eacute;alis&eacute;</div>
+      <div style="font-size:42px;font-weight:900;color:#ef4444;">$434.85</div>
+      <div style="font-size:16px;color:#ef4444;margin-top:6px;">-0.46%</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div style="background:#0f172a;border-radius:8px;padding:14px;border:1px solid #334155;">
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;">Equity Hier</div>
+        <div style="font-size:16px;font-weight:700;margin-top:4px;">$94311.4</div>
       </div>
-      <div class="card-sub" style="margin-top:4px;color:#6e7681">Depuis le d&eacute;but</div>
-    </div>
-
-    <!-- KPI 2: Positions ouvertes -->
-    <div class="card">
-      <div class="card-label">Positions ouvertes</div>
-      <div class="card-value">2</div>
-      <div class="card-sub">NVDA (long) &bull; COIN (short)</div>
-    </div>
-
-    <!-- KPI 3: Allocation max -->
-    <div class="card">
-      <div class="card-label">Allocation max / position</div>
-      <div class="card-value">$100</div>
-      <div class="card-sub">20% du portefeuille ($500)</div>
-    </div>
-
-    <!-- KPI 4: Transactions -->
-    <div class="card">
-      <div class="card-label">Transactions (total)</div>
-      <div class="card-value">43</div>
-      <div class="card-sub">Ordres ex&eacute;cut&eacute;s</div>
-    </div>
-
-    <!-- KPI 5: P&L non r&eacute;alis&eacute; -->
-    <div class="card">
-      <div class="card-label">P&amp;L non r&eacute;alis&eacute;</div>
-      <div class="card-value" style="color:#f85149">$-14.98</div>
-      <div class="card-sub" style="color:#f85149">-3.00% vs base $500</div>
-    </div>
-
-  </div>
-
-  <!-- POSITIONS OUVERTES -->
-  <div class="section">
-    <h2>Positions ouvertes</h2>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Symbole</th>
-            <th>Sens</th>
-            <th>Qte</th>
-            <th>Prix entr&eacute;e</th>
-            <th>Prix actuel</th>
-            <th>Valeur march&eacute;</th>
-            <th>P&amp;L non r&eacute;alis&eacute;</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="font-weight:600;color:#f0f6fc">NVDA</td>
-            <td><span class="badge" style="background:rgba(63,185,80,0.15);color:#3fb950">LONG</span></td>
-            <td style="color:#f0f6fc">0.005</td>
-            <td>$181.98</td>
-            <td style="color:#f0f6fc">$182.87</td>
-            <td>$0.95</td>
-            <td style="color:#3fb950;font-weight:600">+0.00 (+0.49%)</td>
-          </tr>
-          <tr>
-            <td style="font-weight:600;color:#f0f6fc">COIN</td>
-            <td><span class="badge" style="background:rgba(248,81,73,0.15);color:#f85149">SHORT</span></td>
-            <td style="color:#f0f6fc">-45</td>
-            <td>$205.97</td>
-            <td style="color:#f0f6fc">$206.30</td>
-            <td>$-9,283.50</td>
-            <td style="color:#f85149;font-weight:600">-14.98 (-0.16%)</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="alloc-note">
-      <span class="dot dot-yellow" style="width:7px;height:7px"></span>
-      Taille max par position&nbsp;: <strong>$100 (20%)</strong> du portefeuille de $500 &mdash; Calcul&nbsp;: <code>Math.floor(100&nbsp;/&nbsp;prixActuel)</code> parts
-    </div>
-  </div>
-
-  <!-- SIGNAUX MA -->
-  <div class="section">
-    <h2>Signaux MA20 / MA50</h2>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Symbole</th>
-            <th>MA20</th>
-            <th>MA50</th>
-            <th>Signal</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="font-weight:600;color:#f0f6fc">AAPL</td>
-            <td style="color:#8b949e">$226.50</td>
-            <td style="color:#8b949e">$237.12</td>
-            <td><span style="color:#f85149">MA20 &lt; MA50</span></td>
-            <td><span class="badge" style="background:rgba(139,148,158,0.15);color:#8b949e">HOLD</span></td>
-          </tr>
-          <tr>
-            <td style="font-weight:600;color:#f0f6fc">MSFT</td>
-            <td style="color:#8b949e">$385.21</td>
-            <td style="color:#8b949e">$419.87</td>
-            <td><span style="color:#f85149">MA20 &lt; MA50</span></td>
-            <td><span class="badge" style="background:rgba(139,148,158,0.15);color:#8b949e">HOLD</span></td>
-          </tr>
-          <tr>
-            <td style="font-weight:600;color:#f0f6fc">TSLA</td>
-            <td style="color:#8b949e">$310.45</td>
-            <td style="color:#8b949e">$352.18</td>
-            <td><span style="color:#f85149">MA20 &lt; MA50</span></td>
-            <td><span class="badge" style="background:rgba(139,148,158,0.15);color:#8b949e">HOLD</span></td>
-          </tr>
-          <tr>
-            <td style="font-weight:600;color:#f0f6fc">NVDA</td>
-            <td style="color:#8b949e">$127.89</td>
-            <td style="color:#8b949e">$131.22</td>
-            <td><span style="color:#3fb950">MA20 &gt; MA50</span></td>
-            <td><span class="badge" style="background:rgba(63,185,80,0.15);color:#3fb950">BUY</span></td>
-          </tr>
-          <tr>
-            <td style="font-weight:600;color:#f0f6fc">AMZN</td>
-            <td style="color:#8b949e">$213.45</td>
-            <td style="color:#8b949e">$224.67</td>
-            <td><span style="color:#f85149">MA20 &lt; MA50</span></td>
-            <td><span class="badge" style="background:rgba(139,148,158,0.15);color:#8b949e">HOLD</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- TRADES PAR JOUR (bar chart en CSS pur) -->
-  <div class="section">
-    <h2>Trades par jour</h2>
-    <div class="chart-wrap">
-      <div class="chart-inner">
-        <div class="bar-chart" id="barChart">
-          <!-- JS will render bars -->
-        </div>
+      <div style="background:#0f172a;border-radius:8px;padding:14px;border:1px solid #334155;">
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;">Equity Aujourd&#39;hui</div>
+        <div style="font-size:16px;font-weight:700;margin-top:4px;">$93876.55</div>
+      </div>
+      <div style="background:#0f172a;border-radius:8px;padding:14px;border:1px solid #334155;">
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;">Trades Aujourd&#39;hui</div>
+        <div style="font-size:16px;font-weight:700;margin-top:4px;">30</div>
+      </div>
+      <div style="background:#0f172a;border-radius:8px;padding:14px;border:1px solid #334155;">
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;">Statut Drawdown</div>
+        <div style="font-size:14px;font-weight:700;margin-top:4px;color:#22c55e;">Normal</div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- REGLES DE LA STRATEGIE -->
-  <div class="section">
-    <h2>R&egrave;gles de la strat&eacute;gie</h2>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr><th>R&egrave;gle</th><th>Param&egrave;tre</th><th>Explication</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="font-weight:600;color:#f0f6fc">Taille du portefeuille</td>
-            <td style="color:#58a6ff;font-weight:600">$500</td>
-            <td>Capital de r&eacute;f&eacute;rence pour tous les calculs</td>
-          </tr>
-          <tr>
-            <td style="font-weight:600;color:#f0f6fc">Allocation max / position</td>
-            <td style="color:#58a6ff;font-weight:600">$100 (20%)</td>
-            <td>Jamais plus de $100 par symbole &mdash; <code>Math.floor(100 / prix)</code> parts</td>
-          </tr>
-          <tr>
-            <td style="font-weight:600;color:#f0f6fc">Signal BUY</td>
-            <td style="color:#3fb950;font-weight:600">MA20 croise MA50 vers le haut</td>
-            <td>Achat de <code>Math.floor(100 / prix)</code> parts (max $100)</td>
-          </tr>
-          <tr>
-            <td style="font-weight:600;color:#f0f6fc">Signal SELL</td>
-            <td style="color:#f85149;font-weight:600">MA20 croise MA50 vers le bas</td>
-            <td>Fermeture de la position longue</td>
-          </tr>
-          <tr>
-            <td style="font-weight:600;color:#f0f6fc">Stop-Loss</td>
-            <td style="color:#f85149;font-weight:600">-2%</td>
-            <td>Fermeture automatique si P&amp;L &le; -2%</td>
-          </tr>
-          <tr>
-            <td style="font-weight:600;color:#f0f6fc">Take-Profit</td>
-            <td style="color:#3fb950;font-weight:600">+4%</td>
-            <td>Fermeture automatique si P&amp;L &ge; +4%</td>
-          </tr>
-          <tr>
-            <td style="font-weight:600;color:#f0f6fc">Exemple AAPL &agrave; $200</td>
-            <td style="color:#8b949e">0 parts</td>
-            <td>Math.floor(100 / 200) = 0 &mdash; prix trop &eacute;lev&eacute;, pas d&apos;achat</td>
-          </tr>
-          <tr>
-            <td style="font-weight:600;color:#f0f6fc">Exemple NVDA &agrave; $182</td>
-            <td style="color:#8b949e">0 parts</td>
-            <td>Math.floor(100 / 182) = 0 &mdash; prix trop &eacute;lev&eacute;, pas d&apos;achat</td>
-          </tr>
-        </tbody>
-      </table>
+<!-- Historical P&L Chart -->
+<div class="section">
+  <div class="section-header">
+    <h2>Historique P&amp;L &mdash; 30 Derniers Jours</h2>
+    <span class="badge">Barres vertes = profits &bull; Barres rouges = pertes</span>
+  </div>
+  <div style="padding:20px;">
+    <canvas id="plChart" height="120"></canvas>
+  </div>
+  <!-- Performance Summary -->
+  <div class="perf-grid">
+    <div class="perf-cell">
+      <div class="perf-label">Meilleur Jour</div>
+      <div class="perf-val kpi-positive">-$434.85</div>
+    </div>
+    <div class="perf-cell">
+      <div class="perf-label">Pire Jour</div>
+      <div class="perf-val kpi-negative">-$434.85</div>
+    </div>
+    <div class="perf-cell">
+      <div class="perf-label">P&amp;L Moyen / Jour</div>
+      <div class="perf-val kpi-negative">-$434.85</div>
+    </div>
+    <div class="perf-cell">
+      <div class="perf-label">P&amp;L Total (Inception)</div>
+      <div class="perf-val kpi-negative">-$434.85</div>
     </div>
   </div>
+</div>
 
-</div><!-- end .main -->
+<!-- Signals Table with Multi-Filter Status -->
+<div class="section">
+  <div class="section-header">
+    <h2>Signaux Multi-Filtres &mdash; Aujourd&#39;hui</h2>
+    <span class="badge">5 conditions requises pour ACHAT</span>
+  </div>
+  <table>
+    <thead><tr>
+      <th>Titre</th><th>Prix</th><th>MA20</th><th>MA50</th>
+      <th>RSI(14)</th><th>Volume</th><th>Stop ATR</th><th>Signal</th>
+    </tr></thead>
+    <tbody><tr>
+    <td style="padding:10px 14px;font-weight:700;color:#e2e8f0;">AAPL</td>
+    <td style="padding:10px 14px;color:#e2e8f0;">$262.52</td>
+    <td style="padding:10px 14px;color:#94a3b8;">268.29</td>
+    <td style="padding:10px 14px;color:#94a3b8;">264.83</td>
+    <td style="padding:10px 14px;color:#f59e0b;">38.9</td>
+    <td style="padding:10px 14px;"><span style="color:#f59e0b;">0.822x</span></td>
+    <td style="padding:10px 14px;color:#94a3b8;">251.92</td>
+    <td style="padding:10px 14px;"><span style="background:#3b82f622;color:#3b82f6;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700;">HAUSSIER</span></td>
+  </tr><tr>
+    <td style="padding:10px 14px;font-weight:700;color:#e2e8f0;">AMZN</td>
+    <td style="padding:10px 14px;color:#e2e8f0;">$216.82</td>
+    <td style="padding:10px 14px;color:#94a3b8;">209.07</td>
+    <td style="padding:10px 14px;color:#94a3b8;">225.86</td>
+    <td style="padding:10px 14px;color:#f59e0b;">65.3</td>
+    <td style="padding:10px 14px;"><span style="color:#f59e0b;">0.832x</span></td>
+    <td style="padding:10px 14px;color:#94a3b8;">208.02</td>
+    <td style="padding:10px 14px;"><span style="background:#ef444422;color:#ef4444;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700;">BAISSIER</span></td>
+  </tr><tr>
+    <td style="padding:10px 14px;font-weight:700;color:#e2e8f0;">MSFT</td>
+    <td style="padding:10px 14px;color:#e2e8f0;">$405.20</td>
+    <td style="padding:10px 14px;color:#94a3b8;">400.59</td>
+    <td style="padding:10px 14px;color:#94a3b8;">440.78</td>
+    <td style="padding:10px 14px;color:#f59e0b;">50.6</td>
+    <td style="padding:10px 14px;"><span style="color:#f59e0b;">0.89x</span></td>
+    <td style="padding:10px 14px;color:#94a3b8;">391.10</td>
+    <td style="padding:10px 14px;"><span style="background:#ef444422;color:#ef4444;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700;">BAISSIER</span></td>
+  </tr><tr>
+    <td style="padding:10px 14px;font-weight:700;color:#e2e8f0;">NVDA</td>
+    <td style="padding:10px 14px;color:#e2e8f0;">$N/A</td>
+    <td style="padding:10px 14px;color:#94a3b8;">N/A</td>
+    <td style="padding:10px 14px;color:#94a3b8;">N/A</td>
+    <td style="padding:10px 14px;color:#f59e0b;">N/A</td>
+    <td style="padding:10px 14px;">N/A</td>
+    <td style="padding:10px 14px;color:#94a3b8;">N/A</td>
+    <td style="padding:10px 14px;"><span style="background:#99922;color:#999;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700;">ERREUR</span></td>
+  </tr><tr>
+    <td style="padding:10px 14px;font-weight:700;color:#e2e8f0;">TSLA</td>
+    <td style="padding:10px 14px;color:#e2e8f0;">$405.94</td>
+    <td style="padding:10px 14px;color:#94a3b8;">410.23</td>
+    <td style="padding:10px 14px;color:#94a3b8;">431.36</td>
+    <td style="padding:10px 14px;color:#f59e0b;">37.5</td>
+    <td style="padding:10px 14px;"><span style="color:#22c55e;">1.147x</span></td>
+    <td style="padding:10px 14px;color:#94a3b8;">384.91</td>
+    <td style="padding:10px 14px;"><span style="background:#ef444422;color:#ef4444;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700;">BAISSIER</span></td>
+  </tr></tbody>
+  </table>
+</div>
 
-<div class="footer">
-  Tableau de bord Trading &mdash; Strat&eacute;gie MA20/MA50 &mdash; Paper Trading Alpaca &mdash; 2026-03-05
+<!-- Filter Status Per Symbol -->
+<div class="section">
+  <div class="section-header">
+    <h2>Statut des Filtres par Titre</h2>
+    <span class="badge">&#10004; = condition remplie</span>
+  </div>
+  <table>
+    <thead><tr>
+      <th>Titre</th><th>MA Cross</th><th>RSI 30-70</th>
+      <th>Vol &gt; Moy.</th><th>Liq. &gt;50%</th><th>Stop ATR</th>
+    </tr></thead>
+    <tbody><tr>
+    <td style="padding:8px 12px;font-weight:700;color:#e2e8f0;">AAPL</td>
+    <td style="padding:8px 12px;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#22c55e;margin-right:5px;"></span>MA20>MA50</td>
+    <td style="padding:8px 12px;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#22c55e;margin-right:5px;"></span>RSI 38.9</td>
+    <td style="padding:8px 12px;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;margin-right:5px;"></span>Vol 0.822x</td>
+    <td style="padding:8px 12px;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#22c55e;margin-right:5px;"></span>Liq.&gt;50%</td>
+    <td style="padding:8px 12px;color:#94a3b8;">$251.92</td>
+  </tr><tr>
+    <td style="padding:8px 12px;font-weight:700;color:#e2e8f0;">AMZN</td>
+    <td style="padding:8px 12px;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;margin-right:5px;"></span>MA20>MA50</td>
+    <td style="padding:8px 12px;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#22c55e;margin-right:5px;"></span>RSI 65.3</td>
+    <td style="padding:8px 12px;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;margin-right:5px;"></span>Vol 0.832x</td>
+    <td style="padding:8px 12px;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#22c55e;margin-right:5px;"></span>Liq.&gt;50%</td>
+    <td style="padding:8px 12px;color:#94a3b8;">$208.02</td>
+  </tr><tr>
+    <td style="padding:8px 12px;font-weight:700;color:#e2e8f0;">MSFT</td>
+    <td style="padding:8px 12px;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;margin-right:5px;"></span>MA20>MA50</td>
+    <td style="padding:8px 12px;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#22c55e;margin-right:5px;"></span>RSI 50.6</td>
+    <td style="padding:8px 12px;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;margin-right:5px;"></span>Vol 0.89x</td>
+    <td style="padding:8px 12px;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#22c55e;margin-right:5px;"></span>Liq.&gt;50%</td>
+    <td style="padding:8px 12px;color:#94a3b8;">$391.10</td>
+  </tr><tr>
+    <td style="padding:8px 12px;font-weight:700;color:#e2e8f0;">NVDA</td>
+    <td style="padding:8px 12px;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;margin-right:5px;"></span>MA20>MA50</td>
+    <td style="padding:8px 12px;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;margin-right:5px;"></span>RSI ?</td>
+    <td style="padding:8px 12px;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;margin-right:5px;"></span>Vol ?</td>
+    <td style="padding:8px 12px;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;margin-right:5px;"></span>Liq.&gt;50%</td>
+    <td style="padding:8px 12px;color:#94a3b8;">$?</td>
+  </tr><tr>
+    <td style="padding:8px 12px;font-weight:700;color:#e2e8f0;">TSLA</td>
+    <td style="padding:8px 12px;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;margin-right:5px;"></span>MA20>MA50</td>
+    <td style="padding:8px 12px;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#22c55e;margin-right:5px;"></span>RSI 37.5</td>
+    <td style="padding:8px 12px;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#22c55e;margin-right:5px;"></span>Vol 1.147x</td>
+    <td style="padding:8px 12px;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#22c55e;margin-right:5px;"></span>Liq.&gt;50%</td>
+    <td style="padding:8px 12px;color:#94a3b8;">$384.91</td>
+  </tr></tbody>
+  </table>
+</div>
+
+<!-- Filter Explanations -->
+<div class="section">
+  <div class="section-header">
+    <h2>R&egrave;gles de la Strat&eacute;gie Multi-Filtres</h2>
+  </div>
+  <div class="filter-grid">
+    <div class="filter-card">
+      <h3>Conditions ACHAT (toutes requises)</h3>
+      <p>1. MA20 croise au-dessus MA50<br>2. RSI(14) entre 30 et 70<br>3. Volume &gt; moyenne 20j<br>4. Signal persist&eacute; 2 jours<br>5. ATR(14) calcul&eacute;</p>
+    </div>
+    <div class="filter-card">
+      <h3>Conditions VENTE (une suffit)</h3>
+      <p>1. MA20 croise sous MA50<br>2. RSI &gt; 75 (surach&egrave;te)<br>3. RSI &lt; 25 (panique)<br>4. Prix &lt;= Stop ATR (1.5&times;ATR)<br>5. Gain &gt;= +4%</p>
+    </div>
+    <div class="filter-card">
+      <h3>Protections Suppl&eacute;mentaires</h3>
+      <p>Volume &lt;50% moy. = pas d&#39;ordre<br>Max 3 positions simultan&eacute;es<br>Drawdown &gt;10% = achats gel&eacute;s<br>Taille max: $100 / position</p>
+    </div>
+  </div>
+</div>
+
+<!-- Positions Table -->
+<div class="section">
+  <div class="section-header">
+    <h2>Positions Ouvertes</h2>
+    <span class="badge">2 positions</span>
+  </div>
+  
+  <table>
+    <thead><tr>
+      <th>Titre</th><th>Direction</th><th>Qt&eacute;</th>
+      <th>Prix Entr&eacute;e</th><th>Prix Actuel</th><th>P&amp;L</th>
+    </tr></thead>
+    <tbody><tr>
+    <td style="padding:10px 14px;font-weight:600;color:#e2e8f0;">COIN</td>
+    <td style="padding:10px 14px;color:#94a3b8;">Short</td>
+    <td style="padding:10px 14px;color:#e2e8f0;">-45.0000</td>
+    <td style="padding:10px 14px;color:#e2e8f0;">$205.97</td>
+    <td style="padding:10px 14px;color:#e2e8f0;">$205.80</td>
+    <td style="padding:10px 14px;color:#22c55e;font-weight:600;">+$7.52 (+0.08%)</td>
+  </tr><tr>
+    <td style="padding:10px 14px;font-weight:600;color:#e2e8f0;">NVDA</td>
+    <td style="padding:10px 14px;color:#94a3b8;">Long</td>
+    <td style="padding:10px 14px;color:#e2e8f0;">0.0052</td>
+    <td style="padding:10px 14px;color:#e2e8f0;">$181.98</td>
+    <td style="padding:10px 14px;color:#e2e8f0;">$182.85</td>
+    <td style="padding:10px 14px;color:#22c55e;font-weight:600;">+$0.00 (+0.48%)</td>
+  </tr></tbody>
+  </table>
+</div>
+
+<!-- Trade History Table -->
+<div class="section">
+  <div class="section-header">
+    <h2>Historique des 30 Derniers Trades</h2>
+    <span class="badge">30 op&eacute;rations</span>
+  </div>
+  <div style="overflow-x:auto;">
+  <table>
+    <thead><tr>
+      <th>Date</th><th>Titre</th><th>Action</th>
+      <th>Prix</th><th>Qt&eacute;</th><th>P&amp;L</th><th>Raison</th>
+    </tr></thead>
+    <tbody><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">MSFT</td>
+    <td style="padding:9px 12px;"><span style="color:#22c55e;font-weight:600;">Achat</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$410.87</td>
+    <td style="padding:9px 12px;color:#94a3b8;">22</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Stop ATR</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">MSFT</td>
+    <td style="padding:9px 12px;"><span style="color:#ef4444;font-weight:600;">Vente</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$410.38</td>
+    <td style="padding:9px 12px;color:#94a3b8;">22</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Croisement MA</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">MSFT</td>
+    <td style="padding:9px 12px;"><span style="color:#22c55e;font-weight:600;">Achat</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$410.18</td>
+    <td style="padding:9px 12px;color:#94a3b8;">22</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Stop ATR</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">MSFT</td>
+    <td style="padding:9px 12px;"><span style="color:#ef4444;font-weight:600;">Vente</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$409.43</td>
+    <td style="padding:9px 12px;color:#94a3b8;">22</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Croisement MA</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">MSTR</td>
+    <td style="padding:9px 12px;"><span style="color:#22c55e;font-weight:600;">Achat</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$140.21</td>
+    <td style="padding:9px 12px;color:#94a3b8;">66</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Croisement MA</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">MSTR</td>
+    <td style="padding:9px 12px;"><span style="color:#ef4444;font-weight:600;">Vente</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$141.22</td>
+    <td style="padding:9px 12px;color:#94a3b8;">66</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Croisement MA</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">MSTR</td>
+    <td style="padding:9px 12px;"><span style="color:#22c55e;font-weight:600;">Achat</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$140.17</td>
+    <td style="padding:9px 12px;color:#94a3b8;">66</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Croisement MA</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">MSTR</td>
+    <td style="padding:9px 12px;"><span style="color:#ef4444;font-weight:600;">Vente</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$141.17</td>
+    <td style="padding:9px 12px;color:#94a3b8;">66</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Croisement MA</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">COIN</td>
+    <td style="padding:9px 12px;"><span style="color:#ef4444;font-weight:600;">Vente</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$205.97</td>
+    <td style="padding:9px 12px;color:#94a3b8;">45</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Croisement MA</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">MSTR</td>
+    <td style="padding:9px 12px;"><span style="color:#22c55e;font-weight:600;">Achat</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$141.38</td>
+    <td style="padding:9px 12px;color:#94a3b8;">66</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Stop ATR</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">MSTR</td>
+    <td style="padding:9px 12px;"><span style="color:#22c55e;font-weight:600;">Achat</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$141.38</td>
+    <td style="padding:9px 12px;color:#94a3b8;">66</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Stop ATR</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">COIN</td>
+    <td style="padding:9px 12px;"><span style="color:#22c55e;font-weight:600;">Achat</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$205.71</td>
+    <td style="padding:9px 12px;color:#94a3b8;">45</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Stop ATR</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">MSFT</td>
+    <td style="padding:9px 12px;"><span style="color:#22c55e;font-weight:600;">Achat</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$409.46</td>
+    <td style="padding:9px 12px;color:#94a3b8;">22</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Croisement MA</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">MSFT</td>
+    <td style="padding:9px 12px;"><span style="color:#ef4444;font-weight:600;">Vente</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$410.30</td>
+    <td style="padding:9px 12px;color:#94a3b8;">22</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Croisement MA</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">COIN</td>
+    <td style="padding:9px 12px;"><span style="color:#ef4444;font-weight:600;">Vente</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$205.00</td>
+    <td style="padding:9px 12px;color:#94a3b8;">45</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Croisement MA</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">MSFT</td>
+    <td style="padding:9px 12px;"><span style="color:#22c55e;font-weight:600;">Achat</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$410.28</td>
+    <td style="padding:9px 12px;color:#94a3b8;">22</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Stop ATR</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">MSTR</td>
+    <td style="padding:9px 12px;"><span style="color:#ef4444;font-weight:600;">Vente</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$140.90</td>
+    <td style="padding:9px 12px;color:#94a3b8;">66</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Croisement MA</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">MSFT</td>
+    <td style="padding:9px 12px;"><span style="color:#ef4444;font-weight:600;">Vente</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$409.77</td>
+    <td style="padding:9px 12px;color:#94a3b8;">22</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Croisement MA</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">MSTR</td>
+    <td style="padding:9px 12px;"><span style="color:#ef4444;font-weight:600;">Vente</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$140.76</td>
+    <td style="padding:9px 12px;color:#94a3b8;">66</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Croisement MA</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">AAPL</td>
+    <td style="padding:9px 12px;"><span style="color:#ef4444;font-weight:600;">Vente</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$259.19</td>
+    <td style="padding:9px 12px;color:#94a3b8;">2</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Croisement MA</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">MSFT</td>
+    <td style="padding:9px 12px;"><span style="color:#22c55e;font-weight:600;">Achat</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$409.80</td>
+    <td style="padding:9px 12px;color:#94a3b8;">22</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Stop ATR</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">COIN</td>
+    <td style="padding:9px 12px;"><span style="color:#22c55e;font-weight:600;">Achat</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$205.20</td>
+    <td style="padding:9px 12px;color:#94a3b8;">45</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Stop ATR</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">MSTR</td>
+    <td style="padding:9px 12px;"><span style="color:#22c55e;font-weight:600;">Achat</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$140.24</td>
+    <td style="padding:9px 12px;color:#94a3b8;">67</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Stop ATR</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">MSTR</td>
+    <td style="padding:9px 12px;"><span style="color:#22c55e;font-weight:600;">Achat</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$140.23</td>
+    <td style="padding:9px 12px;color:#94a3b8;">67</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Stop ATR</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">COIN</td>
+    <td style="padding:9px 12px;"><span style="color:#ef4444;font-weight:600;">Vente</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$204.41</td>
+    <td style="padding:9px 12px;color:#94a3b8;">45</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Croisement MA</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">MSFT</td>
+    <td style="padding:9px 12px;"><span style="color:#ef4444;font-weight:600;">Vente</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$409.27</td>
+    <td style="padding:9px 12px;color:#94a3b8;">22</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Croisement MA</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">COIN</td>
+    <td style="padding:9px 12px;"><span style="color:#22c55e;font-weight:600;">Achat</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$205.09</td>
+    <td style="padding:9px 12px;color:#94a3b8;">45</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Stop ATR</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">COIN</td>
+    <td style="padding:9px 12px;"><span style="color:#ef4444;font-weight:600;">Vente</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$204.40</td>
+    <td style="padding:9px 12px;color:#94a3b8;">45</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Croisement MA</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">COIN</td>
+    <td style="padding:9px 12px;"><span style="color:#22c55e;font-weight:600;">Achat</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$204.01</td>
+    <td style="padding:9px 12px;color:#94a3b8;">46</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Stop ATR</td>
+  </tr><tr>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:13px;">2026-03-05</td>
+    <td style="padding:9px 12px;font-weight:700;color:#e2e8f0;">MSFT</td>
+    <td style="padding:9px 12px;"><span style="color:#22c55e;font-weight:600;">Achat</span></td>
+    <td style="padding:9px 12px;color:#e2e8f0;">$409.81</td>
+    <td style="padding:9px 12px;color:#94a3b8;">22</td>
+    <td style="padding:9px 12px;color:#64748b;">-</td>
+    <td style="padding:9px 12px;color:#94a3b8;font-size:12px;">Stop ATR</td>
+  </tr></tbody>
+  </table>
+  </div>
+</div>
+
+<div style="text-align:center;color:#334155;font-size:12px;padding:20px 0;">
+  Strat&eacute;gie Multi-Filtres &bull; RSI(14) + ATR(14) + Volume + Croisement MA20/MA50 &bull; Donn&eacute;es Alpaca Paper Trading
 </div>
 
 <script>
-/* Portfolio base: 500 - Max per position: 100 (20%) */
-/* Qty formula: Math.floor(100 / currentPrice) */
-/* All P&L percentages vs $500 base */
-var PORTFOLIO_BASE = 500;
-var MAX_ALLOC = 100;
-function calcQty(price) {
-  return Math.floor(MAX_ALLOC / price);
-}
-
-/* ===== BAR CHART: Trades par jour ===== */
-(function() {
-  /* Data: date label + trade count - all ASCII */
-  var data = [
-    {d:'19/02', n:3},
-    {d:'20/02', n:5},
-    {d:'21/02', n:2},
-    {d:'24/02', n:7},
-    {d:'25/02', n:4},
-    {d:'26/02', n:6},
-    {d:'27/02', n:3},
-    {d:'28/02', n:8},
-    {d:'03/03', n:5},
-    {d:'04/03', n:3},
-    {d:'05/03', n:2}
-  ];
-  var max = 0;
-  for (var i = 0; i < data.length; i++) {
-    if (data[i].n > max) max = data[i].n;
-  }
-  var container = document.getElementById('barChart');
-  if (!container) return;
-  var html = '';
-  for (var j = 0; j < data.length; j++) {
-    var pct = max > 0 ? Math.round((data[j].n / max) * 100) : 0;
-    html += '<div class="bar-col">';
-    html += '<div class="bar" style="height:' + pct + '%;background:linear-gradient(180deg,#388bfd,#1f6feb)">';
-    html += '<span class="bar-lbl">' + data[j].d + '</span>';
-    html += '</div>';
-    html += '<div class="bar-val">' + data[j].n + '</div>';
-    html += '</div>';
-  }
-  container.innerHTML = html;
+(function(){
+  var ctx = document.getElementById('plChart').getContext('2d');
+  var labels = ['02-04','02-05','02-06','02-07','02-08','02-09','02-10','02-11','02-12','02-13','02-14','02-15','02-16','02-17','02-18','02-19','02-20','02-21','02-22','02-23','02-24','02-25','02-26','02-27','02-28','03-01','03-02','03-03','03-04','03-05'];
+  var data = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-434.85];
+  var bgColors = data.map(function(v){ return v >= 0 ? 'rgba(34,197,94,0.8)' : 'rgba(239,68,68,0.8)'; });
+  var borderColors = data.map(function(v){ return v >= 0 ? 'rgba(34,197,94,1)' : 'rgba(239,68,68,1)'; });
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'P\u0026L Quotidien ($)',
+        data: data,
+        backgroundColor: bgColors,
+        borderColor: borderColors,
+        borderWidth: 1,
+        borderRadius: 3
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(ctx){ return (ctx.raw >= 0 ? '+' : '') + '$' + ctx.raw.toFixed(2); }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#64748b', font: { size: 10 }, maxRotation: 45 },
+          grid: { color: '#1e293b' }
+        },
+        y: {
+          ticks: { color: '#64748b', callback: function(v){ return '$'+v.toFixed(0); } },
+          grid: { color: '#334155' }
+        }
+      }
+    }
+  });
 })();
 </script>
 </body>
