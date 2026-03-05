@@ -31,7 +31,6 @@
     .header-right { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
     .updated-header { font-size:0.72rem; color:var(--text-muted); }
 
-    /* Horloges */
     .clocks { display:flex; gap:10px; align-items:center; }
     .clock-box {
       display:flex; flex-direction:column; align-items:center;
@@ -46,11 +45,13 @@
       display:flex; align-items:center; gap:8px; padding:6px 14px;
       border-radius:20px; font-size:0.8rem; font-weight:600; border:1px solid;
     }
-    .market-badge.open   { background:var(--green-bg); color:var(--green); border-color:var(--green); }
-    .market-badge.closed { background:var(--red-bg);   color:var(--red);   border-color:var(--red); }
+    .market-badge.open    { background:var(--green-bg); color:var(--green);  border-color:var(--green); }
+    .market-badge.closed  { background:var(--red-bg);   color:var(--red);    border-color:var(--red); }
+    .market-badge.warning { background:#2e1f00;          color:#e3a000;       border-color:#e3a000; }
     .dot { width:8px; height:8px; border-radius:50%; }
-    .market-badge.open .dot { background:var(--green); animation:pulse 1.5s infinite; }
-    .market-badge.closed .dot { background:var(--red); }
+    .market-badge.open .dot    { background:var(--green); animation:pulse 1.5s infinite; }
+    .market-badge.closed .dot  { background:var(--red); }
+    .market-badge.warning .dot { background:#e3a000; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
     main { max-width:1200px; margin:0 auto; padding:28px 24px; }
@@ -129,6 +130,14 @@
       </div>
     </div>
     <span class="updated-header" id="updated-at">Chargement...</span>
+    <div class="market-badge closed" id="bot-badge">
+      <div class="dot" id="bot-dot"></div>
+      <span id="bot-text">Bot...</span>
+    </div>
+    <div class="clock-box" id="cycle-box" style="min-width:110px;">
+      <span class="clock-label">⏱ Prochain cycle</span>
+      <span class="clock-time" id="cycle-countdown">--:--</span>
+    </div>
     <div class="market-badge closed" id="market-badge">
       <div class="dot"></div>
       <span id="market-text">--</span>
@@ -240,11 +249,39 @@
     document.getElementById('loader').style.display  = 'none';
     document.getElementById('content').style.display = 'block';
 
+    /* ── Statut marché ── */
     const badge = document.getElementById('market-badge');
     badge.className = 'market-badge ' + (d.market_open ? 'open' : 'closed');
     document.getElementById('market-text').textContent = d.market_open ? 'Bourse ouverte' : 'Bourse fermée';
-    document.getElementById('updated-at').textContent  = 'Mis à jour : ' + d.updated_at;
 
+    /* ── Heure mise à jour ── */
+    const upd = new Date(d.updated_at);
+    document.getElementById('updated-at').textContent = 'Mis à jour : ' + upd.toLocaleTimeString('fr-FR');
+
+    /* ── Statut bot ── */
+    const botBadge = document.getElementById('bot-badge');
+    const ageMinutes = (Date.now() - upd.getTime()) / 60000;
+    if (d.bot_alive === true && ageMinutes < 10) {
+      botBadge.className = 'market-badge open';
+      document.getElementById('bot-text').textContent = '🤖 Bot actif';
+    } else {
+      botBadge.className = 'market-badge warning';
+      document.getElementById('bot-dot').style.animation = 'none';
+      document.getElementById('bot-text').textContent = '🤖 Bot inactif';
+    }
+
+    /* ── Countdown prochain cycle ── */
+    let secondsLeft = d.next_cycle_in ?? 300;
+    const countdownEl = document.getElementById('cycle-countdown');
+    const cycleTimer = setInterval(() => {
+      if (secondsLeft <= 0) { clearInterval(cycleTimer); countdownEl.textContent = '⏳ En cours...'; return; }
+      const m = String(Math.floor(secondsLeft / 60)).padStart(2,'0');
+      const s = String(secondsLeft % 60).padStart(2,'0');
+      countdownEl.textContent = m + ':' + s;
+      secondsLeft--;
+    }, 1000);
+
+    /* ── KPIs ── */
     const diff = d.equity - PORTFOLIO_START;
     document.getElementById('equity').textContent = '$' + fmt(d.equity);
     document.getElementById('equity-diff').innerHTML = '<span class="' + sc(diff) + '">' + ss(diff) + '$' + fmt(diff) + ' depuis le départ</span>';
@@ -269,6 +306,7 @@
     document.getElementById('pos-count').textContent       = d.open_positions.length;
     document.getElementById('pos-count-badge').textContent = d.open_positions.length;
 
+    /* ── Positions ouvertes ── */
     const posTbody = document.getElementById('positions-table');
     const posCards = document.getElementById('positions-cards');
     if (d.open_positions.length === 0) {
@@ -288,6 +326,7 @@
       }).join('');
     }
 
+    /* ── Trades du jour ── */
     const tradeTbody = document.getElementById('trades-table');
     const tradeCards = document.getElementById('trades-cards');
     const trades = [...d.trades_today].reverse();
@@ -298,11 +337,11 @@
     } else {
       tradeTbody.innerHTML = trades.map(t => {
         const isBuy = t.side.toLowerCase().includes('buy');
-        return '<tr><td>'+t.time+'</td><td><span class="symbol-badge">'+t.symbol+'</span></td><td><span class="side-badge '+( isBuy?'buy':'sell')+'">'+( isBuy?'▲ BUY':'▼ SELL')+'</span></td><td>'+t.qty+'</td><td>$'+fmt(t.price)+'</td><td><span class="status-badge">'+cleanStatus(t.status)+'</span></td></tr>';
+        return '<tr><td>'+t.time+'</td><td><span class="symbol-badge">'+t.symbol+'</span></td><td><span class="side-badge '+(isBuy?'buy':'sell')+'">'+(isBuy?'▲ BUY':'▼ SELL')+'</span></td><td>'+t.qty+'</td><td>$'+fmt(t.price)+'</td><td><span class="status-badge">'+cleanStatus(t.status)+'</span></td></tr>';
       }).join('');
       tradeCards.innerHTML = trades.map(t => {
         const isBuy = t.side.toLowerCase().includes('buy');
-        return '<div class="trade-card"><div class="card-row"><span class="symbol-badge">'+t.symbol+'</span><span class="side-badge '+( isBuy?'buy':'sell')+'">'+( isBuy?'▲ BUY':'▼ SELL')+'</span></div><div class="card-row"><span class="card-label">Heure</span><span class="card-val">'+t.time+'</span></div><div class="card-row"><span class="card-label">Qté</span><span class="card-val">'+t.qty+'</span></div><div class="card-row"><span class="card-label">Prix</span><span class="card-val">$'+fmt(t.price)+'</span></div><div class="card-row"><span class="card-label">Statut</span><span class="card-val">'+cleanStatus(t.status)+'</span></div></div>';
+        return '<div class="trade-card"><div class="card-row"><span class="symbol-badge">'+t.symbol+'</span><span class="side-badge '+(isBuy?'buy':'sell')+'">'+(isBuy?'▲ BUY':'▼ SELL')+'</span></div><div class="card-row"><span class="card-label">Heure</span><span class="card-val">'+t.time+'</span></div><div class="card-row"><span class="card-label">Qté</span><span class="card-val">'+t.qty+'</span></div><div class="card-row"><span class="card-label">Prix</span><span class="card-val">$'+fmt(t.price)+'</span></div><div class="card-row"><span class="card-label">Statut</span><span class="card-val">'+cleanStatus(t.status)+'</span></div></div>';
       }).join('');
     }
   })
