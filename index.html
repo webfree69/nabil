@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<!-- PORTFOLIO CONSTANTS - NE PAS MODIFIER
+  PORTFOLIO_BASE       = 500
+  MAX_PER_POSITION     = 100
+  MAX_TOTAL_EXPOSURE   = 300
+  HALT_DRAWDOWN        = 50
+  qty = Math.floor(MAX_PER_POSITION / current_price), skip if qty = 0
+  Halt new buys if cumulative loss > $50 (-10%)
+-->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Tableau de Bord Trading</title>
@@ -195,7 +203,7 @@ table.desktop-table tr:hover td{background:#1e293b33}
 
 <div class="header">
   <h1>Tableau de Bord Trading</h1>
-  <p>Portefeuille Alpaca Paper | Mise &agrave; jour: 2026-03-05 22:30 UTC</p>
+  <p>Portefeuille $500 | Mise &agrave; jour: 2026-03-05 22:30 UTC</p>
 </div>
 
 <div class="status-bar">
@@ -208,8 +216,8 @@ table.desktop-table tr:hover td{background:#1e293b33}
 <div class="grid-4">
   <div class="kpi-card">
     <div class="kpi-label">Valeur du portefeuille</div>
-    <div class="kpi-value">$93907.53</div>
-    <div class="kpi-sub">Compte actif</div>
+    <div class="kpi-value">$93,907.53</div>
+    <div class="kpi-sub">Compte paper actif</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-label">Cash disponible</div>
@@ -221,10 +229,11 @@ table.desktop-table tr:hover td{background:#1e293b33}
     <div class="kpi-value neg">$403.87</div>
     <div class="kpi-sub neg">-0.43% vs hier</div>
   </div>
-  <div class="kpi-card">
-    <div class="kpi-label">Rendement total</div>
-    <div class="kpi-value neg">-6.09%</div>
-    <div class="kpi-sub">Base: $100,000</div>
+    <div class="kpi-card" id="kpi-portfolio">
+    <div class="kpi-label">Portefeuille</div>
+    <div class="kpi-value" id="kpi-portfolio-value">$500.00</div>
+    <div class="kpi-sub" id="kpi-portfolio-base">Base: $500.00</div>
+    <div class="kpi-sub" id="kpi-portfolio-pnl">P&amp;L: $0.00 (0.00%)</div>
   </div>
 </div>
 
@@ -288,6 +297,9 @@ table.desktop-table tr:hover td{background:#1e293b33}
     </div>
   </div>
 
+  
+  <div style="text-align:center;padding:0.4rem 0.5rem;color:#64748b;font-size:0.7rem;border-top:1px solid #1e293b;margin-top:0.25rem;">Taille max par position : $100 (20% de $500)</div>
+
   <!-- Desktop table -->
   <div class="table-wrap">
     <table class="desktop-table">
@@ -322,6 +334,10 @@ table.desktop-table tr:hover td{background:#1e293b33}
     <td class="pos">+$0.00 (+0.21%)</td>
     <td>$178.34</td>
   </tr></tbody>
+    
+      <tfoot>
+        <tr><td colspan="8" style="text-align:center;padding:0.5rem;color:#64748b;font-size:0.75rem;border-top:1px solid #334155;">Taille max par position : $100 (20% de $500) &#8212; Exposition max : $300 &#8212; Seuil arr&ecirc;t : -$50 (-10%)</td></tr>
+      </tfoot>
     </table>
   </div>
 </div>
@@ -887,8 +903,8 @@ table.desktop-table tr:hover td{background:#1e293b33}
     data: {
       labels: ["Feb 22","Feb 23","Feb 24","Feb 25","Feb 26","Feb 27","Feb 28","Mar 01","Mar 02","Mar 03","Mar 04","Mar 05"],
       datasets: [{
-        label: 'Valeur ($)',
-        data: [100000,99800,100200,101500,100900,99500,98800,99200,100100,97000,94311,93908],
+        label: 'Valeur ($) - Base: $500',
+        data: [500.00,499.00,501.00,507.50,504.50,497.50,494.00,496.00,500.50,485.00,471.56,469.54],
         borderColor: '#3b82f6',
         backgroundColor: 'rgba(59,130,246,0.08)',
         borderWidth: 2,
