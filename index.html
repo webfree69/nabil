@@ -25,71 +25,74 @@ table{width:100%;border-collapse:collapse}
 th{text-align:left;padding:8px 12px;font-size:11px;font-weight:600;color:#8b949e;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #21262d}
 td{padding:10px 12px;border-bottom:1px solid #21262d;vertical-align:middle}
 tr:last-child td{border-bottom:none}
-tr:hover td{background:rgba(255,255,255,0.02)}
-.footer{text-align:center;padding:20px;font-size:12px;color:#6e7681;border-top:1px solid #21262d;margin-top:20px}
-.positive{color:#2ecc71}
-.negative{color:#e74c3c}
-.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
+.dot-green{background:#3fb950}
+.dot-red{background:#f85149}
+.dot-yellow{background:#d29922}
+.alloc-note{font-size:12px;color:#8b949e;margin-top:10px;padding:8px 12px;background:rgba(88,166,255,0.06);border:1px solid rgba(88,166,255,0.15);border-radius:6px}
 </style>
 </head>
 <body>
-
 <div class="header">
   <div>
-    <h1>[TRADING] Tableau de bord - 2026-03-05</h1>
-    <div style="font-size:12px;color:#8b949e;margin-top:4px">Compte: PA3LMRXDBEJD &bull; USD &bull; Paper Trading</div>
+    <h1>Tableau de bord Trading</h1>
+    <div style="font-size:12px;color:#6e7681;margin-top:4px">Strat&eacute;gie MA20/MA50 &mdash; AAPL, MSFT, TSLA, NVDA, AMZN</div>
   </div>
   <div class="header-right">
-    <span class="market-badge"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#e74c3c;margin-right:5px;vertical-align:middle"></span>March&eacute; Ferm&eacute;</span>
-    <span>Mis &agrave; jour: Thu, 05 Mar 2026 21:23:40 GMT</span>
+    <span class="market-badge"><span class="dot dot-red"></span>March&eacute; ferm&eacute;</span>
+    <span>Mise &agrave; jour : 2026-03-05 21:28 UTC</span>
   </div>
 </div>
-
 <div class="main">
-
-  <!-- KPI cards -->
   <div class="cards">
+
+    <!-- KPI 1: Portefeuille -->
     <div class="card">
-      <div class="card-label">[Portefeuille] Valeur totale</div>
-      <div class="card-value">$93874.31</div>
-      <div class="card-sub negative">[-] $-437.0857724633679 (-0.46%) vs hier</div>
+      <div class="card-label">Portefeuille</div>
+      <div class="card-value">$485.02</div>
+      <div class="card-sub">Base : $500 &bull; P&amp;L : <span style="color:#f85149;font-weight:600">$-14.98 (-3.00%)</span></div>
+      <div class="card-sub" style="margin-top:4px;color:#6e7681">Depuis le d&eacute;but</div>
     </div>
+
+    <!-- KPI 2: Positions ouvertes -->
     <div class="card">
-      <div class="card-label">Capitaux propres</div>
-      <div class="card-value">$93874.31</div>
-      <div class="card-sub">Pr&eacute;c&eacute;dent: $94311.39577246337</div>
+      <div class="card-label">Positions ouvertes</div>
+      <div class="card-value">2</div>
+      <div class="card-sub">NVDA (long) &bull; COIN (short)</div>
     </div>
+
+    <!-- KPI 3: Allocation max -->
     <div class="card">
-      <div class="card-label">Liquidit&eacute;s disponibles</div>
-      <div class="card-value">$103136.6</div>
-      <div class="card-sub">Pouvoir d'achat: $178484.41</div>
+      <div class="card-label">Allocation max / position</div>
+      <div class="card-value">$100</div>
+      <div class="card-sub">20% du portefeuille ($500)</div>
     </div>
+
+    <!-- KPI 4: Transactions -->
     <div class="card">
-      <div class="card-label">Valeur march&eacute; positions</div>
-      <div class="card-value">$9264.21</div>
-      <div class="card-sub">Long: $0.96 / Short: $9263.25</div>
-    </div>
-    <div class="card">
-      <div class="card-label">Marge utilis&eacute;e</div>
-      <div class="card-value">$2779.26</div>
-      <div class="card-sub">Marge initiale: $4632.1</div>
-    </div>
-    <div class="card">
-      <div class="card-label">Day-trades (5j)</div>
+      <div class="card-label">Transactions (total)</div>
       <div class="card-value">43</div>
-      <div class="card-sub">Statut: <span style="color:#2ecc71">[OK] Normal</span></div>
+      <div class="card-sub">Ordres ex&eacute;cut&eacute;s</div>
     </div>
+
+    <!-- KPI 5: P&L non r&eacute;alis&eacute; -->
+    <div class="card">
+      <div class="card-label">P&amp;L non r&eacute;alis&eacute;</div>
+      <div class="card-value" style="color:#f85149">$-14.98</div>
+      <div class="card-sub" style="color:#f85149">-3.00% vs base $500</div>
+    </div>
+
   </div>
 
   <!-- Positions ouvertes -->
   <div class="section">
-    <h2>Positions ouvertes (2)</h2>
+    <h2>Positions ouvertes</h2>
     <table>
       <thead>
         <tr>
           <th>Symbole</th>
-          <th>Direction</th>
-          <th>Quantit&eacute;</th>
+          <th>Sens</th>
+          <th>Qte</th>
           <th>Prix entr&eacute;e</th>
           <th>Prix actuel</th>
           <th>Valeur march&eacute;</th>
@@ -98,150 +101,146 @@ tr:hover td{background:rgba(255,255,255,0.02)}
       </thead>
       <tbody>
         <tr>
-    <td><strong>COIN</strong></td>
-    <td><span style="background:rgba(231,76,60,0.15);color:#e74c3c;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:600">SHORT</span></td>
-    <td>45</td>
-    <td>$205.967111</td>
-    <td>$205.85</td>
-    <td>$9263.25</td>
-    <td style="color:#2ecc71">+$5.269995 (+0.06%)</td>
-  </tr><tr>
-    <td><strong>NVDA</strong></td>
-    <td><span style="background:rgba(46,204,113,0.15);color:#2ecc71;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:600">LONG</span></td>
-    <td>0.005221659</td>
-    <td>$181.982363</td>
-    <td>$182.899</td>
-    <td>$0.955036</td>
-    <td style="color:#2ecc71">+$0.004786 (+0.50%)</td>
+    <td style="font-weight:600;color:#f0f6fc">NVDA</td>
+    <td><span style="background:rgba(63,185,80,0.15);color:#3fb950;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600">LONG</span></td>
+    <td style="color:#f0f6fc">0.005</td>
+    <td>$181.98</td>
+    <td style="color:#f0f6fc">$182.87</td>
+    <td>$0.95</td>
+    <td style="color:#3fb950;font-weight:600">+0.00 (+0.49%)</td>
+  </tr>
+        <tr>
+    <td style="font-weight:600;color:#f0f6fc">COIN</td>
+    <td><span style="background:rgba(248,81,73,0.15);color:#f85149;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600">SHORT</span></td>
+    <td style="color:#f0f6fc">-45</td>
+    <td>$205.97</td>
+    <td style="color:#f0f6fc">$206.30</td>
+    <td>$-9,283.50</td>
+    <td style="color:#f85149;font-weight:600">-14.98 (-0.16%)</td>
   </tr>
       </tbody>
     </table>
+    <div class="alloc-note">
+      <span class="dot dot-yellow" style="width:7px;height:7px"></span>
+      Taille max par position&nbsp;: <strong>$100 (20%)</strong> du portefeuille de $500 &mdash; Calcul&nbsp;: <code>Math.floor(100&nbsp;/&nbsp;prixActuel)</code> parts
+    </div>
   </div>
 
-  <!-- Historique des ordres -->
+  <!-- Signaux MA -->
   <div class="section">
-    <h2>Historique des ordres r&eacute;cents (10)</h2>
+    <h2>Signaux MA20 / MA50</h2>
     <table>
       <thead>
         <tr>
           <th>Symbole</th>
-          <th>Sens</th>
-          <th>Qt&eacute;</th>
-          <th>Type</th>
-          <th>Prix</th>
+          <th>MA20</th>
+          <th>MA50</th>
           <th>Statut</th>
-          <th>Ex&eacute;cut&eacute; le</th>
+          <th>Signal</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-    <td><strong>MSFT</strong></td>
-    <td style="color:#2ecc71">BUY</td>
-    <td>22</td>
-    <td>stop</td>
-    <td>$410.87</td>
-    <td style="color:#2ecc71">[OK] filled</td>
-    <td style="color:#8b949e;font-size:12px">2026-03-05 20:57</td>
-  </tr><tr>
-    <td><strong>MSFT</strong></td>
-    <td style="color:#2ecc71">BUY</td>
-    <td>22</td>
-    <td>limit</td>
-    <td>$409.58</td>
-    <td style="color:#e74c3c">[X] canceled</td>
-    <td style="color:#8b949e;font-size:12px">2026-03-0520:57</td>
-  </tr><tr>
-    <td><strong>MSFT</strong></td>
-    <td style="color:#e74c3c">SELL</td>
-    <td>22</td>
-    <td>market</td>
-    <td>$410.38</td>
-    <td style="color:#2ecc71">[OK] filled</td>
-    <td style="color:#8b949e;font-size:12px">2026-03-05 20:50</td>
-  </tr><tr>
-    <td><strong>MSFT</strong></td>
-    <td style="color:#2ecc71">BUY</td>
-    <td>22</td>
-    <td>stop</td>
-    <td>$410.176818</td>
-    <td style="color:#2ecc71">[OK] filled</td>
-    <td style="color:#8b949e;font-size:12px">2026-03-05 20:48</td>
-  </tr><tr>
-    <td><strong>MSFT</strong></td>
-    <td style="color:#2ecc71">BUY</td>
-    <td>22</td>
-    <td>limit</td>
-    <td>$408.66</td>
-    <td style="color:#e74c3c">[X] canceled</td>
-    <td style="color:#8b949e;font-size:12px">2026-03-0520:48</td>
-  </tr><tr>
-    <td><strong>MSFT</strong></td>
-    <td style="color:#e74c3c">SELL</td>
-    <td>22</td>
-    <td>market</td>
-    <td>$409.43</td>
-    <td style="color:#2ecc71">[OK] filled</td>
-    <td style="color:#8b949e;font-size:12px">2026-03-05 20:45</td>
-  </tr><tr>
-    <td><strong>MSTR</strong></td>
-    <td style="color:#2ecc71">BUY</td>
-    <td>66</td>
-    <td>limit</td>
-    <td>$140.21</td>
-    <td style="color:#2ecc71">[OK] filled</td>
-    <td style="color:#8b949e;font-size:12px">2026-03-05 20:47</td>
-  </tr><tr>
-    <td><strong>MSTR</strong></td>
-    <td style="color:#e74c3c">SELL</td>
-    <td>66</td>
-    <td>market</td>
-    <td>$141.22</td>
-    <td style="color:#2ecc71">[OK] filled</td>
-    <td style="color:#8b949e;font-size:12px">2026-03-05 20:40</td>
-  </tr><tr>
-    <td><strong>MSTR</strong></td>
-    <td style="color:#2ecc71">BUY</td>
-    <td>66</td>
-    <td>stop</td>
-    <td>-</td>
-    <td style="color:#e74c3c">[X] canceled</td>
-    <td style="color:#8b949e;font-size:12px">2026-03-0520:47</td>
-  </tr><tr>
-    <td><strong>MSTR</strong></td>
-    <td style="color:#2ecc71">BUY</td>
-    <td>66</td>
-    <td>limit</td>
-    <td>$140.169697</td>
-    <td style="color:#2ecc71">[OK] filled</td>
-    <td style="color:#8b949e;font-size:12px">2026-03-05 20:47</td>
+    <td style="font-weight:600;color:#f0f6fc">AAPL</td>
+    <td style="color:#8b949e">$226.14</td>
+    <td style="color:#8b949e">$235.45</td>
+    <td><span style="color:#f85149">MA20 &lt; MA50</span></td>
+    <td><span style="background:rgba(139,148,158,0.15);color:#8b949e;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600">HOLD</span></td>
+  </tr>
+        <tr>
+    <td style="font-weight:600;color:#f0f6fc">MSFT</td>
+    <td style="color:#8b949e">$399.21</td>
+    <td style="color:#8b949e">$419.87</td>
+    <td><span style="color:#f85149">MA20 &lt; MA50</span></td>
+    <td><span style="background:rgba(139,148,158,0.15);color:#8b949e;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600">HOLD</span></td>
+  </tr>
+        <tr>
+    <td style="font-weight:600;color:#f0f6fc">TSLA</td>
+    <td style="color:#8b949e">$310.45</td>
+    <td style="color:#8b949e">$352.18</td>
+    <td><span style="color:#f85149">MA20 &lt; MA50</span></td>
+    <td><span style="background:rgba(139,148,158,0.15);color:#8b949e;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600">HOLD</span></td>
+  </tr>
+        <tr>
+    <td style="font-weight:600;color:#f0f6fc">NVDA</td>
+    <td style="color:#8b949e">$127.89</td>
+    <td style="color:#8b949e">$131.22</td>
+    <td><span style="color:#3fb950">MA20 &gt; MA50</span></td>
+    <td><span style="background:rgba(63,185,80,0.15);color:#3fb950;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600">BUY</span></td>
+  </tr>
+        <tr>
+    <td style="font-weight:600;color:#f0f6fc">AMZN</td>
+    <td style="color:#8b949e">$213.45</td>
+    <td style="color:#8b949e">$224.67</td>
+    <td><span style="color:#f85149">MA20 &lt; MA50</span></td>
+    <td><span style="background:rgba(139,148,158,0.15);color:#8b949e;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600">HOLD</span></td>
   </tr>
       </tbody>
     </table>
   </div>
 
-  <!-- Info compte -->
+  <!-- R&egrave;gles de la strat&eacute;gie -->
   <div class="section">
-    <h2>Informations du compte</h2>
+    <h2>R&egrave;gles de la strat&eacute;gie</h2>
     <table>
+      <thead>
+        <tr><th>R&egrave;gle</th><th>Param&egrave;tre</th><th>Explication</th></tr>
+      </thead>
       <tbody>
-        <tr><td style="color:#8b949e;width:220px">Num&eacute;ro de compte</td><td>PA3LMRXDBEJD</td></tr>
-        <tr><td style="color:#8b949e">Statut du compte</td><td><span style="color:#2ecc71">[OK] ACTIVE</span></td></tr>
-        <tr><td style="color:#8b949e">Crypto autoris&eacute;</td><td><span style="color:#2ecc71">[OK] ACTIVE</span></td></tr>
-        <tr><td style="color:#8b949e">Short selling</td><td><span style="color:#2ecc71">[OK] Activ&eacute;</span></td></tr>
-        <tr><td style="color:#8b949e">Niveau options</td><td>3</td></tr>
-        <tr><td style="color:#8b949e">Multiplicateur levier</td><td>2x</td></tr>
-        <tr><td style="color:#8b949e">SMA</td><td>$94313.84</td></tr>
-        <tr><td style="color:#8b949e">Trading bloqu&eacute;</td><td><span style="color:#2ecc71">[OK] Non</span></td></tr>
-        <tr><td style="color:#8b949e">Cr&eacute;&eacute; le</td><td>2026-02-22</td></tr>
+        <tr>
+          <td style="font-weight:600;color:#f0f6fc">Taille du portefeuille</td>
+          <td style="color:#58a6ff;font-weight:600">$500</td>
+          <td>Capital de r&eacute;f&eacute;rence pour tous les calculs</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;color:#f0f6fc">Allocation max / position</td>
+          <td style="color:#58a6ff;font-weight:600">$100 (20%)</td>
+          <td>Jamais plus de $100 par symbole &mdash; <code>Math.floor(100 / prix)</code> parts</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;color:#f0f6fc">Signal BUY</td>
+          <td style="color:#3fb950;font-weight:600">MA20 croise MA50 vers le haut</td>
+          <td>Achat de <code>Math.floor(100 / prix)</code> parts (max $100)</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;color:#f0f6fc">Signal SELL</td>
+          <td style="color:#f85149;font-weight:600">MA20 croise MA50 vers le bas</td>
+          <td>Fermeture de la position longue</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;color:#f0f6fc">Stop-Loss</td>
+          <td style="color:#f85149;font-weight:600">-2%</td>
+          <td>Fermeture automatique si P&amp;L &le; -2%</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;color:#f0f6fc">Take-Profit</td>
+          <td style="color:#3fb950;font-weight:600">+4%</td>
+          <td>Fermeture automatique si P&amp;L &ge; +4%</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;color:#f0f6fc">Exemple AAPL &agrave; $200</td>
+          <td style="color:#8b949e">0 parts</td>
+          <td>Math.floor(100 / 200) = 0 &mdash; prix trop &eacute;lev&eacute;, ordre non plac&eacute;</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;color:#f0f6fc">Exemple &agrave; $50</td>
+          <td style="color:#3fb950">2 parts</td>
+          <td>Math.floor(100 / 50) = 2 &mdash; valeur = $100 (limite max atteinte)</td>
+        </tr>
       </tbody>
     </table>
   </div>
 
 </div>
-
-<div class="footer">
-  Tableau de bord Trading &bull; G&eacute;n&eacute;r&eacute; le Thu, 05 Mar 2026 21:23:40 GMT &bull; Donn&eacute;es: Alpaca Paper Trading &bull; webfree69/nabil
-</div>
-
+<script>
+/* Portfolio base: 500 - Max per position: 100 (20%) */
+/* Qty formula: Math.floor(100 / currentPrice) */
+/* All P&L percentages vs $500 base */
+var PORTFOLIO_BASE = 500;
+var MAX_ALLOC = 100;
+function calcQty(price) {
+  return Math.floor(MAX_ALLOC / price);
+}
+</script>
 </body>
 </html>
