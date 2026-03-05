@@ -9,7 +9,7 @@
 /* === RESET === */
 *{box-sizing:border-box;margin:0;padding:0}
 
-/* === MOBILE-FIRST BASE (375px+) === */
+/* === MOBILE-FIRST BASE === */
 body{
   background:#0f172a;
   color:#e2e8f0;
@@ -19,6 +19,8 @@ body{
   overflow-x:hidden;
   font-size:14px;
 }
+@media(min-width:768px){body{padding:1.5rem}}
+
 .header{
   text-align:center;
   padding:1rem 0.75rem;
@@ -31,546 +33,899 @@ body{
 .header h1{font-size:clamp(1rem,4vw,1.75rem);font-weight:800;color:#f1f5f9;letter-spacing:-0.5px}
 .header p{color:#64748b;margin-top:6px;font-size:clamp(0.65rem,1.8vw,0.875rem)}
 
-/* KPI GRID - single column mobile */
+/* KPI GRID - 1 col mobile, 2 col 480px, 4 col 1024px */
 .grid-4{display:grid;grid-template-columns:1fr;gap:0.75rem;margin-bottom:1rem;width:100%}
+@media(min-width:480px){.grid-4{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1024px){.grid-4{grid-template-columns:repeat(4,1fr)}}
+
 .grid-3{display:grid;grid-template-columns:1fr;gap:0.75rem;margin-bottom:1rem;width:100%}
+@media(min-width:480px){.grid-3{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1024px){.grid-3{grid-template-columns:repeat(3,1fr)}}
+
 .kpi-card{
   background:#1e293b;
   border-radius:10px;
   padding:1rem 0.75rem;
   border:1px solid #334155;
-  width:100%;
+  text-align:center;
+  min-width:0;
 }
-.kpi-label{font-size:0.7rem;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem}
-.kpi-value{font-size:clamp(1.1rem,4vw,1.6rem);font-weight:800;color:#f1f5f9}
-.kpi-sub{font-size:0.75rem;color:#64748b;margin-top:0.3rem}
-.kpi-badge{display:inline-block;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;font-weight:700;margin-top:0.4rem}
+.kpi-label{color:#64748b;font-size:clamp(0.6rem,1.5vw,0.75rem);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.kpi-value{font-size:clamp(1rem,3vw,1.5rem);font-weight:700;color:#f1f5f9;word-break:break-all}
+.kpi-sub{font-size:clamp(0.6rem,1.5vw,0.75rem);color:#64748b;margin-top:2px}
 
-/* SECTIONS */
+/* SECTION */
 .section{
   background:#1e293b;
-  border-radius:10px;
-  padding:0.75rem;
+  border-radius:12px;
+  padding:1rem 0.75rem;
   margin-bottom:1rem;
   border:1px solid #334155;
   width:100%;
-  max-width:100%;
+  overflow:hidden;
 }
+@media(min-width:768px){.section{padding:1.25rem 1rem}}
 .section-title{
-  font-size:0.75rem;
+  font-size:clamp(0.8rem,2.5vw,1rem);
   font-weight:700;
-  color:#94a3b8;
-  text-transform:uppercase;
-  letter-spacing:0.1em;
+  color:#f1f5f9;
+  margin-bottom:0.75rem;
   padding-bottom:0.5rem;
   border-bottom:1px solid #334155;
-  margin-bottom:0.75rem;
 }
 
-/* TABLE CONTAINERS â scrollable on mobile */
-.table-wrap{
-  display:block;
-  width:100%;
-  overflow-x:auto;
-  -webkit-overflow-scrolling:touch;
+/* BADGES */
+.badge{
+  display:inline-block;
+  padding:2px 8px;
+  border-radius:4px;
+  font-size:0.7rem;
+  font-weight:700;
+  letter-spacing:0.5px;
+  white-space:nowrap;
 }
-table{
-  min-width:500px;
-  width:100%;
-  border-collapse:collapse;
-  font-size:0.8rem;
+.badge-buy{background:#064e3b;color:#34d399}
+.badge-sell{background:#4c0519;color:#f87171}
+.badge-wait{background:#1e3a5f;color:#60a5fa}
+.badge-lg{font-size:clamp(0.75rem,2.5vw,0.9rem);padding:4px 14px}
+
+/* COLORS */
+.pos{color:#34d399}
+.neg{color:#f87171}
+
+/* === DESKTOP TABLE === */
+.desktop-table{display:none}
+@media(min-width:768px){
+  .desktop-table{display:table;width:100%;border-collapse:collapse}
+  .mobile-card{display:none !important}
 }
-th{
-  text-align:left;
-  padding:0.5rem 0.4rem;
+table.desktop-table th{
+  background:#0f172a;
   color:#64748b;
   font-size:0.7rem;
   text-transform:uppercase;
-  letter-spacing:0.05em;
-  border-bottom:1px solid #334155;
+  letter-spacing:0.5px;
+  padding:0.5rem 0.75rem;
+  text-align:left;
   white-space:nowrap;
 }
-td{
-  padding:0.5rem 0.4rem;
+table.desktop-table td{
+  padding:0.5rem 0.75rem;
   border-bottom:1px solid #1e293b;
+  font-size:0.8rem;
   color:#cbd5e1;
 }
-tr:last-child td{border-bottom:none}
-.table-footer{
-  font-size:0.7rem;
-  color:#475569;
-  padding:0.5rem 0.4rem;
-  border-top:1px solid #334155;
-  font-style:italic;
+table.desktop-table tr:hover td{background:#1e293b33}
+
+/* === MOBILE CARDS === */
+.mobile-card{
+  display:block;
+  background:#0f172a;
+  border-radius:8px;
+  padding:0.75rem;
+  margin-bottom:0.5rem;
+  border:1px solid #334155;
 }
+@media(min-width:768px){.mobile-card{display:none !important}}
+
+.card-header-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:0.5rem;
+}
+.card-symbol{font-size:1rem;font-weight:700;color:#f1f5f9;margin-right:0.5rem}
+.card-price{color:#94a3b8;font-size:0.85rem}
+
+.card-grid2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0.4rem;
+}
+.card-grid2 > div{display:flex;flex-direction:column}
+.card-label{font-size:0.65rem;color:#64748b;text-transform:uppercase;letter-spacing:0.3px;margin-bottom:1px}
+.card-val{font-size:0.85rem;color:#e2e8f0;font-weight:600}
+
+.ind-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:3px 0;
+  border-bottom:1px solid #1e293b;
+  font-size:0.8rem;
+}
+.ind-row:last-child{border-bottom:none}
+
+.ind-card .card-symbol{display:block;margin-bottom:0.4rem;font-size:1rem;font-weight:700;color:#f1f5f9}
+.sig-card .card-header-row{flex-wrap:wrap;gap:0.4rem}
+.hist-card .card-header-row{margin-bottom:0.4rem}
+
+.empty-state{color:#64748b;text-align:center;padding:1rem;font-size:0.85rem}
 
 /* CHART */
-.chart-wrap{position:relative;width:100%;max-width:100%}
-canvas{max-width:100%;height:auto!important}
-
-/* SIGNAL BADGE */
-.sig-acheter{background:#065f46;color:#10b981}
-.sig-vendre{background:#7f1d1d;color:#ef4444}
-.sig-attendre{background:#451a03;color:#f59e0b}
-
-/* STATUS PILL */
-.pill{display:inline-block;padding:0.15rem 0.4rem;border-radius:4px;font-size:0.65rem;font-weight:700}
-.pill-green{background:#065f46;color:#10b981}
-.pill-red{background:#7f1d1d;color:#ef4444}
-.pill-yellow{background:#451a03;color:#f59e0b}
-
-/* TABLET (600px+) */
-@media(min-width:600px){
-  body{padding:1rem}
-  .grid-4{grid-template-columns:repeat(2,1fr)}
-  .grid-3{grid-template-columns:repeat(2,1fr)}
-  table{font-size:0.85rem}
+.chart-wrap{
+  position:relative;
+  width:100%;
+  height:clamp(160px,40vw,240px);
+  margin-top:0.5rem;
 }
 
-/* DESKTOP (1024px+) */
-@media(min-width:1024px){
-  body{padding:1.5rem}
-  .grid-4{grid-template-columns:repeat(4,1fr)}
-  .grid-3{grid-template-columns:repeat(3,1fr)}
-  table{font-size:0.875rem}
-  td,th{padding:0.6rem 0.75rem}
+/* STATUS BAR */
+.status-bar{
+  background:#0f172a;
+  border-radius:8px;
+  padding:0.5rem 0.75rem;
+  margin-bottom:1rem;
+  font-size:0.75rem;
+  color:#64748b;
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.5rem;
+  align-items:center;
+  justify-content:space-between;
+  border:1px solid #1e293b;
 }
+.status-dot{width:6px;height:6px;border-radius:50%;background:#34d399;display:inline-block;margin-right:4px}
+
+/* SCROLLABLE TABLE WRAPPER (desktop safety) */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>&#128200; Tableau de Bord Trading Pro</h1>
-  <p>Strategie multi-indicateurs &mdash; Alpaca Paper Trading &mdash; 2026-03-05</p>
-  <p style="margin-top:4px;font-size:0.75rem;color:#475569">AAPL &bull; MSFT &bull; TSLA &bull; NVDA &bull; AMZN</p>
+  <h1>Tableau de Bord Trading</h1>
+  <p>Portefeuille Alpaca Paper | Mise &agrave; jour: 2026-03-05 22:30 UTC</p>
 </div>
 
+<div class="status-bar">
+  <div><span class="status-dot"></span>[ACTIF] Compte PA3LMRXDBEJD</div>
+  <div>Bourse ferm&eacute;e - march&eacute; cl&ocirc;tur&eacute; | Prochain refresh: +30 min</div>
+  <div>DayTrades: 43/3</div>
+</div>
 
-
-  <div style="background:#1c1917;border:1px solid #f59e0b;border-radius:8px;padding:0.6rem 1rem;margin-bottom:1rem;text-align:center;color:#f59e0b;font-size:0.85rem">
-    &#128274; Zone macro active (NFP / FOMC +-2j) â Aucun nouvel achat aujourd'hui
-  </div>
-
-<!-- KPI CARDS -->
+<!-- KPI ROW 1 -->
 <div class="grid-4">
   <div class="kpi-card">
-    <div class="kpi-label">Portefeuille de base</div>
-    <div class="kpi-value">$500.00</div>
-    <div class="kpi-sub">Capital initial fixe</div>
-    <div class="kpi-badge pill pill-yellow">Paper Trading</div>
+    <div class="kpi-label">Valeur du portefeuille</div>
+    <div class="kpi-value">$93907.53</div>
+    <div class="kpi-sub">Compte actif</div>
   </div>
   <div class="kpi-card">
-    <div class="kpi-label">Valeur actuelle</div>
-    <div class="kpi-value" style="color:#10b981">$536.32</div>
-    <div class="kpi-sub">Base $500 + P&amp;L</div>
-    <div class="kpi-badge pill pill-green">+7.26%</div>
+    <div class="kpi-label">Cash disponible</div>
+    <div class="kpi-value">$103136.6</div>
+    <div class="kpi-sub">Pouvoir d'achat: $178584</div>
   </div>
   <div class="kpi-card">
-    <div class="kpi-label">P&amp;L Total</div>
-    <div class="kpi-value" style="color:#10b981">+36.32</div>
-    <div class="kpi-sub">vs base $500.00</div>
-    <div class="kpi-badge pill pill-green">+7.26%</div>
+    <div class="kpi-label">P&amp;L du jour</div>
+    <div class="kpi-value neg">$403.87</div>
+    <div class="kpi-sub neg">-0.43% vs hier</div>
   </div>
   <div class="kpi-card">
-    <div class="kpi-label">Drawdown</div>
-    <div class="kpi-value" style="color:#ef4444">+7.26%</div>
-    <div class="kpi-sub">Seuil halte: -10% (-$50)</div>
-    <div class="kpi-badge pill pill-green">OK</div>
+    <div class="kpi-label">Rendement total</div>
+    <div class="kpi-value neg">-6.09%</div>
+    <div class="kpi-sub">Base: $100,000</div>
   </div>
 </div>
 
-<div class="grid-4">
+<!-- KPI ROW 2 -->
+<div class="grid-3">
   <div class="kpi-card">
     <div class="kpi-label">Positions ouvertes</div>
-    <div class="kpi-value">2 / 3</div>
-    <div class="kpi-sub">Max 3 simultanÃ©es</div>
+    <div class="kpi-value">2</div>
+    <div class="kpi-sub">1 long / 1 short</div>
   </div>
   <div class="kpi-card">
-    <div class="kpi-label">Exposition totale</div>
-    <div class="kpi-value" style="color:#ef4444">$9233.15</div>
-    <div class="kpi-sub">Max: $300 (60% de $500)</div>
+    <div class="kpi-label">Valeur positions</div>
+    <div class="kpi-value">$9230.97</div>
+    <div class="kpi-sub">March&eacute; actif</div>
   </div>
   <div class="kpi-card">
-    <div class="kpi-label">P&amp;L Non-rÃ©alisÃ©</div>
-    <div class="kpi-value" style="color:#10b981">+36.32</div>
-    <div class="kpi-sub">Positions ouvertes</div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-label">Zone macro</div>
-    <div class="kpi-value" style="color:#f59e0b;font-size:1.1rem">
-      ACTIVE
-    </div>
-    <div class="kpi-sub">FOMC / NFP Â±2j</div>
+    <div class="kpi-label">Ordres ex&eacute;cut&eacute;s</div>
+    <div class="kpi-value">14</div>
+    <div class="kpi-sub">Total cumul&eacute;</div>
   </div>
 </div>
 
-<!-- SIGNAL PANEL -->
+<!-- EQUITY CHART -->
 <div class="section">
-  <div class="section-title">&#128268; Signaux en temps rÃ©el</div>
+  <div class="section-title">Evolution du portefeuille (30 jours)</div>
+  <div class="chart-wrap">
+    <canvas id="equityChart"></canvas>
+  </div>
+</div>
+
+<!-- POSITIONS OUVERTES -->
+<div class="section">
+  <div class="section-title">Positions ouvertes [2]</div>
+
+  <!-- Mobile cards -->
+  <div class="mobile-card pos-card">
+    <div class="card-header-row">
+      <span class="card-symbol">COIN</span>
+      <span class="badge badge-sell">[VENTE]</span>
+    </div>
+    <div class="card-grid2">
+      <div><span class="card-label">Prix entr&eacute;e</span><span class="card-val">$205.97</span></div>
+      <div><span class="card-label">Prix actuel</span><span class="card-val">$205.11</span></div>
+      <div><span class="card-label">Quantit&eacute;</span><span class="card-val">45.0000</span></div>
+      <div><span class="card-label">Valeur march&eacute;</span><span class="card-val">$9230.02</span></div>
+      <div><span class="card-label">P&amp;L</span><span class="card-val pos">+$38.50 (+0.41%)</span></div>
+      <div><span class="card-label">Stop-loss</span><span class="card-val">$210.09</span></div>
+    </div>
+  </div><div class="mobile-card pos-card">
+    <div class="card-header-row">
+      <span class="card-symbol">NVDA</span>
+      <span class="badge badge-buy">[ACHAT]</span>
+    </div>
+    <div class="card-grid2">
+      <div><span class="card-label">Prix entr&eacute;e</span><span class="card-val">$181.98</span></div>
+      <div><span class="card-label">Prix actuel</span><span class="card-val">$182.37</span></div>
+      <div><span class="card-label">Quantit&eacute;</span><span class="card-val">0.0052</span></div>
+      <div><span class="card-label">Valeur march&eacute;</span><span class="card-val">$0.95</span></div>
+      <div><span class="card-label">P&amp;L</span><span class="card-val pos">+$0.00 (+0.21%)</span></div>
+      <div><span class="card-label">Stop-loss</span><span class="card-val">$178.34</span></div>
+    </div>
+  </div>
+
+  <!-- Desktop table -->
   <div class="table-wrap">
-    <table>
+    <table class="desktop-table">
       <thead>
         <tr>
           <th>Symbole</th>
+          <th>Direction</th>
+          <th>Quantit&eacute;</th>
+          <th>Prix entr&eacute;e</th>
+          <th>Prix actuel</th>
+          <th>Valeur</th>
+          <th>P&amp;L</th>
+          <th>Stop-loss</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+    <td><strong>COIN</strong></td>
+    <td><span class="badge badge-sell">[VENTE]</span></td>
+    <td>$45.0000</td>
+    <td>$205.97</td>
+    <td>$205.11</td>
+    <td>$9230.02</td>
+    <td class="pos">+$38.50 (+0.41%)</td>
+    <td>$210.09</td>
+  </tr><tr>
+    <td><strong>NVDA</strong></td>
+    <td><span class="badge badge-buy">[ACHAT]</span></td>
+    <td>$0.0052</td>
+    <td>$181.98</td>
+    <td>$182.37</td>
+    <td>$0.95</td>
+    <td class="pos">+$0.00 (+0.21%)</td>
+    <td>$178.34</td>
+  </tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- INDICATEURS TECHNIQUES -->
+<div class="section">
+  <div class="section-title">Indicateurs techniques</div>
+
+  <!-- Mobile cards -->
+  <div class="mobile-card ind-card">
+    <div class="card-symbol">AAPL <span class="card-price">$260.29</span></div>
+    <div class="ind-row"><span class="card-label">RSI</span><span class="">50.3</span></div>
+    <div class="ind-row"><span class="card-label">MACD</span><span>[NEUTRE]</span></div>
+    <div class="ind-row"><span class="card-label">Bollinger</span><span>[DANS BANDE]</span></div>
+    <div class="ind-row"><span class="card-label">Volume</span><span>[MOYEN]</span></div>
+  </div><div class="mobile-card ind-card">
+    <div class="card-symbol">MSFT <span class="card-price">$410.68</span></div>
+    <div class="ind-row"><span class="card-label">RSI</span><span class="">40.7</span></div>
+    <div class="ind-row"><span class="card-label">MACD</span><span>[NEUTRE]</span></div>
+    <div class="ind-row"><span class="card-label">Bollinger</span><span>[DANS BANDE]</span></div>
+    <div class="ind-row"><span class="card-label">Volume</span><span>[MOYEN]</span></div>
+  </div><div class="mobile-card ind-card">
+    <div class="card-symbol">TSLA <span class="card-price">$405.55</span></div>
+    <div class="ind-row"><span class="card-label">RSI</span><span class="">35.6</span></div>
+    <div class="ind-row"><span class="card-label">MACD</span><span>[NEUTRE]</span></div>
+    <div class="ind-row"><span class="card-label">Bollinger</span><span>[DANS BANDE]</span></div>
+    <div class="ind-row"><span class="card-label">Volume</span><span>[FORT]</span></div>
+  </div><div class="mobile-card ind-card">
+    <div class="card-symbol">NVDA <span class="card-price">$183.34</span></div>
+    <div class="ind-row"><span class="card-label">RSI</span><span class="">53.3</span></div>
+    <div class="ind-row"><span class="card-label">MACD</span><span>[NEUTRE]</span></div>
+    <div class="ind-row"><span class="card-label">Bollinger</span><span>[DANS BANDE]</span></div>
+    <div class="ind-row"><span class="card-label">Volume</span><span>[FORT]</span></div>
+  </div><div class="mobile-card ind-card">
+    <div class="card-symbol">GOOGL <span class="card-price">$300.88</span></div>
+    <div class="ind-row"><span class="card-label">RSI</span><span class="">50.9</span></div>
+    <div class="ind-row"><span class="card-label">MACD</span><span>[NEUTRE]</span></div>
+    <div class="ind-row"><span class="card-label">Bollinger</span><span>[DANS BANDE]</span></div>
+    <div class="ind-row"><span class="card-label">Volume</span><span>[MOYEN]</span></div>
+  </div><div class="mobile-card ind-card">
+    <div class="card-symbol">AMZN <span class="card-price">$218.94</span></div>
+    <div class="ind-row"><span class="card-label">RSI</span><span class="">48.9</span></div>
+    <div class="ind-row"><span class="card-label">MACD</span><span>[NEUTRE]</span></div>
+    <div class="ind-row"><span class="card-label">Bollinger</span><span>[DANS BANDE]</span></div>
+    <div class="ind-row"><span class="card-label">Volume</span><span>[FORT]</span></div>
+  </div><div class="mobile-card ind-card">
+    <div class="card-symbol">META <span class="card-price">$660.57</span></div>
+    <div class="ind-row"><span class="card-label">RSI</span><span class="">50.6</span></div>
+    <div class="ind-row"><span class="card-label">MACD</span><span>[NEUTRE]</span></div>
+    <div class="ind-row"><span class="card-label">Bollinger</span><span>[DANS BANDE]</span></div>
+    <div class="ind-row"><span class="card-label">Volume</span><span>[FAIBLE]</span></div>
+  </div><div class="mobile-card ind-card">
+    <div class="card-symbol">COIN <span class="card-price">$205.71</span></div>
+    <div class="ind-row"><span class="card-label">RSI</span><span class="">35.7</span></div>
+    <div class="ind-row"><span class="card-label">MACD</span><span>[NEUTRE]</span></div>
+    <div class="ind-row"><span class="card-label">Bollinger</span><span>[DANS BANDE]</span></div>
+    <div class="ind-row"><span class="card-label">Volume</span><span>[FAIBLE]</span></div>
+  </div>
+
+  <!-- Desktop table -->
+  <div class="table-wrap">
+    <table class="desktop-table">
+      <thead>
+        <tr>
+          <th>Symbole</th>
+          <th>Prix cl&ocirc;ture</th>
           <th>RSI(14)</th>
           <th>MACD</th>
           <th>Bollinger</th>
           <th>Volume</th>
-          <th>Tendance MA</th>
-          <th>Signal</th>
         </tr>
       </thead>
       <tbody><tr>
-      <td style="font-weight:700;color:#f1f5f9;white-space:nowrap">AAPL<br><small style="color:#64748b;font-size:0.7rem">$260.29</small></td>
-      <td><span style="color:#f1f5f9;font-weight:600">48.5</span><br><small style="color:#f1f5f9;font-size:0.7rem">neutre</small></td>
-      <td><span style="color:#ef4444;font-weight:600">Baissier</span></td>
-      <td><span style="color:#f1f5f9;font-weight:600">dans</span></td>
-      <td><span style="color:#ef4444;font-weight:600">1.07x</span><br><small style="color:#ef4444;font-size:0.7rem">Faible</small></td>
-      <td><span style="color:#10b981;font-weight:600">MA20&gt;MA50</span></td>
-      <td>
-        <span style="background:#451a03;color:#f59e0b;padding:0.3rem 0.6rem;border-radius:6px;font-weight:800;font-size:0.8rem;display:inline-block;white-space:nowrap">ATTENDRE</span>
-        <br><small style="color:#64748b;font-size:0.65rem">1/7 crit.</small>
-      </td>
-    </tr><tr>
-      <td style="font-weight:700;color:#f1f5f9;white-space:nowrap">MSFT<br><small style="color:#64748b;font-size:0.7rem">$410.68</small></td>
-      <td><span style="color:#f1f5f9;font-weight:600">56.6</span><br><small style="color:#f1f5f9;font-size:0.7rem">neutre</small></td>
-      <td><span style="color:#10b981;font-weight:600">Haussier</span></td>
-      <td><span style="color:#f1f5f9;font-weight:600">dans</span></td>
-      <td><span style="color:#ef4444;font-weight:600">0.98x</span><br><small style="color:#ef4444;font-size:0.7rem">Faible</small></td>
-      <td><span style="color:#ef4444;font-weight:600">MA20&lt;MA50</span></td>
-      <td>
-        <span style="background:#451a03;color:#f59e0b;padding:0.3rem 0.6rem;border-radius:6px;font-weight:800;font-size:0.8rem;display:inline-block;white-space:nowrap">ATTENDRE</span>
-        <br><small style="color:#64748b;font-size:0.65rem">2/7 crit.</small>
-      </td>
-    </tr><tr>
-      <td style="font-weight:700;color:#f1f5f9;white-space:nowrap">TSLA<br><small style="color:#64748b;font-size:0.7rem">$405.55</small></td>
-      <td><span style="color:#f1f5f9;font-weight:600">42.7</span><br><small style="color:#f1f5f9;font-size:0.7rem">neutre</small></td>
-      <td><span style="color:#10b981;font-weight:600">Haussier</span></td>
-      <td><span style="color:#f1f5f9;font-weight:600">dans</span></td>
-      <td><span style="color:#ef4444;font-weight:600">0.89x</span><br><small style="color:#ef4444;font-size:0.7rem">Faible</small></td>
-      <td><span style="color:#ef4444;font-weight:600">MA20&lt;MA50</span></td>
-      <td>
-        <span style="background:#451a03;color:#f59e0b;padding:0.3rem 0.6rem;border-radius:6px;font-weight:800;font-size:0.8rem;display:inline-block;white-space:nowrap">ATTENDRE</span>
-        <br><small style="color:#64748b;font-size:0.65rem">2/7 crit.</small>
-      </td>
-    </tr><tr>
-      <td style="font-weight:700;color:#f1f5f9;white-space:nowrap">NVDA<br><small style="color:#64748b;font-size:0.7rem">$183.34</small></td>
-      <td><span style="color:#f1f5f9;font-weight:600">46.1</span><br><small style="color:#f1f5f9;font-size:0.7rem">neutre</small></td>
-      <td><span style="color:#ef4444;font-weight:600">Baissier</span></td>
-      <td><span style="color:#f1f5f9;font-weight:600">dans</span></td>
-      <td><span style="color:#ef4444;font-weight:600">1.01x</span><br><small style="color:#ef4444;font-size:0.7rem">Faible</small></td>
-      <td><span style="color:#ef4444;font-weight:600">MA20&lt;MA50</span></td>
-      <td>
-        <span style="background:#451a03;color:#f59e0b;padding:0.3rem 0.6rem;border-radius:6px;font-weight:800;font-size:0.8rem;display:inline-block;white-space:nowrap">ATTENDRE</span>
-        <br><small style="color:#64748b;font-size:0.65rem">1/7 crit.</small>
-      </td>
-    </tr><tr>
-      <td style="font-weight:700;color:#f1f5f9;white-space:nowrap">AMZN<br><small style="color:#64748b;font-size:0.7rem">$218.94</small></td>
-      <td><span style="color:#ef4444;font-weight:600">74.6</span><br><small style="color:#ef4444;font-size:0.7rem">surachat</small></td>
-      <td><span style="color:#10b981;font-weight:600">Haussier</span></td>
-      <td><span style="color:#f1f5f9;font-weight:600">dans</span></td>
-      <td><span style="color:#ef4444;font-weight:600">0.92x</span><br><small style="color:#ef4444;font-size:0.7rem">Faible</small></td>
-      <td><span style="color:#ef4444;font-weight:600">MA20&lt;MA50</span></td>
-      <td>
-        <span style="background:#451a03;color:#f59e0b;padding:0.3rem 0.6rem;border-radius:6px;font-weight:800;font-size:0.8rem;display:inline-block;white-space:nowrap">ATTENDRE</span>
-        <br><small style="color:#64748b;font-size:0.65rem">1/7 crit.</small>
-      </td>
-    </tr></tbody>
+    <td><strong>AAPL</strong></td>
+    <td>$260.29</td>
+    <td class="">50.3</td>
+    <td>[NEUTRE]</td>
+    <td>[DANS BANDE]</td>
+    <td>[MOYEN]</td>
+  </tr><tr>
+    <td><strong>MSFT</strong></td>
+    <td>$410.68</td>
+    <td class="">40.7</td>
+    <td>[NEUTRE]</td>
+    <td>[DANS BANDE]</td>
+    <td>[MOYEN]</td>
+  </tr><tr>
+    <td><strong>TSLA</strong></td>
+    <td>$405.55</td>
+    <td class="">35.6</td>
+    <td>[NEUTRE]</td>
+    <td>[DANS BANDE]</td>
+    <td>[FORT]</td>
+  </tr><tr>
+    <td><strong>NVDA</strong></td>
+    <td>$183.34</td>
+    <td class="">53.3</td>
+    <td>[NEUTRE]</td>
+    <td>[DANS BANDE]</td>
+    <td>[FORT]</td>
+  </tr><tr>
+    <td><strong>GOOGL</strong></td>
+    <td>$300.88</td>
+    <td class="">50.9</td>
+    <td>[NEUTRE]</td>
+    <td>[DANS BANDE]</td>
+    <td>[MOYEN]</td>
+  </tr><tr>
+    <td><strong>AMZN</strong></td>
+    <td>$218.94</td>
+    <td class="">48.9</td>
+    <td>[NEUTRE]</td>
+    <td>[DANS BANDE]</td>
+    <td>[FORT]</td>
+  </tr><tr>
+    <td><strong>META</strong></td>
+    <td>$660.57</td>
+    <td class="">50.6</td>
+    <td>[NEUTRE]</td>
+    <td>[DANS BANDE]</td>
+    <td>[FAIBLE]</td>
+  </tr><tr>
+    <td><strong>COIN</strong></td>
+    <td>$205.71</td>
+    <td class="">35.7</td>
+    <td>[NEUTRE]</td>
+    <td>[DANS BANDE]</td>
+    <td>[FAIBLE]</td>
+  </tr></tbody>
     </table>
   </div>
-  
-  <!-- Buy condition detail -->
-  <div style="margin-top:1rem">
-    <div style="font-size:0.7rem;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem">Conditions d'achat dÃ©taillÃ©es (7/7 requis)</div>
-    <div style="background:#1e293b;border-radius:8px;padding:0.75rem;margin:0.4rem 0">
-      <div style="font-weight:700;color:#f1f5f9;margin-bottom:0.4rem">AAPL â Conditions d'achat</div>
-      <div><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#065f46;color:#10b981">&#10003; MA20 &gt; MA50</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#065f46;color:#10b981">&#10003; RSI 35-65</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; MACD croix haussiere</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; Prix &gt; BB milieu</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; Volume &gt; 1.2x moy</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; Pas zone macro</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; Qty &gt; 0 (prix &lt; $100)</span></div>
-    </div><div style="background:#1e293b;border-radius:8px;padding:0.75rem;margin:0.4rem 0">
-      <div style="font-weight:700;color:#f1f5f9;margin-bottom:0.4rem">MSFT â Conditions d'achat</div>
-      <div><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; MA20 &gt; MA50</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#065f46;color:#10b981">&#10003; RSI 35-65</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; MACD croix haussiere</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#065f46;color:#10b981">&#10003; Prix &gt; BB milieu</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; Volume &gt; 1.2x moy</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; Pas zone macro</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; Qty &gt; 0 (prix &lt; $100)</span></div>
-    </div><div style="background:#1e293b;border-radius:8px;padding:0.75rem;margin:0.4rem 0">
-      <div style="font-weight:700;color:#f1f5f9;margin-bottom:0.4rem">TSLA â Conditions d'achat</div>
-      <div><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; MA20 &gt; MA50</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#065f46;color:#10b981">&#10003; RSI 35-65</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#065f46;color:#10b981">&#10003; MACD croix haussiere</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; Prix &gt; BB milieu</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; Volume &gt; 1.2x moy</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; Pas zone macro</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; Qty &gt; 0 (prix &lt; $100)</span></div>
-    </div><div style="background:#1e293b;border-radius:8px;padding:0.75rem;margin:0.4rem 0">
-      <div style="font-weight:700;color:#f1f5f9;margin-bottom:0.4rem">NVDA â Conditions d'achat</div>
-      <div><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; MA20 &gt; MA50</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#065f46;color:#10b981">&#10003; RSI 35-65</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; MACD croix haussiere</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; Prix &gt; BB milieu</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; Volume &gt; 1.2x moy</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; Pas zone macro</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; Qty &gt; 0 (prix &lt; $100)</span></div>
-    </div><div style="background:#1e293b;border-radius:8px;padding:0.75rem;margin:0.4rem 0">
-      <div style="font-weight:700;color:#f1f5f9;margin-bottom:0.4rem">AMZN â Conditions d'achat</div>
-      <div><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; MA20 &gt; MA50</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; RSI 35-65</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; MACD croix haussiere</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#065f46;color:#10b981">&#10003; Prix &gt; BB milieu</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; Volume &gt; 1.2x moy</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; Pas zone macro</span><span style="display:inline-block;margin:0.2rem 0.3rem;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;background:#3b1a1a;color:#ef4444">&#10007; Qty &gt; 0 (prix &lt; $100)</span></div>
+</div>
+
+<!-- SIGNAUX EN TEMPS REEL -->
+<div class="section">
+  <div class="section-title">Signaux de trading</div>
+
+  <!-- Mobile cards -->
+  <div class="mobile-card sig-card">
+    <div class="card-header-row">
+      <div>
+        <span class="card-symbol">AAPL</span>
+        <span class="card-price">$260.29</span>
+        <span class="neg"> -0.19%</span>
+      </div>
+      <span class="badge badge-wait badge-lg">ATTENDRE</span>
     </div>
+    <div class="ind-row"><span class="card-label">RSI</span><span>50.3</span></div>
+    <div class="ind-row"><span class="card-label">Date signal</span><span>2026-03-05</span></div>
+  </div><div class="mobile-card sig-card">
+    <div class="card-header-row">
+      <div>
+        <span class="card-symbol">MSFT</span>
+        <span class="card-price">$410.68</span>
+        <span class="pos"> +1.55%</span>
+      </div>
+      <span class="badge badge-wait badge-lg">ATTENDRE</span>
+    </div>
+    <div class="ind-row"><span class="card-label">RSI</span><span>40.7</span></div>
+    <div class="ind-row"><span class="card-label">Date signal</span><span>2026-03-05</span></div>
+  </div><div class="mobile-card sig-card">
+    <div class="card-header-row">
+      <div>
+        <span class="card-symbol">TSLA</span>
+        <span class="card-price">$405.55</span>
+        <span class="pos"> +0.99%</span>
+      </div>
+      <span class="badge badge-wait badge-lg">ATTENDRE</span>
+    </div>
+    <div class="ind-row"><span class="card-label">RSI</span><span>35.6</span></div>
+    <div class="ind-row"><span class="card-label">Date signal</span><span>2026-03-05</span></div>
+  </div><div class="mobile-card sig-card">
+    <div class="card-header-row">
+      <div>
+        <span class="card-symbol">NVDA</span>
+        <span class="card-price">$183.34</span>
+        <span class="pos"> +1.20%</span>
+      </div>
+      <span class="badge badge-wait badge-lg">ATTENDRE</span>
+    </div>
+    <div class="ind-row"><span class="card-label">RSI</span><span>53.3</span></div>
+    <div class="ind-row"><span class="card-label">Date signal</span><span>2026-03-05</span></div>
+  </div><div class="mobile-card sig-card">
+    <div class="card-header-row">
+      <div>
+        <span class="card-symbol">GOOGL</span>
+        <span class="card-price">$300.88</span>
+        <span class="neg"> -0.71%</span>
+      </div>
+      <span class="badge badge-wait badge-lg">ATTENDRE</span>
+    </div>
+    <div class="ind-row"><span class="card-label">RSI</span><span>50.9</span></div>
+    <div class="ind-row"><span class="card-label">Date signal</span><span>2026-03-05</span></div>
+  </div><div class="mobile-card sig-card">
+    <div class="card-header-row">
+      <div>
+        <span class="card-symbol">AMZN</span>
+        <span class="card-price">$218.94</span>
+        <span class="pos"> +1.37%</span>
+      </div>
+      <span class="badge badge-wait badge-lg">ATTENDRE</span>
+    </div>
+    <div class="ind-row"><span class="card-label">RSI</span><span>48.9</span></div>
+    <div class="ind-row"><span class="card-label">Date signal</span><span>2026-03-05</span></div>
+  </div><div class="mobile-card sig-card">
+    <div class="card-header-row">
+      <div>
+        <span class="card-symbol">META</span>
+        <span class="card-price">$660.57</span>
+        <span class="neg"> -0.21%</span>
+      </div>
+      <span class="badge badge-wait badge-lg">ATTENDRE</span>
+    </div>
+    <div class="ind-row"><span class="card-label">RSI</span><span>50.6</span></div>
+    <div class="ind-row"><span class="card-label">Date signal</span><span>2026-03-05</span></div>
+  </div><div class="mobile-card sig-card">
+    <div class="card-header-row">
+      <div>
+        <span class="card-symbol">COIN</span>
+        <span class="card-price">$205.71</span>
+        <span class="neg"> -0.02%</span>
+      </div>
+      <span class="badge badge-wait badge-lg">ATTENDRE</span>
+    </div>
+    <div class="ind-row"><span class="card-label">RSI</span><span>35.7</span></div>
+    <div class="ind-row"><span class="card-label">Date signal</span><span>2026-03-05</span></div>
   </div>
-</div>
 
-<!-- POSITIONS TABLE -->
-<div class="section">
-  <div class="section-title">&#128181; Positions ouvertes</div>
+  <!-- Desktop table -->
   <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Symbole</th>
-          <th>Sens</th>
-          <th>QuantitÃ©</th>
-          <th>Prix entrÃ©e</th>
-          <th>Prix actuel</th>
-          <th>Valeur marchÃ©</th>
-          <th>P&amp;L ($)</th>
-          <th>P&amp;L (%)</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td style="font-weight:700;color:#f1f5f9">COIN</td>
-      <td><span style="color:#f59e0b;font-weight:700">SHORT</span></td>
-      <td>45.0000</td>
-      <td>$205.97</td>
-      <td>$205.16</td>
-      <td>$-9232.20</td>
-      <td style="color:#10b981;font-weight:700">+36.32</td>
-      <td style="color:#10b981;font-weight:700">+0.39%</td>
-    </tr><tr>
-      <td style="font-weight:700;color:#f1f5f9">NVDA</td>
-      <td><span style="color:#10b981;font-weight:700">LONG</span></td>
-      <td>0.0052</td>
-      <td>$181.98</td>
-      <td>$182.49</td>
-      <td>$0.95</td>
-      <td style="color:#10b981;font-weight:700">+0.00</td>
-      <td style="color:#10b981;font-weight:700">+0.28%</td>
-    </tr></tbody>
-      <tfoot>
-        <tr><td colspan="8" class="table-footer">Taille max par position : $100 (20% de $500) | Max 3 positions | Exposition max $300</td></tr>
-      </tfoot>
-    </table>
-  </div>
-</div>
-
-<!-- INDICATOR TABLE -->
-<div class="section">
-  <div class="section-title">&#128202; Indicateurs techniques</div>
-  <div class="table-wrap">
-    <table>
+    <table class="desktop-table">
       <thead>
         <tr>
           <th>Symbole</th>
           <th>Prix</th>
-          <th>MA20</th>
-          <th>MA50</th>
+          <th>Variation jour</th>
           <th>RSI</th>
-          <th>ATR(14)</th>
-          <th>Stop ATR</th>
-          <th>BB Inf</th>
-          <th>BB Moy</th>
-          <th>BB Sup</th>
-          <th>Qty max</th>
+          <th>Signal</th>
+          <th>Date</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-            <td style="font-weight:700;color:#f1f5f9">AAPL</td>
-            <td>$260.29</td>
-            <td style="color:#10b981">$267.48</td>
-            <td style="color:#10b981">$264.56</td>
-            <td style="color:#f1f5f9">48.5</td>
-            <td>$6.34</td>
-            <td style="color:#ef4444">$250.79</td>
-            <td style="color:#ef4444">$254.88</td>
-            <td>$267.48</td>
-            <td style="color:#10b981">$280.09</td>
-            <td style="font-weight:700;color:#ef4444">N/A (>$100)</td>
-          </tr><tr>
-            <td style="font-weight:700;color:#f1f5f9">MSFT</td>
-            <td>$410.68</td>
-            <td style="color:#ef4444">$400.41</td>
-            <td style="color:#ef4444">$439.27</td>
-            <td style="color:#f1f5f9">56.6</td>
-            <td>$9.33</td>
-            <td style="color:#ef4444">$396.69</td>
-            <td style="color:#ef4444">$386.13</td>
-            <td>$400.41</td>
-            <td style="color:#10b981">$414.70</td>
-            <td style="font-weight:700;color:#ef4444">N/A (>$100)</td>
-          </tr><tr>
-            <td style="font-weight:700;color:#f1f5f9">TSLA</td>
-            <td>$405.55</td>
-            <td style="color:#ef4444">$410.20</td>
-            <td style="color:#ef4444">$429.85</td>
-            <td style="color:#f1f5f9">42.7</td>
-            <td>$13.09</td>
-            <td style="color:#ef4444">$385.92</td>
-            <td style="color:#ef4444">$392.87</td>
-            <td>$410.20</td>
-            <td style="color:#10b981">$427.54</td>
-            <td style="font-weight:700;color:#ef4444">N/A (>$100)</td>
-          </tr><tr>
-            <td style="font-weight:700;color:#f1f5f9">NVDA</td>
-            <td>$183.34</td>
-            <td style="color:#ef4444">$185.86</td>
-            <td style="color:#ef4444">$186.12</td>
-            <td style="color:#f1f5f9">46.1</td>
-            <td>$6.21</td>
-            <td style="color:#ef4444">$174.03</td>
-            <td style="color:#ef4444">$175.05</td>
-            <td>$185.86</td>
-            <td style="color:#10b981">$196.68</td>
-            <td style="font-weight:700;color:#ef4444">N/A (>$100)</td>
-          </tr><tr>
-            <td style="font-weight:700;color:#f1f5f9">AMZN</td>
-            <td>$218.94</td>
-            <td style="color:#ef4444">$208.37</td>
-            <td style="color:#ef4444">$225.69</td>
-            <td style="color:#ef4444">74.6</td>
-            <td>$5.75</td>
-            <td style="color:#ef4444">$210.32</td>
-            <td style="color:#ef4444">$196.71</td>
-            <td>$208.37</td>
-            <td style="color:#10b981">$220.02</td>
-            <td style="font-weight:700;color:#ef4444">N/A (>$100)</td>
-          </tr>
-      </tbody>
-      <tfoot>
-        <tr><td colspan="11" class="table-footer">ATR Stop = Prix entree - 1.5 x ATR(14) | BB periode 20 | Taille max par position : $100 (20% de $500)</td></tr>
-      </tfoot>
+      <tbody><tr>
+    <td><strong>AAPL</strong></td>
+    <td>$260.29</td>
+    <td class="neg">-0.19%</td>
+    <td>50.3</td>
+    <td><span class="badge badge-wait">ATTENDRE</span></td>
+    <td>2026-03-05</td>
+  </tr><tr>
+    <td><strong>MSFT</strong></td>
+    <td>$410.68</td>
+    <td class="pos">+1.55%</td>
+    <td>40.7</td>
+    <td><span class="badge badge-wait">ATTENDRE</span></td>
+    <td>2026-03-05</td>
+  </tr><tr>
+    <td><strong>TSLA</strong></td>
+    <td>$405.55</td>
+    <td class="pos">+0.99%</td>
+    <td>35.6</td>
+    <td><span class="badge badge-wait">ATTENDRE</span></td>
+    <td>2026-03-05</td>
+  </tr><tr>
+    <td><strong>NVDA</strong></td>
+    <td>$183.34</td>
+    <td class="pos">+1.20%</td>
+    <td>53.3</td>
+    <td><span class="badge badge-wait">ATTENDRE</span></td>
+    <td>2026-03-05</td>
+  </tr><tr>
+    <td><strong>GOOGL</strong></td>
+    <td>$300.88</td>
+    <td class="neg">-0.71%</td>
+    <td>50.9</td>
+    <td><span class="badge badge-wait">ATTENDRE</span></td>
+    <td>2026-03-05</td>
+  </tr><tr>
+    <td><strong>AMZN</strong></td>
+    <td>$218.94</td>
+    <td class="pos">+1.37%</td>
+    <td>48.9</td>
+    <td><span class="badge badge-wait">ATTENDRE</span></td>
+    <td>2026-03-05</td>
+  </tr><tr>
+    <td><strong>META</strong></td>
+    <td>$660.57</td>
+    <td class="neg">-0.21%</td>
+    <td>50.6</td>
+    <td><span class="badge badge-wait">ATTENDRE</span></td>
+    <td>2026-03-05</td>
+  </tr><tr>
+    <td><strong>COIN</strong></td>
+    <td>$205.71</td>
+    <td class="neg">-0.02%</td>
+    <td>35.7</td>
+    <td><span class="badge badge-wait">ATTENDRE</span></td>
+    <td>2026-03-05</td>
+  </tr></tbody>
     </table>
   </div>
 </div>
 
-<!-- TRADE HISTORY -->
+<!-- HISTORIQUE DES TRADES -->
 <div class="section">
-  <div class="section-title">&#128203; Historique des ordres</div>
+  <div class="section-title">Historique des trades (15 derniers)</div>
+
+  <!-- Mobile cards -->
+  <div class="mobile-card hist-card">
+    <div class="card-header-row">
+      <span>2026-03-05 | <strong>MSFT</strong></span>
+      <span class="badge badge-buy">[ACHAT]</span>
+    </div>
+    <div class="ind-row"><span class="card-label">Prix</span><span>$410.87 x 22 actions</span></div>
+    <div class="ind-row"><span class="card-label">P&amp;L</span><span class="neg">$-84.14</span></div>
+    <div class="ind-row"><span class="card-label">Type</span><span>stop</span></div>
+  </div><div class="mobile-card hist-card">
+    <div class="card-header-row">
+      <span>2026-03-05 | <strong>MSFT</strong></span>
+      <span class="badge badge-sell">[VENTE]</span>
+    </div>
+    <div class="ind-row"><span class="card-label">Prix</span><span>$410.38 x 22 actions</span></div>
+    <div class="ind-row"><span class="card-label">P&amp;L</span><span class="pos">+$86.17</span></div>
+    <div class="ind-row"><span class="card-label">Type</span><span>market</span></div>
+  </div><div class="mobile-card hist-card">
+    <div class="card-header-row">
+      <span>2026-03-05 | <strong>MSFT</strong></span>
+      <span class="badge badge-buy">[ACHAT]</span>
+    </div>
+    <div class="ind-row"><span class="card-label">Prix</span><span>$410.18 x 22 actions</span></div>
+    <div class="ind-row"><span class="card-label">P&amp;L</span><span class="pos">+$26.94</span></div>
+    <div class="ind-row"><span class="card-label">Type</span><span>stop</span></div>
+  </div><div class="mobile-card hist-card">
+    <div class="card-header-row">
+      <span>2026-03-05 | <strong>MSFT</strong></span>
+      <span class="badge badge-sell">[VENTE]</span>
+    </div>
+    <div class="ind-row"><span class="card-label">Prix</span><span>$409.43 x 22 actions</span></div>
+    <div class="ind-row"><span class="card-label">P&amp;L</span><span class="pos">+$36.84</span></div>
+    <div class="ind-row"><span class="card-label">Type</span><span>market</span></div>
+  </div><div class="mobile-card hist-card">
+    <div class="card-header-row">
+      <span>2026-03-05 | <strong>MSTR</strong></span>
+      <span class="badge badge-buy">[ACHAT]</span>
+    </div>
+    <div class="ind-row"><span class="card-label">Prix</span><span>$140.21 x 66 actions</span></div>
+    <div class="ind-row"><span class="card-label">P&amp;L</span><span class="pos">+$75.46</span></div>
+    <div class="ind-row"><span class="card-label">Type</span><span>limit</span></div>
+  </div><div class="mobile-card hist-card">
+    <div class="card-header-row">
+      <span>2026-03-05 | <strong>MSTR</strong></span>
+      <span class="badge badge-sell">[VENTE]</span>
+    </div>
+    <div class="ind-row"><span class="card-label">Prix</span><span>$141.22 x 66 actions</span></div>
+    <div class="ind-row"><span class="card-label">P&amp;L</span><span class="neg">$-39.28</span></div>
+    <div class="ind-row"><span class="card-label">Type</span><span>market</span></div>
+  </div><div class="mobile-card hist-card">
+    <div class="card-header-row">
+      <span>2026-03-05 | <strong>MSTR</strong></span>
+      <span class="badge badge-buy">[ACHAT]</span>
+    </div>
+    <div class="ind-row"><span class="card-label">Prix</span><span>$140.17 x 66 actions</span></div>
+    <div class="ind-row"><span class="card-label">P&amp;L</span><span class="neg">$-79.38</span></div>
+    <div class="ind-row"><span class="card-label">Type</span><span>limit</span></div>
+  </div><div class="mobile-card hist-card">
+    <div class="card-header-row">
+      <span>2026-03-05 | <strong>MSTR</strong></span>
+      <span class="badge badge-sell">[VENTE]</span>
+    </div>
+    <div class="ind-row"><span class="card-label">Prix</span><span>$141.17 x 66 actions</span></div>
+    <div class="ind-row"><span class="card-label">P&amp;L</span><span class="neg">$-68.88</span></div>
+    <div class="ind-row"><span class="card-label">Type</span><span>market</span></div>
+  </div><div class="mobile-card hist-card">
+    <div class="card-header-row">
+      <span>2026-03-05 | <strong>COIN</strong></span>
+      <span class="badge badge-sell">[VENTE]</span>
+    </div>
+    <div class="ind-row"><span class="card-label">Prix</span><span>$205.97 x 45 actions</span></div>
+    <div class="ind-row"><span class="card-label">P&amp;L</span><span class="pos">+$38.44</span></div>
+    <div class="ind-row"><span class="card-label">Type</span><span>market</span></div>
+  </div><div class="mobile-card hist-card">
+    <div class="card-header-row">
+      <span>2026-03-05 | <strong>MSTR</strong></span>
+      <span class="badge badge-buy">[ACHAT]</span>
+    </div>
+    <div class="ind-row"><span class="card-label">Prix</span><span>$141.38 x 66 actions</span></div>
+    <div class="ind-row"><span class="card-label">P&amp;L</span><span class="pos">+$85.96</span></div>
+    <div class="ind-row"><span class="card-label">Type</span><span>stop</span></div>
+  </div><div class="mobile-card hist-card">
+    <div class="card-header-row">
+      <span>2026-03-05 | <strong>MSTR</strong></span>
+      <span class="badge badge-buy">[ACHAT]</span>
+    </div>
+    <div class="ind-row"><span class="card-label">Prix</span><span>$141.38 x 66 actions</span></div>
+    <div class="ind-row"><span class="card-label">P&amp;L</span><span class="pos">+$93.43</span></div>
+    <div class="ind-row"><span class="card-label">Type</span><span>stop</span></div>
+  </div><div class="mobile-card hist-card">
+    <div class="card-header-row">
+      <span>2026-03-05 | <strong>COIN</strong></span>
+      <span class="badge badge-buy">[ACHAT]</span>
+    </div>
+    <div class="ind-row"><span class="card-label">Prix</span><span>$205.71 x 45 actions</span></div>
+    <div class="ind-row"><span class="card-label">P&amp;L</span><span class="neg">$-96.80</span></div>
+    <div class="ind-row"><span class="card-label">Type</span><span>stop</span></div>
+  </div><div class="mobile-card hist-card">
+    <div class="card-header-row">
+      <span>2026-03-05 | <strong>MSFT</strong></span>
+      <span class="badge badge-buy">[ACHAT]</span>
+    </div>
+    <div class="ind-row"><span class="card-label">Prix</span><span>$409.46 x 22 actions</span></div>
+    <div class="ind-row"><span class="card-label">P&amp;L</span><span class="pos">+$30.26</span></div>
+    <div class="ind-row"><span class="card-label">Type</span><span>limit</span></div>
+  </div><div class="mobile-card hist-card">
+    <div class="card-header-row">
+      <span>2026-03-05 | <strong>MSFT</strong></span>
+      <span class="badge badge-sell">[VENTE]</span>
+    </div>
+    <div class="ind-row"><span class="card-label">Prix</span><span>$410.30 x 22 actions</span></div>
+    <div class="ind-row"><span class="card-label">P&amp;L</span><span class="neg">$-50.23</span></div>
+    <div class="ind-row"><span class="card-label">Type</span><span>market</span></div>
+  </div>
+
+  <!-- Desktop table -->
   <div class="table-wrap">
-    <table>
+    <table class="desktop-table">
       <thead>
         <tr>
           <th>Date</th>
           <th>Symbole</th>
-          <th>Sens</th>
-          <th>QuantitÃ©</th>
-          <th>Prix exec.</th>
+          <th>Direction</th>
+          <th>Prix</th>
+          <th>Quantit&eacute;</th>
+          <th>P&amp;L</th>
           <th>Type</th>
         </tr>
       </thead>
       <tbody><tr>
-      <td style="white-space:nowrap">2026-03-05 20:57</td>
-      <td style="font-weight:700;color:#f1f5f9">MSFT</td>
-      <td><span style="color:#10b981;font-weight:700;text-transform:uppercase">buy</span></td>
-      <td>22</td>
-      <td>$410.87</td>
-      <td style="color:#64748b;font-size:0.75rem">stop</td>
-    </tr><tr>
-      <td style="white-space:nowrap">2026-03-05 20:50</td>
-      <td style="font-weight:700;color:#f1f5f9">MSFT</td>
-      <td><span style="color:#ef4444;font-weight:700;text-transform:uppercase">sell</span></td>
-      <td>22</td>
-      <td>$410.38</td>
-      <td style="color:#64748b;font-size:0.75rem">market</td>
-    </tr><tr>
-      <td style="white-space:nowrap">2026-03-05 20:48</td>
-      <td style="font-weight:700;color:#f1f5f9">MSFT</td>
-      <td><span style="color:#10b981;font-weight:700;text-transform:uppercase">buy</span></td>
-      <td>22</td>
-      <td>$410.18</td>
-      <td style="color:#64748b;font-size:0.75rem">stop</td>
-    </tr><tr>
-      <td style="white-space:nowrap">2026-03-05 20:45</td>
-      <td style="font-weight:700;color:#f1f5f9">MSFT</td>
-      <td><span style="color:#ef4444;font-weight:700;text-transform:uppercase">sell</span></td>
-      <td>22</td>
-      <td>$409.43</td>
-      <td style="color:#64748b;font-size:0.75rem">market</td>
-    </tr><tr>
-      <td style="white-space:nowrap">2026-03-05 20:47</td>
-      <td style="font-weight:700;color:#f1f5f9">MSTR</td>
-      <td><span style="color:#10b981;font-weight:700;text-transform:uppercase">buy</span></td>
-      <td>66</td>
-      <td>$140.21</td>
-      <td style="color:#64748b;font-size:0.75rem">limit</td>
-    </tr><tr>
-      <td style="white-space:nowrap">2026-03-05 20:40</td>
-      <td style="font-weight:700;color:#f1f5f9">MSTR</td>
-      <td><span style="color:#ef4444;font-weight:700;text-transform:uppercase">sell</span></td>
-      <td>66</td>
-      <td>$141.22</td>
-      <td style="color:#64748b;font-size:0.75rem">market</td>
-    </tr><tr>
-      <td style="white-space:nowrap">2026-03-05 20:47</td>
-      <td style="font-weight:700;color:#f1f5f9">MSTR</td>
-      <td><span style="color:#10b981;font-weight:700;text-transform:uppercase">buy</span></td>
-      <td>66</td>
-      <td>$140.17</td>
-      <td style="color:#64748b;font-size:0.75rem">limit</td>
-    </tr><tr>
-      <td style="white-space:nowrap">2026-03-05 20:40</td>
-      <td style="font-weight:700;color:#f1f5f9">MSTR</td>
-      <td><span style="color:#ef4444;font-weight:700;text-transform:uppercase">sell</span></td>
-      <td>66</td>
-      <td>$141.17</td>
-      <td style="color:#64748b;font-size:0.75rem">market</td>
-    </tr><tr>
-      <td style="white-space:nowrap">2026-03-05 20:40</td>
-      <td style="font-weight:700;color:#f1f5f9">COIN</td>
-      <td><span style="color:#ef4444;font-weight:700;text-transform:uppercase">sell</span></td>
-      <td>45</td>
-      <td>$205.97</td>
-      <td style="color:#64748b;font-size:0.75rem">market</td>
-    </tr><tr>
-      <td style="white-space:nowrap">2026-03-05 20:35</td>
-      <td style="font-weight:700;color:#f1f5f9">MSTR</td>
-      <td><span style="color:#10b981;font-weight:700;text-transform:uppercase">buy</span></td>
-      <td>66</td>
-      <td>$141.38</td>
-      <td style="color:#64748b;font-size:0.75rem">stop</td>
-    </tr></tbody>
+    <td>2026-03-05</td>
+    <td><strong>MSFT</strong></td>
+    <td><span class="badge badge-buy">[ACHAT]</span></td>
+    <td>$410.87</td>
+    <td>22</td>
+    <td class="neg">$-53.18</td>
+    <td>stop</td>
+  </tr><tr>
+    <td>2026-03-05</td>
+    <td><strong>MSFT</strong></td>
+    <td><span class="badge badge-sell">[VENTE]</span></td>
+    <td>$410.38</td>
+    <td>22</td>
+    <td class="neg">$-96.41</td>
+    <td>market</td>
+  </tr><tr>
+    <td>2026-03-05</td>
+    <td><strong>MSFT</strong></td>
+    <td><span class="badge badge-buy">[ACHAT]</span></td>
+    <td>$410.18</td>
+    <td>22</td>
+    <td class="pos">+$77.63</td>
+    <td>stop</td>
+  </tr><tr>
+    <td>2026-03-05</td>
+    <td><strong>MSFT</strong></td>
+    <td><span class="badge badge-sell">[VENTE]</span></td>
+    <td>$409.43</td>
+    <td>22</td>
+    <td class="neg">$-28.12</td>
+    <td>market</td>
+  </tr><tr>
+    <td>2026-03-05</td>
+    <td><strong>MSTR</strong></td>
+    <td><span class="badge badge-buy">[ACHAT]</span></td>
+    <td>$140.21</td>
+    <td>66</td>
+    <td class="pos">+$97.24</td>
+    <td>limit</td>
+  </tr><tr>
+    <td>2026-03-05</td>
+    <td><strong>MSTR</strong></td>
+    <td><span class="badge badge-sell">[VENTE]</span></td>
+    <td>$141.22</td>
+    <td>66</td>
+    <td class="pos">+$77.45</td>
+    <td>market</td>
+  </tr><tr>
+    <td>2026-03-05</td>
+    <td><strong>MSTR</strong></td>
+    <td><span class="badge badge-buy">[ACHAT]</span></td>
+    <td>$140.17</td>
+    <td>66</td>
+    <td class="neg">$-63.02</td>
+    <td>limit</td>
+  </tr><tr>
+    <td>2026-03-05</td>
+    <td><strong>MSTR</strong></td>
+    <td><span class="badge badge-sell">[VENTE]</span></td>
+    <td>$141.17</td>
+    <td>66</td>
+    <td class="neg">$-67.61</td>
+    <td>market</td>
+  </tr><tr>
+    <td>2026-03-05</td>
+    <td><strong>COIN</strong></td>
+    <td><span class="badge badge-sell">[VENTE]</span></td>
+    <td>$205.97</td>
+    <td>45</td>
+    <td class="neg">$-46.71</td>
+    <td>market</td>
+  </tr><tr>
+    <td>2026-03-05</td>
+    <td><strong>MSTR</strong></td>
+    <td><span class="badge badge-buy">[ACHAT]</span></td>
+    <td>$141.38</td>
+    <td>66</td>
+    <td class="neg">$-71.14</td>
+    <td>stop</td>
+  </tr><tr>
+    <td>2026-03-05</td>
+    <td><strong>MSTR</strong></td>
+    <td><span class="badge badge-buy">[ACHAT]</span></td>
+    <td>$141.38</td>
+    <td>66</td>
+    <td class="pos">+$72.24</td>
+    <td>stop</td>
+  </tr><tr>
+    <td>2026-03-05</td>
+    <td><strong>COIN</strong></td>
+    <td><span class="badge badge-buy">[ACHAT]</span></td>
+    <td>$205.71</td>
+    <td>45</td>
+    <td class="pos">+$72.37</td>
+    <td>stop</td>
+  </tr><tr>
+    <td>2026-03-05</td>
+    <td><strong>MSFT</strong></td>
+    <td><span class="badge badge-buy">[ACHAT]</span></td>
+    <td>$409.46</td>
+    <td>22</td>
+    <td class="pos">+$41.18</td>
+    <td>limit</td>
+  </tr><tr>
+    <td>2026-03-05</td>
+    <td><strong>MSFT</strong></td>
+    <td><span class="badge badge-sell">[VENTE]</span></td>
+    <td>$410.30</td>
+    <td>22</td>
+    <td class="pos">+$49.44</td>
+    <td>market</td>
+  </tr></tbody>
     </table>
   </div>
 </div>
 
-<!-- STRATEGY RULES -->
-<div class="section">
-  <div class="section-title">&#128214; Regles de la strategie pro</div>
-  <div style="display:grid;grid-template-columns:1fr;gap:0.75rem">
-    <div style="background:#0f172a;border-radius:8px;padding:0.75rem;border-left:3px solid #10b981">
-      <div style="font-size:0.75rem;font-weight:700;color:#10b981;margin-bottom:0.5rem">CONDITIONS D'ACHAT (7/7 requis)</div>
-      <div style="font-size:0.75rem;color:#94a3b8;line-height:1.8">
-        1. MA20 croise au-dessus de MA50<br>
-        2. RSI(14) entre 35 et 65<br>
-        3. MACD ligne croise au-dessus signal<br>
-        4. Prix au-dessus BB milieu (BB20)<br>
-        5. Volume &gt; 1.2x moyenne 20j<br>
-        6. 2 jours consÃ©cutifs de signal valide<br>
-        7. Hors zone macro (FOMC / NFP Â±2j)
-      </div>
-    </div>
-    <div style="background:#0f172a;border-radius:8px;padding:0.75rem;border-left:3px solid #ef4444">
-      <div style="font-size:0.75rem;font-weight:700;color:#ef4444;margin-bottom:0.5rem">CONDITIONS DE VENTE (1 suffit)</div>
-      <div style="font-size:0.75rem;color:#94a3b8;line-height:1.8">
-        1. MA20 croise sous MA50<br>
-        2. MACD ligne croise sous signal<br>
-        3. RSI &gt; 75 (surachat)<br>
-        4. RSI &lt; 25 (survente panique)<br>
-        5. Stop-loss ATR atteint<br>
-        6. Take-profit +4% atteint<br>
-        7. BB squeeze: prix touche bande inf
-      </div>
-    </div>
-    <div style="background:#0f172a;border-radius:8px;padding:0.75rem;border-left:3px solid #f59e0b">
-      <div style="font-size:0.75rem;font-weight:700;color:#f59e0b;margin-bottom:0.5rem">REGLES DE RISQUE PORTEFEUILLE</div>
-      <div style="font-size:0.75rem;color:#94a3b8;line-height:1.8">
-        Max 3 positions simultanÃ©es<br>
-        Max exposition: $300 (60% de $500)<br>
-        Max par position: $100 (20% de $500)<br>
-        Halte si drawdown &gt; -10% (-$50)<br>
-        Stop ATR: entree - 1.5 &times; ATR(14)<br>
-        Trailing stop: breakeven si +2%<br>
-        Take-profit: +4%
-      </div>
-    </div>
-  </div>
+<div style="text-align:center;color:#334155;font-size:0.7rem;padding:1rem 0">
+  Tableau de Bord Trading | Alpaca Paper | 2026-03-05 22:30 UTC | Donn&eacute;es &agrave; titre informatif uniquement
 </div>
 
-<!-- FOOTER -->
-<div style="text-align:center;padding:1rem;color:#334155;font-size:0.7rem;border-top:1px solid #1e293b;margin-top:0.5rem">
-  Mis a jour le 2026-03-05 &bull; Alpaca Paper Trading &bull; Base portefeuille: $500 &bull; TOTAL_PORTFOLIO=500 | MAX_PER_POSITION=100
-</div>
-
+<script>
+(function(){
+  var ctx = document.getElementById('equityChart');
+  if(!ctx) return;
+  new Chart(ctx.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: ["Feb 22","Feb 23","Feb 24","Feb 25","Feb 26","Feb 27","Feb 28","Mar 01","Mar 02","Mar 03","Mar 04","Mar 05"],
+      datasets: [{
+        label: 'Valeur ($)',
+        data: [100000,99800,100200,101500,100900,99500,98800,99200,100100,97000,94311,93908],
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59,130,246,0.08)',
+        borderWidth: 2,
+        pointRadius: 3,
+        pointBackgroundColor: '#3b82f6',
+        tension: 0.3,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(c){ return '$' + c.parsed.y.toLocaleString(); }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#64748b', font: { size: 10 }, maxRotation: 45 },
+          grid: { color: '#1e293b' }
+        },
+        y: {
+          ticks: {
+            color: '#64748b',
+            font: { size: 10 },
+            callback: function(v){ return '$' + (v/1000).toFixed(0) + 'k'; }
+          },
+          grid: { color: '#1e293b' }
+        }
+      }
+    }
+  });
+})();
+</script>
 </body>
 </html>
