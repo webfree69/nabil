@@ -238,8 +238,8 @@
 
 <script>
   const PORTFOLIO_START = 500;
-  const BIN_ID     = "69a8a99643b1c97be9b3f08c";
-  const ACCESS_KEY = "$2a$10$Lg8jJn2mj3YLcX40tPcjWOb0KEe9rvoVxD3VfoHgWGgBxyGCw2ySS";
+  const BIN_ID     = "69a9a73643b1c97be9b6b1b5";
+  const ACCESS_KEY = "$2a$10$OTrOojoAdAvLTpLSoKfmqu6uhN04f2qug6TgvFD2gx7KmZFrX8jzi";
 
   function fmt(val, d=2) {
     return parseFloat(val).toLocaleString('fr-FR', {
@@ -250,7 +250,7 @@
   function ss(val) { return parseFloat(val) >= 0 ? '+' : ''; }
 
   fetch('https://api.jsonbin.io/v3/b/' + BIN_ID + '/latest', {
-    headers: { 'X-Access-Key': ACCESS_KEY }
+    headers: { 'X-Master-Key': ACCESS_KEY }
   })
   .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
   .then(response => {
@@ -330,3 +330,4 @@
 
 </body>
 </html>
+HTMLEOF
