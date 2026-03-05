@@ -83,17 +83,22 @@
     }
     .table-wrapper {
       background:var(--bg-card); border:1px solid var(--border);
-      border-radius:12px; overflow:hidden;
+      border-radius:12px; overflow-x:auto; -webkit-overflow-scrolling:touch;
     }
-    table { width:100%; border-collapse:collapse; }
+    table { width:100%; border-collapse:collapse; min-width:480px; }
     thead tr { background:var(--bg-hover); }
     th {
       padding:12px 16px; text-align:left;
       font-size:0.75rem; color:var(--text-muted);
       font-weight:600; text-transform:uppercase;
       letter-spacing:0.5px; border-bottom:1px solid var(--border);
+      white-space:nowrap;
     }
-    td { padding:13px 16px; font-size:0.875rem; border-bottom:1px solid var(--border); }
+    td {
+      padding:13px 16px; font-size:0.875rem;
+      border-bottom:1px solid var(--border);
+      white-space:nowrap;
+    }
     tr:last-child td { border-bottom:none; }
     tbody tr:hover td { background:var(--bg-hover); }
     .symbol-badge {
@@ -128,11 +133,21 @@
       color:var(--text-muted); font-size:0.75rem;
       border-top:1px solid var(--border); margin-top:16px;
     }
+
+    /* ── RESPONSIVE ── */
     @media (max-width:640px) {
-      header { padding:12px 16px; }
-      main   { padding:16px; }
-      .kpi-value { font-size:1.3rem; }
-      th, td { padding:10px; font-size:0.8rem; }
+      header { padding:10px 12px; gap:8px; }
+      .logo  { font-size:0.9rem; }
+      .updated-header { display:none; }
+      main   { padding:12px; }
+      .kpi-grid { grid-template-columns:repeat(2, 1fr); gap:10px; }
+      .kpi-card  { padding:14px 12px; }
+      .kpi-value { font-size:1.15rem; }
+      .kpi-label { font-size:0.65rem; }
+      /* Tableaux : scroll horizontal + texte plus petit */
+      .table-wrapper { border-radius:8px; }
+      table { min-width:520px; }
+      th, td { padding:9px 10px; font-size:0.78rem; }
     }
   </style>
 </head>
@@ -330,4 +345,3 @@
 
 </body>
 </html>
-HTMLEOF
