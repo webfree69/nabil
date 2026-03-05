@@ -1,354 +1,468 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="refresh" content="60">
-  <title>Trading Dashboard — nabilh.eu</title>
-  <style>
-    :root {
-      --bg-primary:  #0d1117;
-      --bg-card:     #161b22;
-      --bg-hover:    #1c2128;
-      --border:      #30363d;
-      --text-primary:#e6edf3;
-      --text-muted:  #8b949e;
-      --green:       #3fb950;
-      --green-bg:    #0d2e1a;
-      --red:         #f85149;
-      --red-bg:      #3d1a1a;
-      --blue:        #58a6ff;
-    }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:'Segoe UI', system-ui, sans-serif; background:var(--bg-primary); color:var(--text-primary); min-height:100vh; }
-    header {
-      background:var(--bg-card); border-bottom:1px solid var(--border);
-      padding:12px 32px; display:flex; align-items:center; justify-content:space-between;
-      position:sticky; top:0; z-index:100; flex-wrap:wrap; gap:10px;
-    }
-    .logo { font-size:1.1rem; font-weight:700; }
-    .logo span { color:var(--blue); }
-    .header-right { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
-    .updated-header { font-size:0.72rem; color:var(--text-muted); }
-
-    .clocks { display:flex; gap:10px; align-items:center; }
-    .clock-box {
-      display:flex; flex-direction:column; align-items:center;
-      background:var(--bg-hover); border:1px solid var(--border);
-      border-radius:8px; padding:4px 10px; min-width:90px;
-    }
-    .clock-label { font-size:0.6rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; }
-    .clock-time  { font-size:0.85rem; font-weight:700; color:var(--text-primary); font-variant-numeric:tabular-nums; }
-    .clock-box.ny .clock-time { color:var(--blue); }
-
-    .market-badge {
-      display:flex; align-items:center; gap:8px; padding:6px 14px;
-      border-radius:20px; font-size:0.8rem; font-weight:600; border:1px solid;
-    }
-    .market-badge.open    { background:var(--green-bg); color:var(--green);  border-color:var(--green); }
-    .market-badge.closed  { background:var(--red-bg);   color:var(--red);    border-color:var(--red); }
-    .market-badge.warning { background:#2e1f00;          color:#e3a000;       border-color:#e3a000; }
-    .dot { width:8px; height:8px; border-radius:50%; }
-    .market-badge.open .dot    { background:var(--green); animation:pulse 1.5s infinite; }
-    .market-badge.closed .dot  { background:var(--red); }
-    .market-badge.warning .dot { background:#e3a000; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
-    main { max-width:1200px; margin:0 auto; padding:28px 24px; }
-    .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(175px, 1fr)); gap:16px; margin-bottom:32px; }
-    .kpi-card { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px; transition:border-color 0.2s, transform 0.2s; }
-    .kpi-card:hover { border-color:var(--blue); transform:translateY(-2px); }
-    .kpi-label { font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px; }
-    .kpi-value { font-size:1.6rem; font-weight:700; line-height:1; }
-    .kpi-sub   { font-size:0.78rem; color:var(--text-muted); margin-top:6px; }
-    .green { color:var(--green); }
-    .red   { color:var(--red); }
-    .blue  { color:var(--blue); }
-    .pnl-bar-bg { background:var(--border); border-radius:4px; height:6px; margin-top:10px; overflow:hidden; }
-    .pnl-bar    { height:6px; border-radius:4px; width:0%; transition:width 1s ease; }
-    .section { margin-bottom:32px; }
-    .section-header { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
-    .section-header h2 { font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); font-weight:600; }
-    .count { background:var(--border); color:var(--text-muted); border-radius:10px; padding:2px 8px; font-size:0.72rem; }
-    .table-wrapper { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; overflow-x:auto; -webkit-overflow-scrolling:touch; }
-    table { width:100%; border-collapse:collapse; white-space:nowrap; }
-    thead tr { background:var(--bg-hover); }
-    th { padding:12px 14px; text-align:left; font-size:0.73rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; border-bottom:1px solid var(--border); }
-    td { padding:12px 14px; font-size:0.85rem; border-bottom:1px solid var(--border); }
-    tr:last-child td { border-bottom:none; }
-    tbody tr:hover td { background:var(--bg-hover); }
-    .symbol-badge { display:inline-block; background:var(--bg-hover); border:1px solid var(--border); border-radius:6px; padding:2px 8px; font-weight:700; font-size:0.82rem; color:var(--blue); }
-    .side-badge { display:inline-block; padding:3px 10px; border-radius:6px; font-size:0.75rem; font-weight:700; }
-    .side-badge.buy  { background:var(--green-bg); color:var(--green); }
-    .side-badge.sell { background:var(--red-bg);   color:var(--red); }
-    .status-badge { display:inline-block; padding:3px 8px; border-radius:6px; font-size:0.7rem; font-weight:600; background:var(--bg-hover); color:var(--text-muted); }
-    .empty-state { text-align:center; padding:40px; color:var(--text-muted); font-size:0.875rem; }
-    .empty-state .icon { font-size:2rem; margin-bottom:8px; }
-    .loader { display:flex; justify-content:center; align-items:center; height:60vh; flex-direction:column; gap:16px; color:var(--text-muted); }
-    .spinner { width:36px; height:36px; border:3px solid var(--border); border-top-color:var(--blue); border-radius:50%; animation:spin 0.8s linear infinite; }
-    @keyframes spin { to { transform:rotate(360deg); } }
-    #content   { display:none; }
-    #error-msg { display:none; text-align:center; padding:60px 20px; color:var(--red); }
-    footer { text-align:center; padding:24px; color:var(--text-muted); font-size:0.75rem; border-top:1px solid var(--border); margin-top:16px; }
-
-    .card-list { display:none; flex-direction:column; gap:10px; }
-    .trade-card, .pos-card { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:14px 16px; }
-    .card-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
-    .card-row:last-child { margin-bottom:0; }
-    .card-label { font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; }
-    .card-val   { font-size:0.85rem; font-weight:600; }
-
-    @media (max-width:640px) {
-      header { padding:10px 12px; }
-      .logo  { font-size:0.88rem; }
-      .updated-header { display:none; }
-      .clock-box { min-width:75px; padding:3px 8px; }
-      .clock-time { font-size:0.78rem; }
-      main   { padding:12px 10px; }
-      .kpi-grid { grid-template-columns:repeat(2, 1fr); gap:10px; margin-bottom:20px; }
-      .kpi-card  { padding:12px 10px; }
-      .kpi-value { font-size:1.1rem; }
-      .kpi-label { font-size:0.62rem; }
-      .table-wrapper { display:none; }
-      .card-list { display:flex; }
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Trading Dashboard â 2026-03-05</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;line-height:1.5}
+a{color:#58a6ff}
+h1{font-size:22px;font-weight:700;color:#f0f6fc}
+h2{font-size:15px;font-weight:600;color:#8b949e;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
+.header{background:#161b22;border-bottom:1px solid #30363d;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.header-right{font-size:12px;color:#6e7681}
+.main{padding:24px;max-width:1400px;margin:0 auto}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:28px}
+.kpi{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px}
+.kpi label{font-size:11px;color:#6e7681;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px}
+.kpi .val{font-size:22px;font-weight:700;color:#f0f6fc}
+.kpi .sub{font-size:12px;color:#6e7681;margin-top:4px}
+.card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;margin-bottom:24px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:500px}
+th{background:#0d1117;color:#6e7681;font-size:11px;text-transform:uppercase;letter-spacing:.06em;padding:8px 12px;text-align:left;border-bottom:1px solid #30363d;white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid #21262d;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#1c2128}
+.pos{color:#3fb950}
+.neg{color:#f85149}
+.dim{color:#6e7681}
+.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;letter-spacing:.03em}
+.bull{background:#0d4a1e;color:#3fb950;border:1px solid #1e6631}
+.bear{background:#4a0e0e;color:#f85149;border:1px solid #6e1f1f}
+.neutral{background:#1c2330;color:#8b949e;border:1px solid #30363d}
+.section-label{font-size:11px;color:#6e7681;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #21262d}
+.footer{text-align:center;padding:20px;color:#6e7681;font-size:12px;border-top:1px solid #21262d;margin-top:12px}
+.status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#3fb950;margin-right:6px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+strong{color:#f0f6fc}
+</style>
 </head>
 <body>
 
-<header>
-  <div class="logo">📈 <span>nabilh</span>.eu &nbsp;·&nbsp; Trading Dashboard</div>
-  <div class="header-right">
-    <div class="clocks">
-      <div class="clock-box paris">
-        <span class="clock-label">🇫🇷 Paris</span>
-        <span class="clock-time" id="clock-paris">--:--:--</span>
-      </div>
-      <div class="clock-box ny">
-        <span class="clock-label">🇺🇸 New York</span>
-        <span class="clock-time" id="clock-ny">--:--:--</span>
-      </div>
+<div class="header">
+  <div>
+    <h1><span class="status-dot"></span>MA Crossover Strategy Dashboard</h1>
+    <div style="color:#6e7681;font-size:12px;margin-top:4px">Alpaca Paper Trading Â· AAPL Â· MSFT Â· TSLA Â· NVDA Â· AMZN</div>
+  </div>
+  <div class="header-right">Last updated: Thu, 05 Mar 2026 20:35:47 GMT</div>
+</div>
+
+<div class="main">
+
+  <!-- KPI Row -->
+  <div class="kpi-grid">
+    <div class="kpi">
+      <label>Portfolio Value</label>
+      <div class="val">$93849.45</div>
+      <div class="sub">Account equity</div>
     </div>
-    <span class="updated-header" id="updated-at">Chargement...</span>
-    <div class="market-badge closed" id="bot-badge">
-      <div class="dot" id="bot-dot"></div>
-      <span id="bot-text">Bot...</span>
+    <div class="kpi">
+      <label>Daily P&amp;L</label>
+      <div class="val neg">$461.95</div>
+      <div class="sub neg">-0.49% vs yesterday</div>
     </div>
-    <div class="clock-box" id="cycle-box" style="min-width:110px;">
-      <span class="clock-label">⏱ Prochain cycle</span>
-      <span class="clock-time" id="cycle-countdown">--:--</span>
+    <div class="kpi">
+      <label>Cash Available</label>
+      <div class="val">$121662.94</div>
+      <div class="sub">Free cash balance</div>
     </div>
-    <div class="market-badge closed" id="market-badge">
-      <div class="dot"></div>
-      <span id="market-text">--</span>
+    <div class="kpi">
+      <label>Buying Power</label>
+      <div class="val">$159883.51</div>
+      <div class="sub">Available for trading</div>
+    </div>
+    <div class="kpi">
+      <label>Open Positions</label>
+      <div class="val">3</div>
+      <div class="sub">1 long / 2 short</div>
     </div>
   </div>
-</header>
 
-<main>
-  <div class="loader" id="loader"><div class="spinner"></div><span>Chargement des données...</span></div>
-  <div id="error-msg">⚠️ Impossible de charger les données.<br><small>Vérifie le Bin ID et la clé JSONBin.</small></div>
-
-  <div id="content">
-    <div class="kpi-grid">
-      <div class="kpi-card">
-        <div class="kpi-label">💼 Capital départ</div>
-        <div class="kpi-value blue">500,00 $</div>
-        <div class="kpi-sub">Paper Trading Alpaca</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">📊 Equity actuelle</div>
-        <div class="kpi-value" id="equity">--</div>
-        <div class="kpi-sub" id="equity-diff">--</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">📅 Gain / Perte du jour</div>
-        <div class="kpi-value" id="daily-pnl">--</div>
-        <div class="pnl-bar-bg"><div class="pnl-bar" id="pnl-bar"></div></div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">🚀 Performance totale</div>
-        <div class="kpi-value" id="total-perf">--</div>
-        <div class="kpi-sub">Depuis 500,00 $</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">🔁 Trades aujourd'hui</div>
-        <div class="kpi-value blue" id="trade-count">--</div>
-        <div class="kpi-sub" id="trade-sub">--</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">📂 Positions ouvertes</div>
-        <div class="kpi-value blue" id="pos-count">--</div>
-        <div class="kpi-sub">Actives en ce moment</div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-header">
-        <h2>📂 Positions ouvertes</h2>
-        <span class="count" id="pos-count-badge">0</span>
-      </div>
-      <div class="table-wrapper">
-        <table>
-          <thead><tr><th>Symbole</th><th>Qté</th><th>Entrée</th><th>Actuel</th><th>P&L $</th><th>P&L %</th></tr></thead>
-          <tbody id="positions-table"></tbody>
-        </table>
-      </div>
-      <div class="card-list" id="positions-cards"></div>
-    </div>
-
-    <div class="section">
-      <div class="section-header">
-        <h2>📋 Trades du jour</h2>
-        <span class="count" id="trades-count-badge">0</span>
-      </div>
-      <div class="table-wrapper">
-        <table>
-          <thead><tr><th>Heure</th><th>Symbole</th><th>Direction</th><th>Qté</th><th>Prix</th><th>Statut</th></tr></thead>
-          <tbody id="trades-table"></tbody>
-        </table>
-      </div>
-      <div class="card-list" id="trades-cards"></div>
-    </div>
+  <!-- Open Positions -->
+  <div class="card">
+    <h2>Open Positions</h2>
+    <table>
+      <thead><tr>
+        <th>Symbol</th><th>Side</th><th>Qty</th>
+        <th>Entry Price</th><th>Current Price</th>
+        <th>Unrealized P&amp;L</th>
+        <th>Stop-Loss (â2%)</th><th>Take-Profit (+4%)</th>
+      </tr></thead>
+      <tbody>
+  <tr>
+    <td><strong>COIN</strong></td>
+    <td><span class="neg">SHORT</span></td>
+    <td>-45</td>
+    <td>$205.00</td>
+    <td>$205.10</td>
+    <td><span class="neg">-$4.50</span> <span class="dim">(-0.05%)</span></td>
+    <td class="neg">$209.10</td>
+    <td class="pos">$196.80</td>
+  </tr>
+  <tr>
+    <td><strong>MSTR</strong></td>
+    <td><span class="neg">SHORT</span></td>
+    <td>-132</td>
+    <td>$140.83</td>
+    <td>$140.79</td>
+    <td><span class="pos">+$4.62</span> <span class="dim">(+0.03%)</span></td>
+    <td class="neg">$143.65</td>
+    <td class="pos">$135.20</td>
+  </tr>
+  <tr>
+    <td><strong>NVDA</strong></td>
+    <td><span class="pos">LONG</span></td>
+    <td>0.005221659</td>
+    <td>$181.98</td>
+    <td>$182.28</td>
+    <td><span class="pos">+$0.00</span> <span class="dim">(+0.16%)</span></td>
+    <td class="neg">$178.34</td>
+    <td class="pos">$189.26</td>
+  </tr></tbody>
+    </table>
   </div>
-</main>
 
-<footer>
-  nabilh.eu — Bot de trading automatisé &nbsp;·&nbsp; Paper Trading uniquement &nbsp;·&nbsp; Refresh auto 60s
-</footer>
+  <!-- MA Signal Status -->
+  <div class="card">
+    <h2>MA20 / MA50 Signal Status</h2>
+    <table>
+      <thead><tr>
+        <th>Symbol</th><th>Last Price</th>
+        <th>MA 20</th><th>MA 50</th>
+        <th>Trend</th><th>Signal</th>
+      </tr></thead>
+      <tbody>
+  <tr>
+    <td><strong>AAPL</strong></td>
+    <td>$258.88</td>
+    <td>$268.29</td>
+    <td>$264.83</td>
+    <td><span class="badge bull">BULLISH</span></td>
+    <td><span class="badge neutral">HOLD</span></td>
+  </tr>
+  <tr>
+    <td><strong>MSFT</strong></td>
+    <td>$410.38</td>
+    <td>$400.59</td>
+    <td>$440.78</td>
+    <td><span class="badge bear">BEARISH</span></td>
+    <td><span class="badge neutral">HOLD</span></td>
+  </tr>
+  <tr>
+    <td><strong>TSLA</strong></td>
+    <td>$403.72</td>
+    <td>$410.23</td>
+    <td>$431.36</td>
+    <td><span class="badge bear">BEARISH</span></td>
+    <td><span class="badge neutral">HOLD</span></td>
+  </tr>
+  <tr>
+    <td><strong>NVDA</strong></td>
+    <td>$182.20</td>
+    <td>$185.41</td>
+    <td>$186.08</td>
+    <td><span class="badge bear">BEARISH</span></td>
+    <td><span class="badge neutral">HOLD</span></td>
+  </tr>
+  <tr>
+    <td><strong>AMZN</strong></td>
+    <td>$219.26</td>
+    <td>$209.07</td>
+    <td>$225.86</td>
+    <td><span class="badge bear">BEARISH</span></td>
+    <td><span class="badge neutral">HOLD</span></td>
+  </tr></tbody>
+    </table>
+  </div>
 
-<script>
-  const PORTFOLIO_START = 500;
-  const BIN_ID     = "69a9a73643b1c97be9b6b1b5";
-  const ACCESS_KEY = "$2a$10$OTrOojoAdAvLTpLSoKfmqu6uhN04f2qug6TgvFD2gx7KmZFrX8jzi";
+  <!-- Trade History -->
+  <div class="card">
+    <h2>Trade History (Recent 30 Orders)</h2>
+    <table>
+      <thead><tr>
+        <th>Date</th><th>Symbol</th><th>Action</th>
+        <th>Price</th><th>Qty</th><th>Order Type</th><th>Intent</th>
+      </tr></thead>
+      <tbody>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>COIN</strong></td>
+    <td><span class="badge bear">SELL</span></td>
+    <td>$205.00</td>
+    <td>45</td>
+    <td>MARKET</td>
+    <td class="dim">sell to open</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>MSFT</strong></td>
+    <td><span class="badge bull">BUY</span></td>
+    <td>$410.28</td>
+    <td>22</td>
+    <td>STOP</td>
+    <td class="dim">buy to close</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>MSTR</strong></td>
+    <td><span class="badge bear">SELL</span></td>
+    <td>$140.90</td>
+    <td>66</td>
+    <td>MARKET</td>
+    <td class="dim">sell to open</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>MSFT</strong></td>
+    <td><span class="badge bear">SELL</span></td>
+    <td>$409.77</td>
+    <td>22</td>
+    <td>MARKET</td>
+    <td class="dim">sell to open</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>MSTR</strong></td>
+    <td><span class="badge bear">SELL</span></td>
+    <td>$140.76</td>
+    <td>66</td>
+    <td>MARKET</td>
+    <td class="dim">sell to open</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>AAPL</strong></td>
+    <td><span class="badge bear">SELL</span></td>
+    <td>$259.19</td>
+    <td>2</td>
+    <td>MARKET</td>
+    <td class="dim">sell to close</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>MSFT</strong></td>
+    <td><span class="badge bull">BUY</span></td>
+    <td>$409.80</td>
+    <td>22</td>
+    <td>STOP</td>
+    <td class="dim">buy to close</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>COIN</strong></td>
+    <td><span class="badge bull">BUY</span></td>
+    <td>$205.20</td>
+    <td>45</td>
+    <td>STOP</td>
+    <td class="dim">buy to close</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>MSTR</strong></td>
+    <td><span class="badge bull">BUY</span></td>
+    <td>$140.24</td>
+    <td>67</td>
+    <td>STOP</td>
+    <td class="dim">buy to close</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>MSTR</strong></td>
+    <td><span class="badge bull">BUY</span></td>
+    <td>$140.23</td>
+    <td>67</td>
+    <td>STOP</td>
+    <td class="dim">buy to close</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>COIN</strong></td>
+    <td><span class="badge bear">SELL</span></td>
+    <td>$204.41</td>
+    <td>45</td>
+    <td>MARKET</td>
+    <td class="dim">sell to open</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>MSFT</strong></td>
+    <td><span class="badge bear">SELL</span></td>
+    <td>$409.27</td>
+    <td>22</td>
+    <td>MARKET</td>
+    <td class="dim">sell to open</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>COIN</strong></td>
+    <td><span class="badge bull">BUY</span></td>
+    <td>$205.09</td>
+    <td>45</td>
+    <td>STOP</td>
+    <td class="dim">buy to close</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>COIN</strong></td>
+    <td><span class="badge bear">SELL</span></td>
+    <td>$204.40</td>
+    <td>45</td>
+    <td>MARKET</td>
+    <td class="dim">sell to open</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>COIN</strong></td>
+    <td><span class="badge bull">BUY</span></td>
+    <td>$204.01</td>
+    <td>46</td>
+    <td>STOP</td>
+    <td class="dim">buy to close</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>MSFT</strong></td>
+    <td><span class="badge bull">BUY</span></td>
+    <td>$409.81</td>
+    <td>22</td>
+    <td>STOP</td>
+    <td class="dim">buy to close</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>COIN</strong></td>
+    <td><span class="badge bear">SELL</span></td>
+    <td>$203.13</td>
+    <td>46</td>
+    <td>MARKET</td>
+    <td class="dim">sell to open</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>MSFT</strong></td>
+    <td><span class="badge bear">SELL</span></td>
+    <td>$409.30</td>
+    <td>22</td>
+    <td>MARKET</td>
+    <td class="dim">sell to open</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>MSFT</strong></td>
+    <td><span class="badge bull">BUY</span></td>
+    <td>$409.27</td>
+    <td>23</td>
+    <td>STOP</td>
+    <td class="dim">buy to close</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>MSFT</strong></td>
+    <td><span class="badge bear">SELL</span></td>
+    <td>$408.81</td>
+    <td>23</td>
+    <td>MARKET</td>
+    <td class="dim">sell to open</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>MSFT</strong></td>
+    <td><span class="badge bull">BUY</span></td>
+    <td>$409.93</td>
+    <td>22</td>
+    <td>STOP</td>
+    <td class="dim">buy to close</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>MSFT</strong></td>
+    <td><span class="badge bear">SELL</span></td>
+    <td>$409.42</td>
+    <td>22</td>
+    <td>MARKET</td>
+    <td class="dim">sell to open</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>MSFT</strong></td>
+    <td><span class="badge bull">BUY</span></td>
+    <td>$409.56</td>
+    <td>23</td>
+    <td>STOP</td>
+    <td class="dim">buy to close</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>MSFT</strong></td>
+    <td><span class="badge bear">SELL</span></td>
+    <td>$409.02</td>
+    <td>23</td>
+    <td>MARKET</td>
+    <td class="dim">sell to open</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>COIN</strong></td>
+    <td><span class="badge bull">BUY</span></td>
+    <td>$202.34</td>
+    <td>46</td>
+    <td>LIMIT</td>
+    <td class="dim">buy to close</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>COIN</strong></td>
+    <td><span class="badge bear">SELL</span></td>
+    <td>$203.53</td>
+    <td>46</td>
+    <td>MARKET</td>
+    <td class="dim">sell to open</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>COIN</strong></td>
+    <td><span class="badge bull">BUY</span></td>
+    <td>$203.61</td>
+    <td>46</td>
+    <td>STOP</td>
+    <td class="dim">buy to close</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>COIN</strong></td>
+    <td><span class="badge bull">BUY</span></td>
+    <td>$203.54</td>
+    <td>46</td>
+    <td>STOP</td>
+    <td class="dim">buy to close</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>MSFT</strong></td>
+    <td><span class="badge bull">BUY</span></td>
+    <td>$409.56</td>
+    <td>23</td>
+    <td>STOP</td>
+    <td class="dim">buy to close</td>
+  </tr>
+  <tr>
+    <td>2026-03-05</td>
+    <td><strong>MSFT</strong></td>
+    <td><span class="badge bear">SELL</span></td>
+    <td>$409.06</td>
+    <td>23</td>
+    <td>MARKET</td>
+    <td class="dim">sell to open</td>
+  </tr></tbody>
+    </table>
+  </div>
 
-  /* ── Horloges temps réel ── */
-  function updateClocks() {
-    const now = new Date();
-    const paris = now.toLocaleTimeString('fr-FR', { timeZone:'Europe/Paris', hour12:false });
-    const ny    = now.toLocaleTimeString('fr-FR', { timeZone:'America/New_York', hour12:false });
-    document.getElementById('clock-paris').textContent = paris;
-    document.getElementById('clock-ny').textContent    = ny;
-  }
-  updateClocks();
-  setInterval(updateClocks, 1000);
+</div>
 
-  function fmt(val, d=2) {
-    return parseFloat(val).toLocaleString('fr-FR', { minimumFractionDigits:d, maximumFractionDigits:d });
-  }
-  function sc(val) { return parseFloat(val) >= 0 ? 'green' : 'red'; }
-  function ss(val) { return parseFloat(val) >= 0 ? '+' : ''; }
-  function cleanStatus(s) { return s.replace('OrderStatus.','').replace(/_/g,' '); }
+<div class="footer">
+  MA Crossover Strategy Â· Alpaca Paper Trading Â· Auto-generated by Twin Agent Â· 2026-03-05
+</div>
 
-  fetch('https://api.jsonbin.io/v3/b/' + BIN_ID + '/latest', {
-    headers: { 'X-Master-Key': ACCESS_KEY }
-  })
-  .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-  .then(response => {
-    const d = response.record;
-    document.getElementById('loader').style.display  = 'none';
-    document.getElementById('content').style.display = 'block';
-
-    /* ── Statut marché ── */
-    const badge = document.getElementById('market-badge');
-    badge.className = 'market-badge ' + (d.market_open ? 'open' : 'closed');
-    document.getElementById('market-text').textContent = d.market_open ? 'Bourse ouverte' : 'Bourse fermée';
-
-    /* ── Heure mise à jour ── */
-    const upd = new Date(d.updated_at);
-    document.getElementById('updated-at').textContent = 'Mis à jour : ' + upd.toLocaleTimeString('fr-FR');
-
-    /* ── Statut bot ── */
-    const botBadge = document.getElementById('bot-badge');
-    const ageMinutes = (Date.now() - upd.getTime()) / 60000;
-    if (d.bot_alive === true && ageMinutes < 10) {
-      botBadge.className = 'market-badge open';
-      document.getElementById('bot-text').textContent = '🤖 Bot actif';
-    } else {
-      botBadge.className = 'market-badge warning';
-      document.getElementById('bot-dot').style.animation = 'none';
-      document.getElementById('bot-text').textContent = '🤖 Bot inactif';
-    }
-
-    /* ── Countdown prochain cycle ── */
-    let secondsLeft = d.next_cycle_in ?? 300;
-    const countdownEl = document.getElementById('cycle-countdown');
-    const cycleTimer = setInterval(() => {
-      if (secondsLeft <= 0) { clearInterval(cycleTimer); countdownEl.textContent = '⏳ En cours...'; return; }
-      const m = String(Math.floor(secondsLeft / 60)).padStart(2,'0');
-      const s = String(secondsLeft % 60).padStart(2,'0');
-      countdownEl.textContent = m + ':' + s;
-      secondsLeft--;
-    }, 1000);
-
-    /* ── KPIs ── */
-    const diff = d.equity - PORTFOLIO_START;
-    document.getElementById('equity').textContent = '$' + fmt(d.equity);
-    document.getElementById('equity-diff').innerHTML = '<span class="' + sc(diff) + '">' + ss(diff) + '$' + fmt(diff) + ' depuis le départ</span>';
-
-    const pnlEl = document.getElementById('daily-pnl');
-    pnlEl.textContent = ss(d.daily_pnl) + '$' + fmt(d.daily_pnl) + ' (' + ss(d.daily_pnl_pct) + fmt(d.daily_pnl_pct) + '%)';
-    pnlEl.className = 'kpi-value ' + sc(d.daily_pnl);
-    const bar = document.getElementById('pnl-bar');
-    bar.style.width      = Math.min(Math.abs(d.daily_pnl_pct) * 10, 100) + '%';
-    bar.style.background = parseFloat(d.daily_pnl) >= 0 ? 'var(--green)' : 'var(--red)';
-
-    const tp = ((d.equity - PORTFOLIO_START) / PORTFOLIO_START * 100);
-    const tpEl = document.getElementById('total-perf');
-    tpEl.textContent = ss(tp) + fmt(tp) + '%';
-    tpEl.className   = 'kpi-value ' + sc(tp);
-
-    const buys  = d.trades_today.filter(t => t.side.toLowerCase().includes('buy')).length;
-    const sells = d.trades_today.filter(t => t.side.toLowerCase().includes('sell')).length;
-    document.getElementById('trade-count').textContent        = d.trades_today.length;
-    document.getElementById('trades-count-badge').textContent = d.trades_today.length;
-    document.getElementById('trade-sub').textContent          = buys + ' achats · ' + sells + ' ventes';
-    document.getElementById('pos-count').textContent       = d.open_positions.length;
-    document.getElementById('pos-count-badge').textContent = d.open_positions.length;
-
-    /* ── Positions ouvertes ── */
-    const posTbody = document.getElementById('positions-table');
-    const posCards = document.getElementById('positions-cards');
-    if (d.open_positions.length === 0) {
-      const empty = '<div class="empty-state"><div class="icon">📭</div>Aucune position ouverte</div>';
-      posTbody.innerHTML = '<tr><td colspan="6">' + empty + '</td></tr>';
-      posCards.innerHTML = '<div class="pos-card">' + empty + '</div>';
-    } else {
-      posTbody.innerHTML = d.open_positions.map(p => {
-        const pnl = parseFloat(p.pnl);
-        const pnlPct = (parseFloat(p.pnl_pct)*100).toFixed(2);
-        return '<tr><td><span class="symbol-badge">'+p.symbol+'</span></td><td>'+p.qty+'</td><td>$'+fmt(p.entry)+'</td><td>$'+fmt(p.current)+'</td><td class="'+sc(pnl)+'">'+ss(pnl)+'$'+fmt(pnl)+'</td><td class="'+sc(pnl)+'">'+ss(pnl)+pnlPct+'%</td></tr>';
-      }).join('');
-      posCards.innerHTML = d.open_positions.map(p => {
-        const pnl = parseFloat(p.pnl);
-        const pnlPct = (parseFloat(p.pnl_pct)*100).toFixed(2);
-        return '<div class="pos-card"><div class="card-row"><span class="symbol-badge">'+p.symbol+'</span><span class="card-label">Qté : '+p.qty+'</span></div><div class="card-row"><span class="card-label">Entrée</span><span class="card-val">$'+fmt(p.entry)+'</span></div><div class="card-row"><span class="card-label">Actuel</span><span class="card-val">$'+fmt(p.current)+'</span></div><div class="card-row"><span class="card-label">P&L</span><span class="card-val '+sc(pnl)+'">'+ss(pnl)+'$'+fmt(pnl)+' ('+ss(pnl)+pnlPct+'%)</span></div></div>';
-      }).join('');
-    }
-
-    /* ── Trades du jour ── */
-    const tradeTbody = document.getElementById('trades-table');
-    const tradeCards = document.getElementById('trades-cards');
-    const trades = [...d.trades_today].reverse();
-    if (trades.length === 0) {
-      const empty = '<div class="empty-state"><div class="icon">📋</div>Aucun trade aujourd\'hui</div>';
-      tradeTbody.innerHTML = '<tr><td colspan="6">' + empty + '</td></tr>';
-      tradeCards.innerHTML = '<div class="trade-card">' + empty + '</div>';
-    } else {
-      tradeTbody.innerHTML = trades.map(t => {
-        const isBuy = t.side.toLowerCase().includes('buy');
-        return '<tr><td>'+t.time+'</td><td><span class="symbol-badge">'+t.symbol+'</span></td><td><span class="side-badge '+(isBuy?'buy':'sell')+'">'+(isBuy?'▲ BUY':'▼ SELL')+'</span></td><td>'+t.qty+'</td><td>$'+fmt(t.price)+'</td><td><span class="status-badge">'+cleanStatus(t.status)+'</span></td></tr>';
-      }).join('');
-      tradeCards.innerHTML = trades.map(t => {
-        const isBuy = t.side.toLowerCase().includes('buy');
-        return '<div class="trade-card"><div class="card-row"><span class="symbol-badge">'+t.symbol+'</span><span class="side-badge '+(isBuy?'buy':'sell')+'">'+(isBuy?'▲ BUY':'▼ SELL')+'</span></div><div class="card-row"><span class="card-label">Heure</span><span class="card-val">'+t.time+'</span></div><div class="card-row"><span class="card-label">Qté</span><span class="card-val">'+t.qty+'</span></div><div class="card-row"><span class="card-label">Prix</span><span class="card-val">$'+fmt(t.price)+'</span></div><div class="card-row"><span class="card-label">Statut</span><span class="card-val">'+cleanStatus(t.status)+'</span></div></div>';
-      }).join('');
-    }
-  })
-  .catch(() => {
-    document.getElementById('loader').style.display    = 'none';
-    document.getElementById('error-msg').style.display = 'block';
-  });
-</script>
 </body>
 </html>
