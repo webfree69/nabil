@@ -6,41 +6,202 @@
 <title>Tableau de Bord Trading</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
+/* === RESET === */
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#0f172a;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;padding:20px}
-.header{text-align:center;padding:30px 20px;background:linear-gradient(135deg,#1e293b,#0f172a);border-radius:16px;margin-bottom:24px;border:1px solid #1e293b}
-.header h1{font-size:28px;font-weight:800;color:#f1f5f9;letter-spacing:-0.5px}
-.header p{color:#64748b;margin-top:6px;font-size:14px}
-.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
-.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
-.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px}
-.card{background:#1e293b;border-radius:12px;padding:20px;border:1px solid #334155}
-.card-title{font-size:11px;text-transform:uppercase;color:#64748b;letter-spacing:1px;margin-bottom:10px;font-weight:600}
-.card-value{font-size:26px;font-weight:800;color:#f1f5f9}
-.card-sub{font-size:12px;color:#64748b;margin-top:4px}
+
+/* === MOBILE-FIRST BASE (no media query = mobile 375px+) === */
+body{
+  background:#0f172a;
+  color:#e2e8f0;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  min-height:100vh;
+  padding:0.75rem;
+  overflow-x:hidden;
+  font-size:clamp(0.75rem,2vw,1rem);
+}
+.header{
+  text-align:center;
+  padding:1rem 0.75rem;
+  background:linear-gradient(135deg,#1e293b,#0f172a);
+  border-radius:12px;
+  margin-bottom:1rem;
+  border:1px solid #1e293b;
+  width:100%;
+}
+.header h1{
+  font-size:clamp(1rem,4vw,1.75rem);
+  font-weight:800;
+  color:#f1f5f9;
+  letter-spacing:-0.5px;
+}
+.header p{
+  color:#64748b;
+  margin-top:6px;
+  font-size:clamp(0.65rem,1.8vw,0.875rem);
+}
+
+/* KPI GRID - single column on mobile */
+.grid-4{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:0.75rem;
+  margin-bottom:1rem;
+  width:100%;
+}
+.grid-3{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:0.75rem;
+  margin-bottom:1rem;
+  width:100%;
+}
+.grid-2{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:0.75rem;
+  margin-bottom:1rem;
+  width:100%;
+}
+
+.card{
+  background:#1e293b;
+  border-radius:10px;
+  padding:0.75rem;
+  border:1px solid #334155;
+  width:100%;
+}
+.card-title{
+  font-size:0.65rem;
+  text-transform:uppercase;
+  color:#64748b;
+  letter-spacing:1px;
+  margin-bottom:0.5rem;
+  font-weight:600;
+}
+.card-value{
+  font-size:clamp(1.25rem,4vw,1.625rem);
+  font-weight:800;
+  color:#f1f5f9;
+}
+.card-sub{font-size:0.7rem;color:#64748b;margin-top:4px}
 .kpi-positive{color:#22c55e!important}
 .kpi-negative{color:#ef4444!important}
-.section{background:#1e293b;border-radius:12px;border:1px solid #334155;margin-bottom:24px;overflow:hidden}
-.section-header{padding:16px 20px;border-bottom:1px solid #334155;display:flex;align-items:center;gap:10px}
-.section-header h2{font-size:15px;font-weight:700;color:#f1f5f9}
-.badge{background:#334155;color:#94a3b8;font-size:11px;padding:2px 8px;border-radius:6px}
-table{width:100%;border-collapse:collapse}
-th{padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;border-bottom:1px solid #334155;white-space:nowrap}
-td{border-bottom:1px solid #1e293b}
+
+.section{
+  background:#1e293b;
+  border-radius:10px;
+  border:1px solid #334155;
+  margin-bottom:1rem;
+  overflow:hidden;
+  width:100%;
+}
+.section-header{
+  padding:0.75rem 1rem;
+  border-bottom:1px solid #334155;
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:0.5rem;
+}
+.section-header h2{
+  font-size:clamp(0.8rem,2.5vw,0.9375rem);
+  font-weight:700;
+  color:#f1f5f9;
+}
+.badge{
+  background:#334155;
+  color:#94a3b8;
+  font-size:0.65rem;
+  padding:3px 8px;
+  border-radius:6px;
+  min-height:22px;
+  display:inline-flex;
+  align-items:center;
+}
+
+/* TABLE WRAPPER - horizontal scroll on mobile */
+.table-wrap{
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  width:100%;
+}
+table{width:100%;border-collapse:collapse;min-width:480px}
+th{
+  padding:0.5rem 0.75rem;
+  text-align:left;
+  font-size:0.65rem;
+  text-transform:uppercase;
+  color:#64748b;
+  letter-spacing:0.5px;
+  border-bottom:1px solid #334155;
+  white-space:nowrap;
+}
+td{
+  border-bottom:1px solid #1e293b;
+  white-space:nowrap;
+  font-size:0.75rem;
+  padding:0.5rem 0.75rem;
+}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:#243047}
-.alert-banner{background:#7f1d1d;border:1px solid #991b1b;border-radius:10px;padding:14px 20px;margin-bottom:20px;color:#fca5a5;font-size:14px;display:flex;align-items:center;gap:10px}
-.filter-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px 20px}
-.filter-card{background:#0f172a;border-radius:8px;padding:12px;border:1px solid #334155}
-.filter-card h3{font-size:11px;text-transform:uppercase;color:#64748b;margin-bottom:8px}
-.filter-card p{font-size:13px;color:#e2e8f0;line-height:1.5}
-.perf-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid #334155}
-.perf-cell{padding:16px 20px;border-right:1px solid #334155;text-align:center}
-.perf-cell:last-child{border-right:none}
-.perf-label{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
-.perf-val{font-size:20px;font-weight:800}
-@media(max-width:768px){.grid-4,.grid-3{grid-template-columns:repeat(2,1fr)}.grid-2{grid-template-columns:1fr}.filter-grid{grid-template-columns:1fr}.perf-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:480px){.grid-4{grid-template-columns:1fr}}
+
+.alert-banner{
+  background:#7f1d1d;
+  border:1px solid #991b1b;
+  border-radius:10px;
+  padding:0.75rem 1rem;
+  margin-bottom:1rem;
+  display:flex;
+  align-items:center;
+  gap:0.75rem;
+  font-size:0.8rem;
+}
+.signal-buy{background:#22c55e22;color:#22c55e;padding:3px 10px;border-radius:12px;font-size:0.7rem;font-weight:700;white-space:nowrap}
+.signal-sell{background:#ef444422;color:#ef4444;padding:3px 10px;border-radius:12px;font-size:0.7rem;font-weight:700;white-space:nowrap}
+.signal-hold{background:#3b82f622;color:#3b82f6;padding:3px 10px;border-radius:12px;font-size:0.7rem;font-weight:700;white-space:nowrap}
+.signal-neutral{background:#64748b22;color:#64748b;padding:3px 10px;border-radius:12px;font-size:0.7rem;font-weight:700;white-space:nowrap}
+
+/* CHART */
+.chart-container{
+  padding:0.75rem;
+  width:100%;
+}
+canvas{
+  width:100%!important;
+  max-width:100%;
+  height:auto;
+}
+
+/* BUTTONS / BADGES touch target */
+button,.btn{min-height:44px;min-width:44px;padding:0.5rem 1rem;cursor:pointer}
+
+/* === TABLET (600px+) === */
+@media(min-width:600px){
+  body{padding:1rem}
+  .grid-4{grid-template-columns:repeat(2,1fr);gap:1rem}
+  .grid-3{grid-template-columns:repeat(2,1fr);gap:1rem}
+  .grid-2{grid-template-columns:repeat(2,1fr);gap:1rem}
+  .card{padding:1rem}
+  .section-header{padding:1rem 1.25rem}
+  th{font-size:0.7rem;padding:0.625rem 1rem}
+  td{font-size:0.8rem;padding:0.625rem 1rem}
+}
+
+/* === DESKTOP (1024px+) === */
+@media(min-width:1024px){
+  body{padding:1.5rem}
+  .header{padding:1.875rem 1.25rem;margin-bottom:1.5rem;border-radius:16px}
+  .grid-4{grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+  .grid-3{grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}
+  .grid-2{grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:1.5rem}
+  .card{padding:1.25rem;border-radius:12px}
+  .section{margin-bottom:1.5rem;border-radius:12px}
+  .section-header{padding:1rem 1.25rem}
+  th{font-size:0.6875rem;padding:0.625rem 0.875rem}
+  td{font-size:0.875rem;padding:0.625rem 0.875rem}
+  .badge{font-size:0.6875rem}
+  table{min-width:unset}
+}
 </style>
 </head>
 <body>
@@ -57,7 +218,7 @@ tr:hover td{background:#243047}
   <div class="card">
     <div class="card-title">Valeur Portefeuille</div>
     <div class="card-value">$93876.55</div>
-    <div class="card-sub">Capital de r&eacute;f&eacute;rence: $500</div>
+    <div class="card-sub">Capital de base: </div>00 | P&amp;L: voir ci-dessous</div>
   </div>
   <div class="card">
     <div class="card-title">Gain / Perte du Jour</div>
@@ -77,13 +238,13 @@ tr:hover td{background:#243047}
 </div>
 
 <!-- Gain/Perte du Jour Detail Card -->
-<div class="section" style="margin-bottom:24px;">
+<div class="section" >
   <div class="section-header">
     <h2>Gain / Perte du Jour &mdash; D&eacute;tail</h2>
     <span class="badge">2026-03-05</span>
   </div>
-  <div style="padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-    <div style="background:#0f172a;border-radius:10px;padding:20px;border:1px solid #334155;text-align:center;">
+  <div class="grid-2" style="padding:0.75rem;">
+    <div style="background:#0f172a;border-radius:10px;padding:0.75rem;border:1px solid #334155;text-align:center;">
       <div style="font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">P&amp;L R&eacute;alis&eacute; + Non R&eacute;alis&eacute;</div>
       <div style="font-size:42px;font-weight:900;color:#ef4444;">$434.85</div>
       <div style="font-size:16px;color:#ef4444;margin-top:6px;">-0.46%</div>
@@ -115,8 +276,7 @@ tr:hover td{background:#243047}
     <h2>Historique P&amp;L &mdash; 30 Derniers Jours</h2>
     <span class="badge">Barres vertes = profits &bull; Barres rouges = pertes</span>
   </div>
-  <div style="padding:20px;">
-    <canvas id="plChart" height="120"></canvas>
+  <div class="chart-container"><canvas id="plChart" style="width:100%!important;max-width:100%;height:auto;min-height:200px;"></canvas>
   </div>
   <!-- Performance Summary -->
   <div class="perf-grid">
@@ -145,7 +305,7 @@ tr:hover td{background:#243047}
     <h2>Signaux Multi-Filtres &mdash; Aujourd&#39;hui</h2>
     <span class="badge">5 conditions requises pour ACHAT</span>
   </div>
-  <table>
+  <div class="table-wrap"><table>
     <thead><tr>
       <th>Titre</th><th>Prix</th><th>MA20</th><th>MA50</th>
       <th>RSI(14)</th><th>Volume</th><th>Stop ATR</th><th>Signal</th>
@@ -205,7 +365,7 @@ tr:hover td{background:#243047}
     <h2>Statut des Filtres par Titre</h2>
     <span class="badge">&#10004; = condition remplie</span>
   </div>
-  <table>
+  <div class="table-wrap"><table>
     <thead><tr>
       <th>Titre</th><th>MA Cross</th><th>RSI 30-70</th>
       <th>Vol &gt; Moy.</th><th>Liq. &gt;50%</th><th>Stop ATR</th>
@@ -277,7 +437,7 @@ tr:hover td{background:#243047}
     <span class="badge">2 positions</span>
   </div>
   
-  <table>
+  <div class="table-wrap"><table>
     <thead><tr>
       <th>Titre</th><th>Direction</th><th>Qt&eacute;</th>
       <th>Prix Entr&eacute;e</th><th>Prix Actuel</th><th>P&amp;L</th>
@@ -299,6 +459,8 @@ tr:hover td{background:#243047}
   </tr></tbody>
   </table>
 </div>
+<div style="padding:0.75rem 1rem;border-top:1px solid #334155;font-size:0.75rem;color:#64748b;text-align:right;">Taille max par position : $100 (20% de $500)</div>
+</div>
 
 <!-- Trade History Table -->
 <div class="section">
@@ -306,7 +468,7 @@ tr:hover td{background:#243047}
     <h2>Historique des 30 Derniers Trades</h2>
     <span class="badge">30 op&eacute;rations</span>
   </div>
-  <div style="overflow-x:auto;">
+  <div class="table-wrap">
   <table>
     <thead><tr>
       <th>Date</th><th>Titre</th><th>Action</th>
