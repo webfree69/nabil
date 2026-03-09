@@ -3,674 +3,468 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Trading Bot - Tableau de Bord</title>
+<title>Trading Bot - Alpaca Paper Trading</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:#0f172a;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow-x:hidden;padding:0.5rem;}
-.container{max-width:1200px;margin:0 auto;}
-.section{background:#1e293b;border-radius:12px;padding:1rem;margin-bottom:1rem;border:1px solid #334155;}
-.section-title{font-size:0.75rem;color:#64748b;text-transform:uppercase;letter-spacing:0.1em;font-weight:700;border-bottom:1px solid #334155;padding-bottom:0.5rem;margin-bottom:0.75rem;}
-.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;}
-.kpi-card{background:#0f172a;border-radius:8px;padding:12px;border:1px solid #334155;}
-.kpi-label{font-size:0.7rem;color:#64748b;text-transform:uppercase;margin-bottom:4px;}
-.kpi-value{font-size:clamp(1rem,3vw,1.4rem);font-weight:700;}
+body{background:#0f172a;color:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow-x:hidden;padding:0.5rem;}
 .mobile-card{display:block;}
 .desktop-table{display:none;}
+.kpi-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:16px;}
 @media(min-width:480px){.kpi-grid{grid-template-columns:1fr 1fr;}}
-@media(min-width:768px){.mobile-card{display:none;}.desktop-table{display:table;width:100%;border-collapse:collapse;}.kpi-grid{grid-template-columns:1fr 1fr 1fr 1fr;}}
-@media(min-width:1024px){.kpi-grid{grid-template-columns:1fr 1fr 1fr 1fr;}}
-table{width:100%;border-collapse:collapse;}
-th{background:#0f172a;color:#64748b;font-size:0.7rem;text-transform:uppercase;padding:8px;text-align:left;border-bottom:1px solid #334155;}
+@media(min-width:768px){.mobile-card{display:none;}.desktop-table{display:table;}.kpi-grid{grid-template-columns:1fr 1fr;}}
+@media(min-width:1024px){.kpi-grid{grid-template-columns:repeat(4,1fr);}}
+.section{background:#1e293b;border-radius:10px;padding:14px;margin-bottom:16px;border:1px solid #334155;}
+.section-title{font-size:0.75rem;text-transform:uppercase;color:#64748b;letter-spacing:0.08em;border-bottom:1px solid #334155;padding-bottom:8px;margin-bottom:12px;}
+.kpi-card{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:12px;}
+.kpi-label{font-size:0.72rem;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;}
+.kpi-value{font-size:clamp(1rem,3vw,1.5rem);font-weight:700;}
+table{width:100%;border-collapse:collapse;font-size:0.82rem;}
+th{background:#0f172a;color:#64748b;font-size:0.7rem;text-transform:uppercase;padding:8px 12px;text-align:left;font-weight:600;}
+.halt-banner{background:#7f1d1d;border:1px solid #ef4444;border-radius:8px;padding:10px 14px;margin-bottom:16px;color:#fca5a5;font-size:0.85rem;text-align:center;}
+.filter-grid{display:grid;grid-template-columns:1fr;gap:8px;}
+@media(min-width:600px){.filter-grid{grid-template-columns:1fr 1fr;}}
+@media(min-width:900px){.filter-grid{grid-template-columns:repeat(3,1fr);}}
+.filter-card{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:10px;}
+.filter-num{color:#3b82f6;font-size:0.8rem;font-weight:700;margin-bottom:4px;}
+.filter-name{color:#f1f5f9;font-size:0.85rem;font-weight:600;margin-bottom:2px;}
+.filter-desc{color:#64748b;font-size:0.75rem;}
 </style>
 </head>
 <body>
-<div class="container">
 
 <!-- HEADER -->
-<div style="text-align:center;padding:1rem 0 0.5rem;">
-  <h1 style="font-size:clamp(1.2rem,4vw,1.8rem);font-weight:800;color:#e2e8f0;">Trading Bot MA Crossover</h1>
-  <p style="color:#64748b;font-size:0.85rem;">Mise &agrave; jour: 2026-03-06 21:00 UTC &mdash; webfree69/nabil</p>
+<div style="background:linear-gradient(135deg,#1e3a5f,#0f172a);border-radius:10px;padding:14px 16px;margin-bottom:16px;border:1px solid #334155;">
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+<div>
+<h1 style="font-size:clamp(1rem,4vw,1.4rem);font-weight:800;color:#f1f5f9;">Alpaca Paper Trading Bot</h1>
+<p style="color:#64748b;font-size:0.8rem;margin-top:2px;">Strat&eacute;gie MA Crossover + RSI + Volume</p>
+</div>
+<div style="text-align:right;">
+<div style="font-size:0.75rem;color:#64748b;">Mis &agrave; jour</div>
+<div style="font-size:0.85rem;color:#94a3b8;font-weight:600;">2026-03-09 UTC</div>
+<div style="background:#166534;color:#4ade80;padding:2px 8px;border-radius:4px;font-size:0.72rem;margin-top:4px;">ACTIF</div>
+</div>
+</div>
 </div>
 
+<!-- HALT BANNER -->
+<div class="halt-banner">[ALERTE] Nouveaux achats suspendus - Perte cumul&eacute;e &gt; $50 (r&egrave;gle de protection du portefeuille activ&eacute;e)</div>
+
 <!-- SECTION 1: AUJOURD'HUI -->
-<div style="background:#3a1a1a;border:1px solid #334155;border-radius:12px;padding:1.25rem;margin-bottom:1rem;text-align:center;">
-  <div style="font-size:0.7rem;color:#64748b;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Aujourd'hui &mdash; 2026-03-06</div>
-  <div style="font-size:clamp(1.4rem,5vw,2.2rem);font-weight:800;color:#f87171;">-82.64 (-0.088%)</div>
-  <div style="color:#94a3b8;font-size:0.85rem;margin-top:0.5rem;">Gain/Perte du jour</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin-top:1rem;">
-    <div style="background:rgba(0,0,0,0.2);border-radius:8px;padding:8px;">
-      <div style="font-size:0.65rem;color:#64748b;text-transform:uppercase;">Trades</div>
-      <div style="font-size:1.1rem;font-weight:700;color:#e2e8f0;">100</div>
-    </div>
-    <div style="background:rgba(0,0,0,0.2);border-radius:8px;padding:8px;">
-      <div style="font-size:0.65rem;color:#64748b;text-transform:uppercase;">Positions</div>
-      <div style="font-size:1.1rem;font-weight:700;color:#e2e8f0;">2</div>
-    </div>
-    <div style="background:rgba(0,0,0,0.2);border-radius:8px;padding:8px;">
-      <div style="font-size:0.65rem;color:#64748b;text-transform:uppercase;">P&amp;L non real.</div>
-      <div style="font-size:1.1rem;font-weight:700;color:#4ade80;">+$26.01</div>
-    </div>
-  </div>
+<div style="background:#3a1a1a;border:1px solid #f8717133;border-radius:10px;padding:16px;margin-bottom:16px;">
+<div style="font-size:0.75rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Aujourd&apos;hui - 2026-03-09</div>
+<div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
+<span style="font-size:clamp(1.4rem,5vw,2.2rem);font-weight:800;color:#f87171;">$90.19</span>
+<span style="font-size:clamp(1rem,3vw,1.4rem);font-weight:600;color:#f87171;">(-0.096%)</span>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;font-size:0.8rem;">
+<div style="background:rgba(0,0,0,0.2);border-radius:6px;padding:8px;text-align:center;">
+<div style="color:#64748b;">Trades</div>
+<div style="font-size:1.1rem;font-weight:700;color:#f1f5f9;">1</div>
+</div>
+<div style="background:rgba(0,0,0,0.2);border-radius:6px;padding:8px;text-align:center;">
+<div style="color:#64748b;">Positions</div>
+<div style="font-size:1.1rem;font-weight:700;color:#f1f5f9;">1</div>
+</div>
+<div style="background:rgba(0,0,0,0.2);border-radius:6px;padding:8px;text-align:center;">
+<div style="color:#64748b;">P&amp;L non r&eacute;alis&eacute;</div>
+<div style="font-size:1rem;font-weight:700;color:#f87171;">-$0.00</div>
+</div>
+</div>
+</div>
+
+<!-- SECTION 4: KPI GRID (placed high for quick overview) -->
+<div class="kpi-grid" style="margin-bottom:16px;">
+<div class="kpi-card">
+<div class="kpi-label">Valeur portefeuille</div>
+<div class="kpi-value" style="color:#60a5fa;">$93,712.87</div>
+<div style="font-size:0.72rem;color:#64748b;margin-top:2px;">Compte paper trading</div>
+</div>
+<div class="kpi-card">
+<div class="kpi-label">Liquidit&eacute;s</div>
+<div class="kpi-value" style="color:#4ade80;">$93,711.92</div>
+<div style="font-size:0.72rem;color:#64748b;margin-top:2px;">Pouvoir d&apos;achat: $364,106</div>
+</div>
+<div class="kpi-card">
+<div class="kpi-label">Val. march&eacute; / Positions</div>
+<div class="kpi-value" style="color:#f1f5f9;">$0.95 <span style="font-size:0.8rem;color:#64748b;">/ 1</span></div>
+<div style="font-size:0.72rem;color:#64748b;margin-top:2px;">NVDA (long)</div>
+</div>
+<div class="kpi-card">
+<div class="kpi-label">P&amp;L non r&eacute;alis&eacute; total</div>
+<div class="kpi-value" style="color:#f87171;">-$0.00</div>
+<div style="font-size:0.72rem;color:#64748b;margin-top:2px;">NVDA: -0.37%</div>
+</div>
 </div>
 
 <!-- SECTION 2: TRADES DU JOUR -->
 <div class="section">
-  <div class="section-title">Trades du jour (affichage: 20 premiers sur 100)</div>
-  <div class="mobile-card"><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-weight:700;font-size:1.1rem;color:#e2e8f0;">TSLA</span>
-      <span style="background:#3a1a1a;color:#f87171;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;">[VENTE]</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.8rem;color:#94a3b8;">
-      <span>Prix: <strong style="color:#e2e8f0;">$397.48</strong></span>
-      <span>Qte: <strong style="color:#e2e8f0;">23</strong></span>
-      <span>Valeur: <strong style="color:#e2e8f0;">$9142.04</strong></span>
-      <span>Statut: <strong style="color:#e2e8f0;">[CLOTURE]</strong></span>
-    </div>
-    <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">20:24 UTC</div>
-  </div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-weight:700;font-size:1.1rem;color:#e2e8f0;">TSLA</span>
-      <span style="background:#3a1a1a;color:#f87171;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;">[VENTE]</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.8rem;color:#94a3b8;">
-      <span>Prix: <strong style="color:#e2e8f0;">$398.61</strong></span>
-      <span>Qte: <strong style="color:#e2e8f0;">0</strong></span>
-      <span>Valeur: <strong style="color:#e2e8f0;">$0.00</strong></span>
-      <span>Statut: <strong style="color:#e2e8f0;">[IGNORE]</strong></span>
-    </div>
-    <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">20:24 UTC</div>
-  </div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-weight:700;font-size:1.1rem;color:#e2e8f0;">TSLA</span>
-      <span style="background:#1a3a1a;color:#4ade80;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;">[ACHAT]</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.8rem;color:#94a3b8;">
-      <span>Prix: <strong style="color:#e2e8f0;">$397.69</strong></span>
-      <span>Qte: <strong style="color:#e2e8f0;">23</strong></span>
-      <span>Valeur: <strong style="color:#e2e8f0;">$9146.87</strong></span>
-      <span>Statut: <strong style="color:#e2e8f0;">[CLOTURE]</strong></span>
-    </div>
-    <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">20:24 UTC</div>
-  </div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-weight:700;font-size:1.1rem;color:#e2e8f0;">TSLA</span>
-      <span style="background:#3a1a1a;color:#f87171;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;">[VENTE]</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.8rem;color:#94a3b8;">
-      <span>Prix: <strong style="color:#e2e8f0;">$398.20</strong></span>
-      <span>Qte: <strong style="color:#e2e8f0;">23</strong></span>
-      <span>Valeur: <strong style="color:#e2e8f0;">$9158.60</strong></span>
-      <span>Statut: <strong style="color:#e2e8f0;">[CLOTURE]</strong></span>
-    </div>
-    <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">20:21 UTC</div>
-  </div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-weight:700;font-size:1.1rem;color:#e2e8f0;">TSLA</span>
-      <span style="background:#3a1a1a;color:#f87171;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;">[VENTE]</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.8rem;color:#94a3b8;">
-      <span>Prix: <strong style="color:#e2e8f0;">$399.21</strong></span>
-      <span>Qte: <strong style="color:#e2e8f0;">0</strong></span>
-      <span>Valeur: <strong style="color:#e2e8f0;">$0.00</strong></span>
-      <span>Statut: <strong style="color:#e2e8f0;">[IGNORE]</strong></span>
-    </div>
-    <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">20:21 UTC</div>
-  </div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-weight:700;font-size:1.1rem;color:#e2e8f0;">TSLA</span>
-      <span style="background:#1a3a1a;color:#4ade80;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;">[ACHAT]</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.8rem;color:#94a3b8;">
-      <span>Prix: <strong style="color:#e2e8f0;">$398.39</strong></span>
-      <span>Qte: <strong style="color:#e2e8f0;">23</strong></span>
-      <span>Valeur: <strong style="color:#e2e8f0;">$9163.06</strong></span>
-      <span>Statut: <strong style="color:#e2e8f0;">[CLOTURE]</strong></span>
-    </div>
-    <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">20:21 UTC</div>
-  </div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-weight:700;font-size:1.1rem;color:#e2e8f0;">TSLA</span>
-      <span style="background:#3a1a1a;color:#f87171;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;">[VENTE]</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.8rem;color:#94a3b8;">
-      <span>Prix: <strong style="color:#e2e8f0;">$400.25</strong></span>
-      <span>Qte: <strong style="color:#e2e8f0;">23</strong></span>
-      <span>Valeur: <strong style="color:#e2e8f0;">$9205.75</strong></span>
-      <span>Statut: <strong style="color:#e2e8f0;">[CLOTURE]</strong></span>
-    </div>
-    <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">20:05 UTC</div>
-  </div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-weight:700;font-size:1.1rem;color:#e2e8f0;">TSLA</span>
-      <span style="background:#3a1a1a;color:#f87171;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;">[VENTE]</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.8rem;color:#94a3b8;">
-      <span>Prix: <strong style="color:#e2e8f0;">$401.41</strong></span>
-      <span>Qte: <strong style="color:#e2e8f0;">0</strong></span>
-      <span>Valeur: <strong style="color:#e2e8f0;">$0.00</strong></span>
-      <span>Statut: <strong style="color:#e2e8f0;">[IGNORE]</strong></span>
-    </div>
-    <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">20:05 UTC</div>
-  </div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-weight:700;font-size:1.1rem;color:#e2e8f0;">TSLA</span>
-      <span style="background:#1a3a1a;color:#4ade80;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;">[ACHAT]</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.8rem;color:#94a3b8;">
-      <span>Prix: <strong style="color:#e2e8f0;">$400.46</strong></span>
-      <span>Qte: <strong style="color:#e2e8f0;">23</strong></span>
-      <span>Valeur: <strong style="color:#e2e8f0;">$9210.65</strong></span>
-      <span>Statut: <strong style="color:#e2e8f0;">[CLOTURE]</strong></span>
-    </div>
-    <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">20:05 UTC</div>
-  </div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-weight:700;font-size:1.1rem;color:#e2e8f0;">TSLA</span>
-      <span style="background:#3a1a1a;color:#f87171;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;">[VENTE]</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.8rem;color:#94a3b8;">
-      <span>Prix: <strong style="color:#e2e8f0;">$400.48</strong></span>
-      <span>Qte: <strong style="color:#e2e8f0;">23</strong></span>
-      <span>Valeur: <strong style="color:#e2e8f0;">$9211.05</strong></span>
-      <span>Statut: <strong style="color:#e2e8f0;">[CLOTURE]</strong></span>
-    </div>
-    <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">19:56 UTC</div>
-  </div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-weight:700;font-size:1.1rem;color:#e2e8f0;">TSLA</span>
-      <span style="background:#1a3a1a;color:#4ade80;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;">[ACHAT]</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.8rem;color:#94a3b8;">
-      <span>Prix: <strong style="color:#e2e8f0;">$399.71</strong></span>
-      <span>Qte: <strong style="color:#e2e8f0;">23</strong></span>
-      <span>Valeur: <strong style="color:#e2e8f0;">$9193.30</strong></span>
-      <span>Statut: <strong style="color:#e2e8f0;">[CLOTURE]</strong></span>
-    </div>
-    <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">19:56 UTC</div>
-  </div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-weight:700;font-size:1.1rem;color:#e2e8f0;">TSLA</span>
-      <span style="background:#3a1a1a;color:#f87171;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;">[VENTE]</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.8rem;color:#94a3b8;">
-      <span>Prix: <strong style="color:#e2e8f0;">$0.00</strong></span>
-      <span>Qte: <strong style="color:#e2e8f0;">0</strong></span>
-      <span>Valeur: <strong style="color:#e2e8f0;">$0.00</strong></span>
-      <span>Statut: <strong style="color:#e2e8f0;">[IGNORE]</strong></span>
-    </div>
-    <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">19:56 UTC</div>
-  </div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-weight:700;font-size:1.1rem;color:#e2e8f0;">TSLA</span>
-      <span style="background:#3a1a1a;color:#f87171;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;">[VENTE]</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.8rem;color:#94a3b8;">
-      <span>Prix: <strong style="color:#e2e8f0;">$399.58</strong></span>
-      <span>Qte: <strong style="color:#e2e8f0;">23</strong></span>
-      <span>Valeur: <strong style="color:#e2e8f0;">$9190.34</strong></span>
-      <span>Statut: <strong style="color:#e2e8f0;">[CLOTURE]</strong></span>
-    </div>
-    <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">19:49 UTC</div>
-  </div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-weight:700;font-size:1.1rem;color:#e2e8f0;">TSLA</span>
-      <span style="background:#1a3a1a;color:#4ade80;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;">[ACHAT]</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.8rem;color:#94a3b8;">
-      <span>Prix: <strong style="color:#e2e8f0;">$398.67</strong></span>
-      <span>Qte: <strong style="color:#e2e8f0;">23</strong></span>
-      <span>Valeur: <strong style="color:#e2e8f0;">$9169.48</strong></span>
-      <span>Statut: <strong style="color:#e2e8f0;">[CLOTURE]</strong></span>
-    </div>
-    <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">19:49 UTC</div>
-  </div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-weight:700;font-size:1.1rem;color:#e2e8f0;">TSLA</span>
-      <span style="background:#3a1a1a;color:#f87171;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;">[VENTE]</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.8rem;color:#94a3b8;">
-      <span>Prix: <strong style="color:#e2e8f0;">$0.00</strong></span>
-      <span>Qte: <strong style="color:#e2e8f0;">0</strong></span>
-      <span>Valeur: <strong style="color:#e2e8f0;">$0.00</strong></span>
-      <span>Statut: <strong style="color:#e2e8f0;">[IGNORE]</strong></span>
-    </div>
-    <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">19:49 UTC</div>
-  </div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-weight:700;font-size:1.1rem;color:#e2e8f0;">TSLA</span>
-      <span style="background:#3a1a1a;color:#f87171;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;">[VENTE]</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.8rem;color:#94a3b8;">
-      <span>Prix: <strong style="color:#e2e8f0;">$398.80</strong></span>
-      <span>Qte: <strong style="color:#e2e8f0;">23</strong></span>
-      <span>Valeur: <strong style="color:#e2e8f0;">$9172.33</strong></span>
-      <span>Statut: <strong style="color:#e2e8f0;">[CLOTURE]</strong></span>
-    </div>
-    <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">19:45 UTC</div>
-  </div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-weight:700;font-size:1.1rem;color:#e2e8f0;">TSLA</span>
-      <span style="background:#3a1a1a;color:#f87171;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;">[VENTE]</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.8rem;color:#94a3b8;">
-      <span>Prix: <strong style="color:#e2e8f0;">$399.86</strong></span>
-      <span>Qte: <strong style="color:#e2e8f0;">0</strong></span>
-      <span>Valeur: <strong style="color:#e2e8f0;">$0.00</strong></span>
-      <span>Statut: <strong style="color:#e2e8f0;">[IGNORE]</strong></span>
-    </div>
-    <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">19:40 UTC</div>
-  </div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-weight:700;font-size:1.1rem;color:#e2e8f0;">TSLA</span>
-      <span style="background:#1a3a1a;color:#4ade80;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;">[ACHAT]</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.8rem;color:#94a3b8;">
-      <span>Prix: <strong style="color:#e2e8f0;">$399.38</strong></span>
-      <span>Qte: <strong style="color:#e2e8f0;">23</strong></span>
-      <span>Valeur: <strong style="color:#e2e8f0;">$9185.83</strong></span>
-      <span>Statut: <strong style="color:#e2e8f0;">[CLOTURE]</strong></span>
-    </div>
-    <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">19:40 UTC</div>
-  </div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-weight:700;font-size:1.1rem;color:#e2e8f0;">TSLA</span>
-      <span style="background:#3a1a1a;color:#f87171;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;">[VENTE]</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.8rem;color:#94a3b8;">
-      <span>Prix: <strong style="color:#e2e8f0;">$399.26</strong></span>
-      <span>Qte: <strong style="color:#e2e8f0;">23</strong></span>
-      <span>Valeur: <strong style="color:#e2e8f0;">$9182.98</strong></span>
-      <span>Statut: <strong style="color:#e2e8f0;">[CLOTURE]</strong></span>
-    </div>
-    <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">19:37 UTC</div>
-  </div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-weight:700;font-size:1.1rem;color:#e2e8f0;">TSLA</span>
-      <span style="background:#3a1a1a;color:#f87171;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;">[VENTE]</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.8rem;color:#94a3b8;">
-      <span>Prix: <strong style="color:#e2e8f0;">$400.34</strong></span>
-      <span>Qte: <strong style="color:#e2e8f0;">0</strong></span>
-      <span>Valeur: <strong style="color:#e2e8f0;">$0.00</strong></span>
-      <span>Statut: <strong style="color:#e2e8f0;">[IGNORE]</strong></span>
-    </div>
-    <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">19:32 UTC</div>
-  </div></div>
-  <table class="desktop-table">
-    <thead><tr>
-      <th>Heure</th><th>Symbole</th><th>Action</th><th>Prix</th><th>Qte</th><th>Valeur</th><th>Statut</th>
-    </tr></thead>
-    <tbody><tr style="border-bottom:1px solid #334155;">
-    <td style="padding:8px;font-size:0.8rem;color:#94a3b8;">20:24</td>
-    <td style="padding:8px;font-weight:700;color:#e2e8f0;">TSLA</td>
-    <td style="padding:8px;"><span style="background:#3a1a1a;color:#f87171;padding:1px 6px;border-radius:3px;font-size:0.75rem;">[VENTE]</span></td>
-    <td style="padding:8px;color:#e2e8f0;">$397.48</td>
-    <td style="padding:8px;color:#e2e8f0;">23</td>
-    <td style="padding:8px;color:#e2e8f0;">$9142.04</td>
-    <td style="padding:8px;font-size:0.75rem;">[CLOTURE]</td>
-  </tr><tr style="border-bottom:1px solid #334155;">
-    <td style="padding:8px;font-size:0.8rem;color:#94a3b8;">20:24</td>
-    <td style="padding:8px;font-weight:700;color:#e2e8f0;">TSLA</td>
-    <td style="padding:8px;"><span style="background:#3a1a1a;color:#f87171;padding:1px 6px;border-radius:3px;font-size:0.75rem;">[VENTE]</span></td>
-    <td style="padding:8px;color:#e2e8f0;">$398.61</td>
-    <td style="padding:8px;color:#e2e8f0;">0</td>
-    <td style="padding:8px;color:#e2e8f0;">$0.00</td>
-    <td style="padding:8px;font-size:0.75rem;">[IGNORE]</td>
-  </tr><tr style="border-bottom:1px solid #334155;">
-    <td style="padding:8px;font-size:0.8rem;color:#94a3b8;">20:24</td>
-    <td style="padding:8px;font-weight:700;color:#e2e8f0;">TSLA</td>
-    <td style="padding:8px;"><span style="background:#1a3a1a;color:#4ade80;padding:1px 6px;border-radius:3px;font-size:0.75rem;">[ACHAT]</span></td>
-    <td style="padding:8px;color:#e2e8f0;">$397.69</td>
-    <td style="padding:8px;color:#e2e8f0;">23</td>
-    <td style="padding:8px;color:#e2e8f0;">$9146.87</td>
-    <td style="padding:8px;font-size:0.75rem;">[CLOTURE]</td>
-  </tr><tr style="border-bottom:1px solid #334155;">
-    <td style="padding:8px;font-size:0.8rem;color:#94a3b8;">20:21</td>
-    <td style="padding:8px;font-weight:700;color:#e2e8f0;">TSLA</td>
-    <td style="padding:8px;"><span style="background:#3a1a1a;color:#f87171;padding:1px 6px;border-radius:3px;font-size:0.75rem;">[VENTE]</span></td>
-    <td style="padding:8px;color:#e2e8f0;">$398.20</td>
-    <td style="padding:8px;color:#e2e8f0;">23</td>
-    <td style="padding:8px;color:#e2e8f0;">$9158.60</td>
-    <td style="padding:8px;font-size:0.75rem;">[CLOTURE]</td>
-  </tr><tr style="border-bottom:1px solid #334155;">
-    <td style="padding:8px;font-size:0.8rem;color:#94a3b8;">20:21</td>
-    <td style="padding:8px;font-weight:700;color:#e2e8f0;">TSLA</td>
-    <td style="padding:8px;"><span style="background:#3a1a1a;color:#f87171;padding:1px 6px;border-radius:3px;font-size:0.75rem;">[VENTE]</span></td>
-    <td style="padding:8px;color:#e2e8f0;">$399.21</td>
-    <td style="padding:8px;color:#e2e8f0;">0</td>
-    <td style="padding:8px;color:#e2e8f0;">$0.00</td>
-    <td style="padding:8px;font-size:0.75rem;">[IGNORE]</td>
-  </tr><tr style="border-bottom:1px solid #334155;">
-    <td style="padding:8px;font-size:0.8rem;color:#94a3b8;">20:21</td>
-    <td style="padding:8px;font-weight:700;color:#e2e8f0;">TSLA</td>
-    <td style="padding:8px;"><span style="background:#1a3a1a;color:#4ade80;padding:1px 6px;border-radius:3px;font-size:0.75rem;">[ACHAT]</span></td>
-    <td style="padding:8px;color:#e2e8f0;">$398.39</td>
-    <td style="padding:8px;color:#e2e8f0;">23</td>
-    <td style="padding:8px;color:#e2e8f0;">$9163.06</td>
-    <td style="padding:8px;font-size:0.75rem;">[CLOTURE]</td>
-  </tr><tr style="border-bottom:1px solid #334155;">
-    <td style="padding:8px;font-size:0.8rem;color:#94a3b8;">20:05</td>
-    <td style="padding:8px;font-weight:700;color:#e2e8f0;">TSLA</td>
-    <td style="padding:8px;"><span style="background:#3a1a1a;color:#f87171;padding:1px 6px;border-radius:3px;font-size:0.75rem;">[VENTE]</span></td>
-    <td style="padding:8px;color:#e2e8f0;">$400.25</td>
-    <td style="padding:8px;color:#e2e8f0;">23</td>
-    <td style="padding:8px;color:#e2e8f0;">$9205.75</td>
-    <td style="padding:8px;font-size:0.75rem;">[CLOTURE]</td>
-  </tr><tr style="border-bottom:1px solid #334155;">
-    <td style="padding:8px;font-size:0.8rem;color:#94a3b8;">20:05</td>
-    <td style="padding:8px;font-weight:700;color:#e2e8f0;">TSLA</td>
-    <td style="padding:8px;"><span style="background:#3a1a1a;color:#f87171;padding:1px 6px;border-radius:3px;font-size:0.75rem;">[VENTE]</span></td>
-    <td style="padding:8px;color:#e2e8f0;">$401.41</td>
-    <td style="padding:8px;color:#e2e8f0;">0</td>
-    <td style="padding:8px;color:#e2e8f0;">$0.00</td>
-    <td style="padding:8px;font-size:0.75rem;">[IGNORE]</td>
-  </tr><tr style="border-bottom:1px solid #334155;">
-    <td style="padding:8px;font-size:0.8rem;color:#94a3b8;">20:05</td>
-    <td style="padding:8px;font-weight:700;color:#e2e8f0;">TSLA</td>
-    <td style="padding:8px;"><span style="background:#1a3a1a;color:#4ade80;padding:1px 6px;border-radius:3px;font-size:0.75rem;">[ACHAT]</span></td>
-    <td style="padding:8px;color:#e2e8f0;">$400.46</td>
-    <td style="padding:8px;color:#e2e8f0;">23</td>
-    <td style="padding:8px;color:#e2e8f0;">$9210.65</td>
-    <td style="padding:8px;font-size:0.75rem;">[CLOTURE]</td>
-  </tr><tr style="border-bottom:1px solid #334155;">
-    <td style="padding:8px;font-size:0.8rem;color:#94a3b8;">19:56</td>
-    <td style="padding:8px;font-weight:700;color:#e2e8f0;">TSLA</td>
-    <td style="padding:8px;"><span style="background:#3a1a1a;color:#f87171;padding:1px 6px;border-radius:3px;font-size:0.75rem;">[VENTE]</span></td>
-    <td style="padding:8px;color:#e2e8f0;">$400.48</td>
-    <td style="padding:8px;color:#e2e8f0;">23</td>
-    <td style="padding:8px;color:#e2e8f0;">$9211.05</td>
-    <td style="padding:8px;font-size:0.75rem;">[CLOTURE]</td>
-  </tr><tr style="border-bottom:1px solid #334155;">
-    <td style="padding:8px;font-size:0.8rem;color:#94a3b8;">19:56</td>
-    <td style="padding:8px;font-weight:700;color:#e2e8f0;">TSLA</td>
-    <td style="padding:8px;"><span style="background:#1a3a1a;color:#4ade80;padding:1px 6px;border-radius:3px;font-size:0.75rem;">[ACHAT]</span></td>
-    <td style="padding:8px;color:#e2e8f0;">$399.71</td>
-    <td style="padding:8px;color:#e2e8f0;">23</td>
-    <td style="padding:8px;color:#e2e8f0;">$9193.30</td>
-    <td style="padding:8px;font-size:0.75rem;">[CLOTURE]</td>
-  </tr><tr style="border-bottom:1px solid #334155;">
-    <td style="padding:8px;font-size:0.8rem;color:#94a3b8;">19:56</td>
-    <td style="padding:8px;font-weight:700;color:#e2e8f0;">TSLA</td>
-    <td style="padding:8px;"><span style="background:#3a1a1a;color:#f87171;padding:1px 6px;border-radius:3px;font-size:0.75rem;">[VENTE]</span></td>
-    <td style="padding:8px;color:#e2e8f0;">$0.00</td>
-    <td style="padding:8px;color:#e2e8f0;">0</td>
-    <td style="padding:8px;color:#e2e8f0;">$0.00</td>
-    <td style="padding:8px;font-size:0.75rem;">[IGNORE]</td>
-  </tr><tr style="border-bottom:1px solid #334155;">
-    <td style="padding:8px;font-size:0.8rem;color:#94a3b8;">19:49</td>
-    <td style="padding:8px;font-weight:700;color:#e2e8f0;">TSLA</td>
-    <td style="padding:8px;"><span style="background:#3a1a1a;color:#f87171;padding:1px 6px;border-radius:3px;font-size:0.75rem;">[VENTE]</span></td>
-    <td style="padding:8px;color:#e2e8f0;">$399.58</td>
-    <td style="padding:8px;color:#e2e8f0;">23</td>
-    <td style="padding:8px;color:#e2e8f0;">$9190.34</td>
-    <td style="padding:8px;font-size:0.75rem;">[CLOTURE]</td>
-  </tr><tr style="border-bottom:1px solid #334155;">
-    <td style="padding:8px;font-size:0.8rem;color:#94a3b8;">19:49</td>
-    <td style="padding:8px;font-weight:700;color:#e2e8f0;">TSLA</td>
-    <td style="padding:8px;"><span style="background:#1a3a1a;color:#4ade80;padding:1px 6px;border-radius:3px;font-size:0.75rem;">[ACHAT]</span></td>
-    <td style="padding:8px;color:#e2e8f0;">$398.67</td>
-    <td style="padding:8px;color:#e2e8f0;">23</td>
-    <td style="padding:8px;color:#e2e8f0;">$9169.48</td>
-    <td style="padding:8px;font-size:0.75rem;">[CLOTURE]</td>
-  </tr><tr style="border-bottom:1px solid #334155;">
-    <td style="padding:8px;font-size:0.8rem;color:#94a3b8;">19:49</td>
-    <td style="padding:8px;font-weight:700;color:#e2e8f0;">TSLA</td>
-    <td style="padding:8px;"><span style="background:#3a1a1a;color:#f87171;padding:1px 6px;border-radius:3px;font-size:0.75rem;">[VENTE]</span></td>
-    <td style="padding:8px;color:#e2e8f0;">$0.00</td>
-    <td style="padding:8px;color:#e2e8f0;">0</td>
-    <td style="padding:8px;color:#e2e8f0;">$0.00</td>
-    <td style="padding:8px;font-size:0.75rem;">[IGNORE]</td>
-  </tr><tr style="border-bottom:1px solid #334155;">
-    <td style="padding:8px;font-size:0.8rem;color:#94a3b8;">19:45</td>
-    <td style="padding:8px;font-weight:700;color:#e2e8f0;">TSLA</td>
-    <td style="padding:8px;"><span style="background:#3a1a1a;color:#f87171;padding:1px 6px;border-radius:3px;font-size:0.75rem;">[VENTE]</span></td>
-    <td style="padding:8px;color:#e2e8f0;">$398.80</td>
-    <td style="padding:8px;color:#e2e8f0;">23</td>
-    <td style="padding:8px;color:#e2e8f0;">$9172.33</td>
-    <td style="padding:8px;font-size:0.75rem;">[CLOTURE]</td>
-  </tr><tr style="border-bottom:1px solid #334155;">
-    <td style="padding:8px;font-size:0.8rem;color:#94a3b8;">19:40</td>
-    <td style="padding:8px;font-weight:700;color:#e2e8f0;">TSLA</td>
-    <td style="padding:8px;"><span style="background:#3a1a1a;color:#f87171;padding:1px 6px;border-radius:3px;font-size:0.75rem;">[VENTE]</span></td>
-    <td style="padding:8px;color:#e2e8f0;">$399.86</td>
-    <td style="padding:8px;color:#e2e8f0;">0</td>
-    <td style="padding:8px;color:#e2e8f0;">$0.00</td>
-    <td style="padding:8px;font-size:0.75rem;">[IGNORE]</td>
-  </tr><tr style="border-bottom:1px solid #334155;">
-    <td style="padding:8px;font-size:0.8rem;color:#94a3b8;">19:40</td>
-    <td style="padding:8px;font-weight:700;color:#e2e8f0;">TSLA</td>
-    <td style="padding:8px;"><span style="background:#1a3a1a;color:#4ade80;padding:1px 6px;border-radius:3px;font-size:0.75rem;">[ACHAT]</span></td>
-    <td style="padding:8px;color:#e2e8f0;">$399.38</td>
-    <td style="padding:8px;color:#e2e8f0;">23</td>
-    <td style="padding:8px;color:#e2e8f0;">$9185.83</td>
-    <td style="padding:8px;font-size:0.75rem;">[CLOTURE]</td>
-  </tr><tr style="border-bottom:1px solid #334155;">
-    <td style="padding:8px;font-size:0.8rem;color:#94a3b8;">19:37</td>
-    <td style="padding:8px;font-weight:700;color:#e2e8f0;">TSLA</td>
-    <td style="padding:8px;"><span style="background:#3a1a1a;color:#f87171;padding:1px 6px;border-radius:3px;font-size:0.75rem;">[VENTE]</span></td>
-    <td style="padding:8px;color:#e2e8f0;">$399.26</td>
-    <td style="padding:8px;color:#e2e8f0;">23</td>
-    <td style="padding:8px;color:#e2e8f0;">$9182.98</td>
-    <td style="padding:8px;font-size:0.75rem;">[CLOTURE]</td>
-  </tr><tr style="border-bottom:1px solid #334155;">
-    <td style="padding:8px;font-size:0.8rem;color:#94a3b8;">19:32</td>
-    <td style="padding:8px;font-weight:700;color:#e2e8f0;">TSLA</td>
-    <td style="padding:8px;"><span style="background:#3a1a1a;color:#f87171;padding:1px 6px;border-radius:3px;font-size:0.75rem;">[VENTE]</span></td>
-    <td style="padding:8px;color:#e2e8f0;">$400.34</td>
-    <td style="padding:8px;color:#e2e8f0;">0</td>
-    <td style="padding:8px;color:#e2e8f0;">$0.00</td>
-    <td style="padding:8px;font-size:0.75rem;">[IGNORE]</td>
-  </tr></tbody>
-  </table>
+<div class="section-title">Trades du jour (2026-03-09)</div>
+<div class="mobile-card"><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:10px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+<span style="font-size:1.1rem;font-weight:700;color:#f1f5f9;">GOOGL</span>
+<span style="background:#7f1d1d;color:#f87171;padding:2px 10px;border-radius:4px;font-size:0.75rem;">[VENTE]</span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:0.82rem;">
+<div><span style="color:#64748b;">Heure</span><br><span style="color:#f1f5f9;">13:30</span></div>
+<div><span style="color:#64748b;">Prix</span><br><span style="color:#f1f5f9;">$295.61</span></div>
+<div><span style="color:#64748b;">Qt&eacute;</span><br><span style="color:#f1f5f9;">31</span></div>
+<div><span style="color:#64748b;">Valeur</span><br><span style="color:#f1f5f9;">$9163.91</span></div>
+<div><span style="color:#64748b;">Statut</span><br><span style="color:#94a3b8;">CLOTURE</span></div>
+</div></div></div>
+<div class="desktop-table" style="overflow-x:auto;">
+<table>
+<thead><tr>
+<th>Heure</th><th>Symbole</th><th>Action</th><th>Prix</th><th>Qt&eacute;</th><th>Valeur</th><th>Statut</th>
+</tr></thead>
+<tbody><tr style="border-bottom:1px solid #1e293b;">
+<td style="padding:10px 12px;color:#94a3b8;">13:30</td>
+<td style="padding:10px 12px;font-weight:700;color:#f1f5f9;">GOOGL</td>
+<td style="padding:10px 12px;"><span style="background:#7f1d1d;color:#f87171;padding:2px 8px;border-radius:4px;font-size:0.75rem;">[VENTE]</span></td>
+<td style="padding:10px 12px;color:#94a3b8;">$295.61</td>
+<td style="padding:10px 12px;color:#94a3b8;">31</td>
+<td style="padding:10px 12px;color:#94a3b8;">$9163.91</td>
+<td style="padding:10px 12px;color:#94a3b8;">CLOTURE</td>
+</tr></tbody>
+</table>
+</div>
 </div>
 
-<!-- SECTION 3: HISTORIQUE -->
+<!-- SECTION 5: POSITIONS OUVERTES -->
 <div class="section">
-  <div class="section-title">Historique des gains par jour</div>
-  <div class="mobile-card"><div style="background:rgba(248,113,113,0.07);border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <span style="font-weight:700;color:#e2e8f0;">2026-03-06</span>
-      <span style="font-weight:700;color:#f87171;">-82.64</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.8rem;color:#94a3b8;margin-top:6px;">
-      <span>Trades: <strong style="color:#e2e8f0;">100</strong></span>
-      <span>Cumul: <strong style="color:#f87171;">-611.47</strong></span>
-    </div>
-  </div><div style="background:rgba(248,113,113,0.07);border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <span style="font-weight:700;color:#e2e8f0;">2026-03-05</span>
-      <span style="font-weight:700;color:#f87171;">-434.85</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.8rem;color:#94a3b8;margin-top:6px;">
-      <span>Trades: <strong style="color:#e2e8f0;">50</strong></span>
-      <span>Cumul: <strong style="color:#f87171;">-528.83</strong></span>
-    </div>
-  </div></div>
-  <table class="desktop-table">
-    <thead><tr>
-      <th>Date</th><th>Nb Trades</th><th>Gain/Perte du jour</th><th>Cumul</th>
-    </tr></thead>
-    <tbody><tr style="background:rgba(248,113,113,0.07);border-bottom:1px solid #334155;">
-    <td style="padding:8px;color:#e2e8f0;">2026-03-06</td>
-    <td style="padding:8px;color:#e2e8f0;">100</td>
-    <td style="padding:8px;font-weight:700;color:#f87171;">-82.64</td>
-    <td style="padding:8px;font-weight:700;color:#f87171;">-611.47</td>
-  </tr><tr style="background:rgba(248,113,113,0.07);border-bottom:1px solid #334155;">
-    <td style="padding:8px;color:#e2e8f0;">2026-03-05</td>
-    <td style="padding:8px;color:#e2e8f0;">50</td>
-    <td style="padding:8px;font-weight:700;color:#f87171;">-434.85</td>
-    <td style="padding:8px;font-weight:700;color:#f87171;">-528.83</td>
-  </tr></tbody>
-  </table>
-  <div style="margin-top:0.75rem;font-size:0.75rem;color:#64748b;background:#0f172a;border-radius:6px;padding:8px;">
-    <strong style="color:#94a3b8;">Bilan:</strong> Total trades: 150 &mdash; P&amp;L total: -$517.49 &mdash; Meilleur jour: $0.00 &mdash; Pire jour: -$434.85
-  </div>
+<div class="section-title">Positions ouvertes (1 / max 3)</div>
+<div class="mobile-card"><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:10px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+<span style="font-size:1.1rem;font-weight:700;color:#f1f5f9;">NVDA</span>
+<span style="background:#0f4c75;color:#60a5fa;padding:2px 8px;border-radius:4px;font-size:0.75rem;">[OUVERT]</span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:0.82rem;">
+<div><span style="color:#64748b;">Qt&eacute;</span><br><span style="color:#f1f5f9;">0.005</span></div>
+<div><span style="color:#64748b;">Entr&eacute;e moy.</span><br><span style="color:#f1f5f9;">$182.66</span></div>
+<div><span style="color:#64748b;">Prix actuel</span><br><span style="color:#f1f5f9;">$181.98</span></div>
+<div><span style="color:#64748b;">Val. march&eacute;</span><br><span style="color:#f1f5f9;">$0.95</span></div>
+<div><span style="color:#64748b;">P&amp;L total</span><br><span style="color:#4ade80;">-0.00 (-0.37%)</span></div>
+<div><span style="color:#64748b;">P&amp;L intraday</span><br><span style="color:#4ade80;">+0.02</span></div>
+</div></div></div>
+<div class="desktop-table" style="overflow-x:auto;">
+<table>
+<thead><tr>
+<th>Symbole</th><th>Qt&eacute;</th><th>Entr&eacute;e moy.</th><th>Prix actuel</th><th>Val. march&eacute;</th><th>P&amp;L total</th><th>P&amp;L intraday</th>
+</tr></thead>
+<tbody><tr style="border-bottom:1px solid #1e293b;">
+<td style="padding:10px 12px;font-weight:700;color:#f1f5f9;">NVDA</td>
+<td style="padding:10px 12px;color:#94a3b8;">0.005</td>
+<td style="padding:10px 12px;color:#94a3b8;">$182.66</td>
+<td style="padding:10px 12px;color:#94a3b8;">$181.98</td>
+<td style="padding:10px 12px;color:#94a3b8;">$0.95</td>
+<td style="padding:10px 12px;color:#4ade80;">-0.00 (-0.37%)</td>
+<td style="padding:10px 12px;color:#4ade80;">+0.02</td>
+</tr></tbody>
+</table>
+</div>
 </div>
 
-<!-- SECTION 4: KPI -->
+<!-- SECTION 3: HISTORIQUE DES GAINS PAR JOUR -->
 <div class="section">
-  <div class="section-title">KPI du portefeuille</div>
-  <div class="kpi-grid">
-    <div class="kpi-card">
-      <div class="kpi-label">Valeur portefeuille</div>
-      <div class="kpi-value" style="color:#60a5fa;">$93,797.64</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Liquidit&eacute;s</div>
-      <div class="kpi-value" style="color:#34d399;">$84,548.48</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Val. march&eacute; (2 pos.)</div>
-      <div class="kpi-value" style="color:#a78bfa;">$9,249.16</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">P&amp;L non r&eacute;alis&eacute;</div>
-      <div class="kpi-value" style="color:#4ade80;">+$26.01</div>
-    </div>
-  </div>
+<div class="section-title">Historique des gains par jour</div>
+<div class="mobile-card"><div style="background:rgba(248,113,113,0.07);border:1px solid #334155;border-radius:8px;padding:10px;margin-bottom:8px;">
+<div style="display:flex;justify-content:space-between;align-items:center;">
+<span style="color:#f1f5f9;font-weight:600;">2026-03-09</span>
+<span style="color:#64748b;font-size:0.8rem;">1 trade(s)</span>
+</div>
+<div style="display:flex;justify-content:space-between;margin-top:6px;font-size:0.85rem;">
+<div><span style="color:#64748b;">Jour: </span><span style="color:#f87171;">-90.19</span></div>
+<div><span style="color:#64748b;">Cumul: </span><span style="color:#f87171;">-701.66</span></div>
+</div></div><div style="background:rgba(248,113,113,0.07);border:1px solid #334155;border-radius:8px;padding:10px;margin-bottom:8px;">
+<div style="display:flex;justify-content:space-between;align-items:center;">
+<span style="color:#f1f5f9;font-weight:600;">2026-03-06</span>
+<span style="color:#64748b;font-size:0.8rem;">100 trade(s)</span>
+</div>
+<div style="display:flex;justify-content:space-between;margin-top:6px;font-size:0.85rem;">
+<div><span style="color:#64748b;">Jour: </span><span style="color:#f87171;">-82.64</span></div>
+<div><span style="color:#64748b;">Cumul: </span><span style="color:#f87171;">-611.47</span></div>
+</div></div><div style="background:rgba(248,113,113,0.07);border:1px solid #334155;border-radius:8px;padding:10px;margin-bottom:8px;">
+<div style="display:flex;justify-content:space-between;align-items:center;">
+<span style="color:#f1f5f9;font-weight:600;">2026-03-05</span>
+<span style="color:#64748b;font-size:0.8rem;">50 trade(s)</span>
+</div>
+<div style="display:flex;justify-content:space-between;margin-top:6px;font-size:0.85rem;">
+<div><span style="color:#64748b;">Jour: </span><span style="color:#f87171;">-434.85</span></div>
+<div><span style="color:#64748b;">Cumul: </span><span style="color:#f87171;">-434.85</span></div>
+</div></div></div>
+<div class="desktop-table" style="overflow-x:auto;">
+<table>
+<thead><tr>
+<th>Date</th><th style="text-align:center;">Nb Trades</th><th style="text-align:right;">Gain/Perte du jour</th><th style="text-align:right;">Cumul</th>
+</tr></thead>
+<tbody><tr style="background:rgba(248,113,113,0.07);border-bottom:1px solid #1e293b;">
+<td style="padding:10px 12px;color:#f1f5f9;">2026-03-09</td>
+<td style="padding:10px 12px;color:#94a3b8;text-align:center;">1</td>
+<td style="padding:10px 12px;color:#f87171;text-align:right;">-90.19</td>
+<td style="padding:10px 12px;color:#f87171;text-align:right;">-701.66</td>
+</tr><tr style="background:rgba(248,113,113,0.07);border-bottom:1px solid #1e293b;">
+<td style="padding:10px 12px;color:#f1f5f9;">2026-03-06</td>
+<td style="padding:10px 12px;color:#94a3b8;text-align:center;">100</td>
+<td style="padding:10px 12px;color:#f87171;text-align:right;">-82.64</td>
+<td style="padding:10px 12px;color:#f87171;text-align:right;">-611.47</td>
+</tr><tr style="background:rgba(248,113,113,0.07);border-bottom:1px solid #1e293b;">
+<td style="padding:10px 12px;color:#f1f5f9;">2026-03-05</td>
+<td style="padding:10px 12px;color:#94a3b8;text-align:center;">50</td>
+<td style="padding:10px 12px;color:#f87171;text-align:right;">-434.85</td>
+<td style="padding:10px 12px;color:#f87171;text-align:right;">-434.85</td>
+</tr></tbody>
+<tfoot>
+<tr style="background:#0f172a;border-top:2px solid #334155;">
+<td style="padding:10px 12px;color:#94a3b8;font-weight:600;">Total</td>
+<td style="padding:10px 12px;color:#f1f5f9;text-align:center;font-weight:700;">151</td>
+<td style="padding:10px 12px;color:#f87171;text-align:right;font-weight:700;">-607.68</td>
+<td style="padding:10px 12px;color:#f87171;text-align:right;font-weight:700;">-701.66</td>
+</tr>
+</tfoot>
+</table>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;font-size:0.8rem;">
+<div style="background:#0f172a;border-radius:6px;padding:8px;border:1px solid #334155;">
+<div style="color:#64748b;">Meilleur jour</div>
+<div style="color:#4ade80;font-weight:700;">-</div>
+</div>
+<div style="background:#0f172a;border-radius:6px;padding:8px;border:1px solid #334155;">
+<div style="color:#64748b;">Pire jour</div>
+<div style="color:#f87171;font-weight:700;">-$434.85 (2026-03-05)</div>
+</div>
+</div>
 </div>
 
-<!-- SECTION 5: POSITIONS -->
+<!-- SECTION: SIGNAUX MA -->
 <div class="section">
-  <div class="section-title">Positions ouvertes (2)</div>
-  <div class="mobile-card"><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-      <span style="font-weight:700;font-size:1.1rem;color:#e2e8f0;">GOOGL</span>
-      <span style="font-weight:700;color:#4ade80;">+26.04 (+0.28%)</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.8rem;color:#94a3b8;">
-      <span>Qte: <strong style="color:#e2e8f0;">31</strong></span>
-      <span>Entr&eacute;e: <strong style="color:#e2e8f0;">$297.49</strong></span>
-      <span>Prix: <strong style="color:#e2e8f0;">$298.33</strong></span>
-      <span>Val march&eacute;: <strong style="color:#e2e8f0;">$9248.23</strong></span>
-    </div>
-  </div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-      <span style="font-weight:700;font-size:1.1rem;color:#e2e8f0;">NVDA</span>
-      <span style="font-weight:700;color:#f87171;">-0.03 (-2.85%)</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.8rem;color:#94a3b8;">
-      <span>Qte: <strong style="color:#e2e8f0;">0.005</strong></span>
-      <span>Entr&eacute;e: <strong style="color:#e2e8f0;">$182.66</strong></span>
-      <span>Prix: <strong style="color:#e2e8f0;">$177.45</strong></span>
-      <span>Val march&eacute;: <strong style="color:#e2e8f0;">$0.93</strong></span>
-    </div>
-  </div></div>
-  <table class="desktop-table">
-    <thead><tr>
-      <th>Symbole</th><th>Qte</th><th>Prix entr&eacute;e</th><th>Prix actuel</th><th>Val. march&eacute;</th><th>P&amp;L total</th>
-    </tr></thead>
-    <tbody><tr style="border-bottom:1px solid #334155;">
-    <td style="padding:8px;font-weight:700;color:#e2e8f0;">GOOGL</td>
-    <td style="padding:8px;color:#e2e8f0;">31</td>
-    <td style="padding:8px;color:#e2e8f0;">$297.49</td>
-    <td style="padding:8px;color:#e2e8f0;">$298.33</td>
-    <td style="padding:8px;color:#e2e8f0;">$9248.23</td>
-    <td style="padding:8px;font-weight:700;color:#4ade80;">+26.04 (+0.28%)</td>
-  </tr><tr style="border-bottom:1px solid #334155;">
-    <td style="padding:8px;font-weight:700;color:#e2e8f0;">NVDA</td>
-    <td style="padding:8px;color:#e2e8f0;">0.005</td>
-    <td style="padding:8px;color:#e2e8f0;">$182.66</td>
-    <td style="padding:8px;color:#e2e8f0;">$177.45</td>
-    <td style="padding:8px;color:#e2e8f0;">$0.93</td>
-    <td style="padding:8px;font-weight:700;color:#f87171;">-0.03 (-2.85%)</td>
-  </tr></tbody>
-  </table>
+<div class="section-title">Signaux MA Crossover - 2026-03-09</div>
+<div class="mobile-card"><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:10px;margin-bottom:8px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+<span style="font-weight:700;color:#f1f5f9;">AAPL</span>
+<span style="color:#94a3b8;font-size:0.8rem;">[ATTENDRE]</span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.78rem;">
+<div><span style="color:#64748b;">Prix: </span><span style="color:#f1f5f9;">$257.46</span></div>
+<div><span style="color:#64748b;">RSI: </span><span style="color:#f1f5f9;">51.92</span></div>
+<div><span style="color:#64748b;">MA20: </span><span style="color:#f1f5f9;">266.56</span></div>
+<div><span style="color:#64748b;">MA50: </span><span style="color:#f1f5f9;">264.29</span></div>
+<div><span style="color:#64748b;">Vol: </span><span style="color:#f1f5f9;">0.886</span></div>
+<div><span style="color:#4ade80;">[HAUSSIER]</span></div>
+</div>
+<div style="margin-top:6px;font-size:0.75rem;color:#64748b;">Volume faible, Halt actif</div>
+</div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:10px;margin-bottom:8px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+<span style="font-weight:700;color:#f1f5f9;">MSFT</span>
+<span style="color:#94a3b8;font-size:0.8rem;">[ATTENDRE]</span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.78rem;">
+<div><span style="color:#64748b;">Prix: </span><span style="color:#f1f5f9;">$408.96</span></div>
+<div><span style="color:#64748b;">RSI: </span><span style="color:#f1f5f9;">55.60</span></div>
+<div><span style="color:#64748b;">MA20: </span><span style="color:#f1f5f9;">401.18</span></div>
+<div><span style="color:#64748b;">MA50: </span><span style="color:#f1f5f9;">437.75</span></div>
+<div><span style="color:#64748b;">Vol: </span><span style="color:#f1f5f9;">0.780</span></div>
+<div><span style="color:#f87171;">[BAISSIER]</span></div>
+</div>
+<div style="margin-top:6px;font-size:0.75rem;color:#64748b;">MA20 sous MA50, Halt actif</div>
+</div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:10px;margin-bottom:8px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+<span style="font-weight:700;color:#f1f5f9;">TSLA</span>
+<span style="color:#94a3b8;font-size:0.8rem;">[ATTENDRE]</span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.78rem;">
+<div><span style="color:#64748b;">Prix: </span><span style="color:#f1f5f9;">$396.73</span></div>
+<div><span style="color:#64748b;">RSI: </span><span style="color:#f1f5f9;">38.08</span></div>
+<div><span style="color:#64748b;">MA20: </span><span style="color:#f1f5f9;">410.18</span></div>
+<div><span style="color:#64748b;">MA50: </span><span style="color:#f1f5f9;">428.01</span></div>
+<div><span style="color:#64748b;">Vol: </span><span style="color:#f1f5f9;">1.097</span></div>
+<div><span style="color:#f87171;">[BAISSIER]</span></div>
+</div>
+<div style="margin-top:6px;font-size:0.75rem;color:#64748b;">RSI < 45, Halt actif</div>
+</div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:10px;margin-bottom:8px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+<span style="font-weight:700;color:#f1f5f9;">NVDA</span>
+<span style="color:#60a5fa;font-size:0.8rem;">[OUVERT]</span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.78rem;">
+<div><span style="color:#64748b;">Prix: </span><span style="color:#f1f5f9;">$181.98</span></div>
+<div><span style="color:#64748b;">RSI: </span><span style="color:#f1f5f9;">N/A</span></div>
+<div><span style="color:#64748b;">MA20: </span><span style="color:#f1f5f9;">N/A</span></div>
+<div><span style="color:#64748b;">MA50: </span><span style="color:#f1f5f9;">N/A</span></div>
+<div><span style="color:#64748b;">Vol: </span><span style="color:#f1f5f9;">N/A</span></div>
+<div><span style="color:#f87171;">[EN COURS]</span></div>
+</div>
+<div style="margin-top:6px;font-size:0.75rem;color:#64748b;">Position ouverte (-0.37%)</div>
+</div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:10px;margin-bottom:8px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+<span style="font-weight:700;color:#f1f5f9;">AMZN</span>
+<span style="color:#94a3b8;font-size:0.8rem;">[ATTENDRE]</span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.78rem;">
+<div><span style="color:#64748b;">Prix: </span><span style="color:#f1f5f9;">$213.21</span></div>
+<div><span style="color:#64748b;">RSI: </span><span style="color:#f1f5f9;">66.30</span></div>
+<div><span style="color:#64748b;">MA20: </span><span style="color:#f1f5f9;">207.89</span></div>
+<div><span style="color:#64748b;">MA50: </span><span style="color:#f1f5f9;">225.39</span></div>
+<div><span style="color:#64748b;">Vol: </span><span style="color:#f1f5f9;">0.772</span></div>
+<div><span style="color:#f87171;">[BAISSIER]</span></div>
+</div>
+<div style="margin-top:6px;font-size:0.75rem;color:#64748b;">MA20 sous MA50, Halt actif</div>
+</div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:10px;margin-bottom:8px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+<span style="font-weight:700;color:#f1f5f9;">META</span>
+<span style="color:#94a3b8;font-size:0.8rem;">[ATTENDRE]</span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.78rem;">
+<div><span style="color:#64748b;">Prix: </span><span style="color:#f1f5f9;">$644.86</span></div>
+<div><span style="color:#64748b;">RSI: </span><span style="color:#f1f5f9;">52.39</span></div>
+<div><span style="color:#64748b;">MA20: </span><span style="color:#f1f5f9;">653.39</span></div>
+<div><span style="color:#64748b;">MA50: </span><span style="color:#f1f5f9;">656.51</span></div>
+<div><span style="color:#64748b;">Vol: </span><span style="color:#f1f5f9;">1.029</span></div>
+<div><span style="color:#f87171;">[BAISSIER]</span></div>
+</div>
+<div style="margin-top:6px;font-size:0.75rem;color:#64748b;">MA20 sous MA50, Halt actif</div>
+</div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:10px;margin-bottom:8px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+<span style="font-weight:700;color:#f1f5f9;">GOOGL</span>
+<span style="color:#94a3b8;font-size:0.8rem;">[IGNORE]</span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.78rem;">
+<div><span style="color:#64748b;">Prix: </span><span style="color:#f1f5f9;">$295.61</span></div>
+<div><span style="color:#64748b;">RSI: </span><span style="color:#f1f5f9;">N/A</span></div>
+<div><span style="color:#64748b;">MA20: </span><span style="color:#f1f5f9;">N/A</span></div>
+<div><span style="color:#64748b;">MA50: </span><span style="color:#f1f5f9;">N/A</span></div>
+<div><span style="color:#64748b;">Vol: </span><span style="color:#f1f5f9;">N/A</span></div>
+<div><span style="color:#94a3b8;">[FERME]</span></div>
+</div>
+<div style="margin-top:6px;font-size:0.75rem;color:#64748b;">Donn&eacute;es insuffisantes</div>
+</div></div>
+<div class="desktop-table" style="overflow-x:auto;">
+<table>
+<thead><tr>
+<th>Symbole</th><th>Prix</th><th>MA20</th><th>MA50</th><th>RSI</th><th>Vol Ratio</th><th>Tendance</th><th>Signal</th>
+</tr></thead>
+<tbody><tr style="border-bottom:1px solid #1e293b;">
+<td style="padding:10px 12px;font-weight:700;color:#f1f5f9;">AAPL</td>
+<td style="padding:10px 12px;color:#94a3b8;">$257.46</td>
+<td style="padding:10px 12px;color:#94a3b8;">266.56</td>
+<td style="padding:10px 12px;color:#94a3b8;">264.29</td>
+<td style="padding:10px 12px;color:#94a3b8;">51.92</td>
+<td style="padding:10px 12px;color:#94a3b8;">0.886</td>
+<td style="padding:10px 12px;color:#4ade80;">[HAUSSIER]</td>
+<td style="padding:10px 12px;color:#94a3b8;">[ATTENDRE]</td>
+</tr><tr style="border-bottom:1px solid #1e293b;">
+<td style="padding:10px 12px;font-weight:700;color:#f1f5f9;">MSFT</td>
+<td style="padding:10px 12px;color:#94a3b8;">$408.96</td>
+<td style="padding:10px 12px;color:#94a3b8;">401.18</td>
+<td style="padding:10px 12px;color:#94a3b8;">437.75</td>
+<td style="padding:10px 12px;color:#94a3b8;">55.60</td>
+<td style="padding:10px 12px;color:#94a3b8;">0.780</td>
+<td style="padding:10px 12px;color:#f87171;">[BAISSIER]</td>
+<td style="padding:10px 12px;color:#94a3b8;">[ATTENDRE]</td>
+</tr><tr style="border-bottom:1px solid #1e293b;">
+<td style="padding:10px 12px;font-weight:700;color:#f1f5f9;">TSLA</td>
+<td style="padding:10px 12px;color:#94a3b8;">$396.73</td>
+<td style="padding:10px 12px;color:#94a3b8;">410.18</td>
+<td style="padding:10px 12px;color:#94a3b8;">428.01</td>
+<td style="padding:10px 12px;color:#94a3b8;">38.08</td>
+<td style="padding:10px 12px;color:#94a3b8;">1.097</td>
+<td style="padding:10px 12px;color:#f87171;">[BAISSIER]</td>
+<td style="padding:10px 12px;color:#94a3b8;">[ATTENDRE]</td>
+</tr><tr style="border-bottom:1px solid #1e293b;">
+<td style="padding:10px 12px;font-weight:700;color:#f1f5f9;">NVDA</td>
+<td style="padding:10px 12px;color:#94a3b8;">$181.98</td>
+<td style="padding:10px 12px;color:#94a3b8;">N/A</td>
+<td style="padding:10px 12px;color:#94a3b8;">N/A</td>
+<td style="padding:10px 12px;color:#94a3b8;">N/A</td>
+<td style="padding:10px 12px;color:#94a3b8;">N/A</td>
+<td style="padding:10px 12px;color:#f87171;">[EN COURS]</td>
+<td style="padding:10px 12px;color:#60a5fa;">[OUVERT]</td>
+</tr><tr style="border-bottom:1px solid #1e293b;">
+<td style="padding:10px 12px;font-weight:700;color:#f1f5f9;">AMZN</td>
+<td style="padding:10px 12px;color:#94a3b8;">$213.21</td>
+<td style="padding:10px 12px;color:#94a3b8;">207.89</td>
+<td style="padding:10px 12px;color:#94a3b8;">225.39</td>
+<td style="padding:10px 12px;color:#94a3b8;">66.30</td>
+<td style="padding:10px 12px;color:#94a3b8;">0.772</td>
+<td style="padding:10px 12px;color:#f87171;">[BAISSIER]</td>
+<td style="padding:10px 12px;color:#94a3b8;">[ATTENDRE]</td>
+</tr><tr style="border-bottom:1px solid #1e293b;">
+<td style="padding:10px 12px;font-weight:700;color:#f1f5f9;">META</td>
+<td style="padding:10px 12px;color:#94a3b8;">$644.86</td>
+<td style="padding:10px 12px;color:#94a3b8;">653.39</td>
+<td style="padding:10px 12px;color:#94a3b8;">656.51</td>
+<td style="padding:10px 12px;color:#94a3b8;">52.39</td>
+<td style="padding:10px 12px;color:#94a3b8;">1.029</td>
+<td style="padding:10px 12px;color:#f87171;">[BAISSIER]</td>
+<td style="padding:10px 12px;color:#94a3b8;">[ATTENDRE]</td>
+</tr><tr style="border-bottom:1px solid #1e293b;">
+<td style="padding:10px 12px;font-weight:700;color:#f1f5f9;">GOOGL</td>
+<td style="padding:10px 12px;color:#94a3b8;">$295.61</td>
+<td style="padding:10px 12px;color:#94a3b8;">N/A</td>
+<td style="padding:10px 12px;color:#94a3b8;">N/A</td>
+<td style="padding:10px 12px;color:#94a3b8;">N/A</td>
+<td style="padding:10px 12px;color:#94a3b8;">N/A</td>
+<td style="padding:10px 12px;color:#94a3b8;">[FERME]</td>
+<td style="padding:10px 12px;color:#94a3b8;">[IGNORE]</td>
+</tr></tbody>
+</table>
+</div>
 </div>
 
-<!-- SECTION 6: SIGNAUX MA -->
+<!-- SECTION 6: REGLES DU BOT -->
 <div class="section">
-  <div class="section-title">Signaux MA20/MA50 aujourd'hui</div>
-  <div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-      <strong style="color:#e2e8f0;">AAPL</strong>
-      <span style="color:#4ade80;font-size:0.8rem;">HAUSSIER</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;font-size:0.75rem;color:#94a3b8;">
-      <span>Prix: $260.29</span><span>MA20: 267.48</span>
-      <span>MA50: 264.56</span><span>RSI: 48.47</span>
-      <span>Vol: 1.025x</span><span style="color:#fbbf24;font-weight:700;">ATTENDRE (vol < 1.2)</span>
-    </div>
-  </div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-      <strong style="color:#e2e8f0;">MSFT</strong>
-      <span style="color:#4ade80;font-size:0.8rem;">HAUSSIER</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;font-size:0.75rem;color:#94a3b8;">
-      <span>Prix: $541.55</span><span>MA20: 521.22</span>
-      <span>MA50: 513.15</span><span>RSI: 69.97</span>
-      <span>Vol: 2.016x</span><span style="color:#f87171;font-weight:700;">IGNORE (prix > $100)</span>
-    </div>
-  </div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-      <strong style="color:#e2e8f0;">TSLA</strong>
-      <span style="color:#f87171;font-size:0.8rem;">BAISSIER</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;font-size:0.75rem;color:#94a3b8;">
-      <span>Prix: $405.55</span><span>MA20: 410.2</span>
-      <span>MA50: 429.85</span><span>RSI: 42.65</span>
-      <span>Vol: 0.873x</span><span style="color:#f87171;font-weight:700;">IGNORE (RSI/tendance)</span>
-    </div>
-  </div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-      <strong style="color:#e2e8f0;">NVDA</strong>
-      <span style="color:#4ade80;font-size:0.8rem;">HAUSSIER</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;font-size:0.75rem;color:#94a3b8;">
-      <span>Prix: $207.04</span><span>MA20: 186.86</span>
-      <span>MA50: 180.82</span><span>RSI: 62.89</span>
-      <span>Vol: 1.836x</span><span style="color:#f87171;font-weight:700;">IGNORE (prix > $100)</span>
-    </div>
-  </div><div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:8px;">
-    <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-      <strong style="color:#e2e8f0;">AMZN</strong>
-      <span style="color:#f87171;font-size:0.8rem;">BAISSIER</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;font-size:0.75rem;color:#94a3b8;">
-      <span>Prix: $218.94</span><span>MA20: 208.37</span>
-      <span>MA50: 225.69</span><span>RSI: 74.61</span>
-      <span>Vol: 0.927x</span><span style="color:#f87171;font-weight:700;">IGNORE (RSI > 70)</span>
-    </div>
-  </div>
+<div class="section-title">R&egrave;gles du bot (7 filtres)</div>
+<div class="filter-grid">
+<div class="filter-card">
+<div class="filter-num">Filtre 1</div>
+<div class="filter-name">MA20 &gt; MA50</div>
+<div class="filter-desc">Croisement haussier (golden cross) requis</div>
+</div>
+<div class="filter-card">
+<div class="filter-num">Filtre 2</div>
+<div class="filter-name">RSI entre 45 et 70</div>
+<div class="filter-desc">Zone de dynamisme sans surachat</div>
+</div>
+<div class="filter-card">
+<div class="filter-num">Filtre 3</div>
+<div class="filter-name">Volume Ratio &gt; 1.2x</div>
+<div class="filter-desc">Volume sup&eacute;rieur &agrave; la moyenne 20j</div>
+</div>
+<div class="filter-card">
+<div class="filter-num">Filtre 4</div>
+<div class="filter-name">Max 3 positions</div>
+<div class="filter-desc">Limitation du nombre de positions simultan&eacute;es</div>
+</div>
+<div class="filter-card">
+<div class="filter-num">Filtre 5</div>
+<div class="filter-name">Max $100 / position</div>
+<div class="filter-desc">Qty = floor(100 / prix) - skip si qty = 0</div>
+</div>
+<div class="filter-card">
+<div class="filter-num">Filtre 6</div>
+<div class="filter-name">Max $300 exposition totale</div>
+<div class="filter-desc">3 positions x $100 maximum</div>
+</div>
+<div class="filter-card" style="border-color:#ef4444;">
+<div class="filter-num" style="color:#ef4444;">Filtre 7 [ACTIF]</div>
+<div class="filter-name" style="color:#f87171;">Halt si perte cumul&eacute;e &gt; $50</div>
+<div class="filter-desc">Perte actuelle: -$701.66 - ACHATS SUSPENDUS</div>
+</div>
+</div>
+<div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.78rem;">
+<div style="background:#0f172a;border-radius:6px;padding:8px;border:1px solid #334155;">
+<div style="color:#64748b;">Stop-Loss</div>
+<div style="color:#f87171;font-weight:700;">-2% depuis entr&eacute;e</div>
+</div>
+<div style="background:#0f172a;border-radius:6px;padding:8px;border:1px solid #334155;">
+<div style="color:#64748b;">Take-Profit</div>
+<div style="color:#4ade80;font-weight:700;">+4% depuis entr&eacute;e</div>
+</div>
+</div>
 </div>
 
-<!-- SECTION 7: REGLES DU BOT -->
-<div class="section">
-  <div class="section-title">R&egrave;gles du bot (7 filtres)</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
-    <div style="background:#0f172a;border-radius:6px;padding:8px;border-left:3px solid #4ade80;font-size:0.78rem;">
-      <strong style="color:#4ade80;">1. MA Crossover</strong><br><span style="color:#94a3b8;">MA20 &gt; MA50 (tendance haussiere)</span>
-    </div>
-    <div style="background:#0f172a;border-radius:6px;padding:8px;border-left:3px solid #60a5fa;font-size:0.78rem;">
-      <strong style="color:#60a5fa;">2. RSI 45-70</strong><br><span style="color:#94a3b8;">Momentum optimal (45 &lt; RSI &lt; 70)</span>
-    </div>
-    <div style="background:#0f172a;border-radius:6px;padding:8px;border-left:3px solid #fbbf24;font-size:0.78rem;">
-      <strong style="color:#fbbf24;">3. Volume x1.2</strong><br><span style="color:#94a3b8;">Volume &gt; 1.2x moyenne 20j</span>
-    </div>
-    <div style="background:#0f172a;border-radius:6px;padding:8px;border-left:3px solid #a78bfa;font-size:0.78rem;">
-      <strong style="color:#a78bfa;">4. Max 3 positions</strong><br><span style="color:#94a3b8;">Max 3 positions simultanees</span>
-    </div>
-    <div style="background:#0f172a;border-radius:6px;padding:8px;border-left:3px solid #f472b6;font-size:0.78rem;">
-      <strong style="color:#f472b6;">5. Max $100/position</strong><br><span style="color:#94a3b8;">qty = floor(100/prix), skip si 0</span>
-    </div>
-    <div style="background:#0f172a;border-radius:6px;padding:8px;border-left:3px solid #fb923c;font-size:0.78rem;">
-      <strong style="color:#fb923c;">6. Max $300 expo.</strong><br><span style="color:#94a3b8;">Exposition totale max $300</span>
-    </div>
-    <div style="background:#0f172a;border-radius:6px;padding:8px;border-left:3px solid #ef4444;font-size:0.78rem;grid-column:span 2;">
-      <strong style="color:#ef4444;">7. Stop perte $50</strong><br><span style="color:#94a3b8;">Halt si perte cumulee &gt; $50 (-10%)</span>
-    </div>
-  </div>
-  <div style="margin-top:0.75rem;font-size:0.75rem;color:#64748b;background:#0f172a;border-radius:6px;padding:8px;">
-    Stop-loss: -2% | Take-profit: +4% | Portfolio de base: $500
-  </div>
+<div style="text-align:center;color:#334155;font-size:0.72rem;padding:16px 0;">
+Twin Trading Bot - Alpaca Paper | 2026-03-09 | webfree69/nabil
 </div>
 
-<!-- FOOTER -->
-<div style="text-align:center;padding:1rem 0;font-size:0.7rem;color:#475569;">
-  Trading Bot MA Crossover &mdash; Alpaca Paper Trading &mdash; 2026-03-06 &mdash; <a href="https://webfree69.github.io/nabil/" style="color:#60a5fa;">webfree69.github.io/nabil</a>
-</div>
-
-</div>
 </body>
 </html>
