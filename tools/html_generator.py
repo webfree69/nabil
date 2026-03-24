@@ -39,7 +39,7 @@ def generate_card_html(article: Dict[str, str], theme_color: str = "#2196F3") ->
     source = article.get("source", "Inconnu")
     image = article.get("image", "")
 
-    img_html = f'<img src="{image}" alt="" loading="lazy" onerror="this.style.display=\\'none\\'">' if image else ""
+    img_html = f'<img src="{image}" alt="" loading="lazy" onerror="this.style.display=\'none\'">' if image else ""
 
     return f"""<article class="card" style="border-left: 3px solid {theme_color}">
   {img_html}
