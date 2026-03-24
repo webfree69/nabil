@@ -3,947 +3,949 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NewsFlow FR — Agrégateur RSS Temps Réel</title>
+<title>MS-102 Architect Expert — Plateforme de Révision</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg-primary:#0A0E1A;--bg-card:#111827;--bg-card-hover:#1a2236;
-  --bg-ticker:#050810;--text-primary:#F9FAFB;--text-secondary:#9CA3AF;
-  --text-muted:#6B7280;--border-color:#1F2937;--border-glow:#374151;
-  --general:#2196F3;--finance:#4CAF50;--tech:#9C27B0;
-  --sport:#FF5722;--science:#00BCD4;--geopolitique:#F44336;
-  --radius:12px;--radius-sm:8px;--shadow:0 4px 24px rgba(0,0,0,.4);
+  --bg:#0F1117;--card:#1A1D27;--card-border:#2A2D3E;
+  --text:#E2E8F0;--text-muted:#94A3B8;--text-dim:#64748B;
+  --accent:#4F6EF7;--accent-hover:#6B8AFF;
+  --success:#10B981;--error:#EF4444;--warning:#F59E0B;
+  --d1:#2196F3;--d2:#F44336;--d3:#4CAF50;--d4:#9C27B0;--d5:#FF9800;
+  --radius:12px;--radius-sm:8px;
+  --shadow:0 4px 24px rgba(0,0,0,.4);
   --transition:all .3s cubic-bezier(.4,0,.2,1);
 }
 html{scroll-behavior:smooth}
-body{
-  font-family:'Inter',system-ui,sans-serif;background:var(--bg-primary);
-  color:var(--text-primary);line-height:1.6;min-height:100vh;
-  -webkit-font-smoothing:antialiased;
-}
-h1,h2,h3,h4,h5{font-family:'Space Grotesk',sans-serif;font-weight:600}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,h5{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700}
 a{color:inherit;text-decoration:none}
-img{max-width:100%;display:block}
+button{font-family:'Inter',sans-serif;cursor:pointer;border:none;background:none;color:inherit}
+code,pre,.mono{font-family:'JetBrains Mono',monospace}
 
-/* TICKER */
-.ticker-wrap{
-  background:var(--bg-ticker);border-bottom:1px solid var(--border-color);
-  overflow:hidden;height:40px;position:relative;z-index:100;
-}
-.ticker{
-  display:flex;align-items:center;height:100%;
-  animation:tickerScroll 60s linear infinite;white-space:nowrap;
-}
-.ticker:hover{animation-play-state:paused}
-.ticker-item{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:0 32px;font-size:13px;font-weight:500;
-  color:var(--text-secondary);flex-shrink:0;
-}
-.ticker-item .dot{
-  width:6px;height:6px;border-radius:50%;flex-shrink:0;
-}
-.ticker-item .time{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted)}
-@keyframes tickerScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-
-/* NAVBAR */
-.navbar{
-  position:sticky;top:0;z-index:90;
-  background:rgba(10,14,26,.92);backdrop-filter:blur(20px);
-  border-bottom:1px solid var(--border-color);padding:0 24px;
-}
-.navbar-inner{
-  max-width:1440px;margin:0 auto;
-  display:flex;align-items:center;gap:16px;height:60px;
-}
-.navbar-brand{
-  font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;
-  background:linear-gradient(135deg,#60A5FA,#A78BFA);-webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;flex-shrink:0;
-}
-.navbar-brand span{font-weight:400;opacity:.7}
-.nav-filters{
-  display:flex;gap:6px;flex:1;overflow-x:auto;
-  scrollbar-width:none;-ms-overflow-style:none;
-}
-.nav-filters::-webkit-scrollbar{display:none}
-.filter-btn{
-  padding:6px 14px;border-radius:20px;border:1px solid var(--border-color);
-  background:transparent;color:var(--text-secondary);font-size:13px;
-  font-weight:500;cursor:pointer;white-space:nowrap;transition:var(--transition);
-  font-family:'Inter',sans-serif;
-}
-.filter-btn:hover{border-color:var(--border-glow);color:var(--text-primary)}
-.filter-btn.active{color:#fff;border-color:transparent}
-.filter-btn .count{
-  display:inline-block;margin-left:4px;font-size:11px;
-  opacity:.7;font-family:'JetBrains Mono',monospace;
-}
-.nav-stats{
-  display:flex;align-items:center;gap:12px;flex-shrink:0;
-}
-.live-counter{
-  display:flex;align-items:center;gap:6px;
-  font-size:13px;color:var(--text-secondary);
-}
-.live-counter .pulse{
-  width:8px;height:8px;border-radius:50%;background:#EF4444;
-  animation:pulse 2s infinite;
-}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
-.new-badge{
-  background:#EF4444;color:#fff;font-size:11px;font-weight:600;
-  padding:2px 8px;border-radius:10px;font-family:'JetBrains Mono',monospace;
-  animation:fadeIn .3s ease;
-}
-@keyframes fadeIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
-
-/* SEARCH */
-.search-wrap{
-  position:relative;flex-shrink:0;
-}
-.search-input{
-  background:var(--bg-card);border:1px solid var(--border-color);
-  border-radius:20px;padding:7px 14px 7px 36px;color:var(--text-primary);
-  font-size:13px;width:200px;transition:var(--transition);
-  font-family:'Inter',sans-serif;
-}
-.search-input:focus{outline:none;border-color:var(--general);width:260px}
-.search-input::placeholder{color:var(--text-muted)}
-.search-icon{
-  position:absolute;left:12px;top:50%;transform:translateY(-50%);
-  color:var(--text-muted);font-size:14px;pointer-events:none;
-}
-
-/* MAIN LAYOUT */
-.main-container{
-  max-width:1440px;margin:0 auto;padding:24px;
-  display:grid;grid-template-columns:1fr 320px;gap:24px;
-}
-
-/* HERO */
-.hero-card{
-  position:relative;border-radius:var(--radius);overflow:hidden;
-  background:var(--bg-card);border:1px solid var(--border-color);
-  margin-bottom:24px;cursor:pointer;transition:var(--transition);
-}
-.hero-card:hover{border-color:var(--border-glow);transform:translateY(-2px);box-shadow:var(--shadow)}
-.hero-img{
-  width:100%;height:400px;object-fit:cover;
-  background:linear-gradient(135deg,#1a2236,#111827);
-}
-.hero-overlay{
-  position:absolute;bottom:0;left:0;right:0;
-  background:linear-gradient(transparent,rgba(0,0,0,.85));
-  padding:32px;
-}
-.hero-theme{
-  display:inline-block;padding:4px 12px;border-radius:4px;
-  font-size:12px;font-weight:600;color:#fff;margin-bottom:12px;
-}
-.hero-title{
-  font-size:28px;font-weight:700;line-height:1.3;margin-bottom:8px;
-}
-.hero-meta{
-  display:flex;align-items:center;gap:16px;
-  font-size:13px;color:var(--text-secondary);
-}
-.hero-meta .source{font-weight:600}
-.hero-meta .time{font-family:'JetBrains Mono',monospace}
-.live-badge{
-  display:inline-flex;align-items:center;gap:4px;
-  background:#EF4444;color:#fff;padding:2px 8px;
-  border-radius:4px;font-size:11px;font-weight:700;
-  animation:blink 1.5s infinite;text-transform:uppercase;
-}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.6}}
-
-/* MASONRY GRID */
-.articles-grid{
-  column-count:2;column-gap:20px;
-}
-.article-card{
-  break-inside:avoid;background:var(--bg-card);
-  border:1px solid var(--border-color);border-radius:var(--radius);
-  overflow:hidden;margin-bottom:20px;cursor:pointer;
-  transition:var(--transition);position:relative;
-}
-.article-card:hover{
-  border-color:var(--border-glow);transform:translateY(-3px);
-  box-shadow:var(--shadow);
-}
-.article-card:hover .card-glow{opacity:1}
-.card-glow{
-  position:absolute;inset:-1px;border-radius:var(--radius);
-  opacity:0;transition:opacity .3s;pointer-events:none;z-index:1;
-}
-.card-img{
-  width:100%;aspect-ratio:16/9;object-fit:cover;
-  background:linear-gradient(135deg,#1a2236,#111827);
-}
-.card-body{padding:16px;position:relative;z-index:2}
-.card-theme{
-  display:inline-block;padding:3px 10px;border-radius:4px;
-  font-size:11px;font-weight:600;color:#fff;margin-bottom:8px;
-}
-.card-title{
-  font-family:'Space Grotesk',sans-serif;font-size:16px;
-  font-weight:600;line-height:1.4;margin-bottom:8px;
-  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
-}
-.card-desc{
-  font-size:13px;color:var(--text-secondary);line-height:1.5;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
-  margin-bottom:12px;
-}
-.card-footer{
-  display:flex;align-items:center;justify-content:space-between;
-  font-size:12px;color:var(--text-muted);
-}
-.card-source{font-weight:600;color:var(--text-secondary)}
-.card-time{font-family:'JetBrains Mono',monospace}
-
-/* SKELETON */
-.skeleton{position:relative;overflow:hidden;background:var(--bg-card);
-  border:1px solid var(--border-color);border-radius:var(--radius);margin-bottom:20px;
-}
-.skeleton::after{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.04),transparent);
-  animation:shimmer 1.5s infinite;
-}
-@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
-.skeleton-img{width:100%;aspect-ratio:16/9;background:#1a2236}
-.skeleton-body{padding:16px}
-.skeleton-line{height:14px;background:#1a2236;border-radius:4px;margin-bottom:10px}
-.skeleton-line.short{width:60%}
-.skeleton-line.medium{width:80%}
+/* LAYOUT */
+.app{display:flex;min-height:100vh}
+.sidebar{width:260px;background:var(--card);border-right:1px solid var(--card-border);padding:20px 0;position:fixed;height:100vh;overflow-y:auto;z-index:50;transition:var(--transition)}
+.sidebar.closed{transform:translateX(-100%)}
+.main{flex:1;margin-left:260px;padding:24px;transition:var(--transition)}
+.main.full{margin-left:0}
 
 /* SIDEBAR */
-.sidebar{position:sticky;top:84px;align-self:start}
-.sidebar-section{
-  background:var(--bg-card);border:1px solid var(--border-color);
-  border-radius:var(--radius);padding:20px;margin-bottom:20px;
-}
-.sidebar-title{
-  font-size:14px;font-weight:600;margin-bottom:16px;
-  display:flex;align-items:center;gap:8px;
-}
-.sidebar-title .icon{font-size:16px}
-.timeline{list-style:none;max-height:600px;overflow-y:auto;
-  scrollbar-width:thin;scrollbar-color:var(--border-color) transparent;
-}
-.timeline::-webkit-scrollbar{width:4px}
-.timeline::-webkit-scrollbar-thumb{background:var(--border-color);border-radius:2px}
-.timeline-item{
-  padding:10px 0;border-bottom:1px solid var(--border-color);
-  cursor:pointer;transition:var(--transition);
-}
-.timeline-item:last-child{border-bottom:none}
-.timeline-item:hover{padding-left:8px}
-.timeline-item .tl-theme{
-  display:inline-block;width:8px;height:8px;border-radius:2px;
-  margin-right:6px;vertical-align:middle;
-}
-.timeline-item .tl-title{
-  font-size:13px;font-weight:500;line-height:1.4;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
-}
-.timeline-item .tl-meta{
-  font-size:11px;color:var(--text-muted);margin-top:4px;
-  font-family:'JetBrains Mono',monospace;
+.sidebar-brand{padding:0 20px 20px;border-bottom:1px solid var(--card-border);margin-bottom:16px}
+.sidebar-brand h1{font-size:18px;background:linear-gradient(135deg,var(--accent),#A78BFA);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sidebar-brand p{font-size:11px;color:var(--text-dim);margin-top:4px}
+.sidebar-nav{padding:0 12px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);cursor:pointer;transition:var(--transition);font-size:13px;font-weight:500;color:var(--text-muted);margin-bottom:2px}
+.nav-item:hover{background:rgba(255,255,255,.05);color:var(--text)}
+.nav-item.active{background:var(--accent);color:#fff}
+.nav-item .icon{font-size:16px;width:24px;text-align:center}
+.nav-item .badge{margin-left:auto;background:rgba(255,255,255,.1);padding:2px 8px;border-radius:10px;font-size:11px;font-family:'JetBrains Mono',monospace}
+.nav-item.active .badge{background:rgba(255,255,255,.2)}
+.nav-section{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);padding:16px 12px 6px;font-weight:600}
+
+/* USER CARD */
+.user-card{padding:16px 20px;border-top:1px solid var(--card-border);margin-top:auto;position:absolute;bottom:0;left:0;right:0;background:var(--card)}
+.user-level{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.user-level .level-badge{background:var(--accent);color:#fff;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:700}
+.user-xp{font-size:12px;color:var(--text-muted)}
+.xp-bar{height:4px;background:var(--card-border);border-radius:2px;margin-top:6px;overflow:hidden}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--accent),#A78BFA);border-radius:2px;transition:width .5s ease}
+
+/* MOBILE TOGGLE */
+.menu-toggle{display:none;position:fixed;top:16px;left:16px;z-index:60;width:40px;height:40px;background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius-sm);align-items:center;justify-content:center;font-size:18px}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .menu-toggle{display:flex}
 }
 
-/* STATS SIDEBAR */
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stat-item{
-  background:rgba(255,255,255,.03);border-radius:var(--radius-sm);
-  padding:12px;text-align:center;
-}
-.stat-value{
-  font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;
-}
-.stat-label{font-size:11px;color:var(--text-muted);margin-top:2px}
+/* DASHBOARD */
+.dashboard{max-width:1200px;margin:0 auto}
+.page-title{font-size:28px;margin-bottom:8px}
+.page-subtitle{color:var(--text-muted);font-size:14px;margin-bottom:32px}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:32px}
+.stat-card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:20px;transition:var(--transition)}
+.stat-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.stat-label{font-size:12px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.stat-value{font-family:'Plus Jakarta Sans',sans-serif;font-size:32px;font-weight:800}
+.stat-sub{font-size:12px;color:var(--text-dim);margin-top:4px}
+
+/* PROGRESS RING */
+.progress-ring-container{display:flex;align-items:center;gap:24px;background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:24px;margin-bottom:32px}
+.ring-wrap{position:relative;width:140px;height:140px;flex-shrink:0}
+.ring-svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--card-border);stroke-width:8}
+.ring-fill{fill:none;stroke:var(--accent);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 1s ease}
+.ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-percent{font-family:'Plus Jakarta Sans',sans-serif;font-size:36px;font-weight:800}
+.ring-label{font-size:11px;color:var(--text-muted)}
+.ring-info h3{font-size:18px;margin-bottom:8px}
+.ring-info p{color:var(--text-muted);font-size:13px;line-height:1.6}
+.ring-info .next-goal{margin-top:12px;padding:10px 14px;background:rgba(79,110,247,.1);border:1px solid rgba(79,110,247,.2);border-radius:var(--radius-sm);font-size:13px}
+
+/* DOMAIN PROGRESS */
+.domains-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;margin-bottom:32px}
+.domain-card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:20px;cursor:pointer;transition:var(--transition)}
+.domain-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.domain-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.domain-icon{font-size:24px}
+.domain-name{font-size:15px;font-weight:600;flex:1}
+.domain-weight{font-size:12px;color:var(--text-muted);font-family:'JetBrains Mono',monospace}
+.domain-bar{height:6px;background:var(--card-border);border-radius:3px;overflow:hidden;margin-bottom:12px}
+.domain-fill{height:100%;border-radius:3px;transition:width .5s ease}
+.domain-stats{display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted)}
+.domain-topics{margin-top:12px;padding-top:12px;border-top:1px solid var(--card-border)}
+.domain-topic{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px;color:var(--text-muted)}
+.domain-topic .check{color:var(--success)}
+
+/* RADAR CHART */
+.radar-section{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:24px;margin-bottom:32px}
+.radar-section h3{margin-bottom:16px}
+.radar-wrap{display:flex;align-items:center;gap:32px;flex-wrap:wrap}
+.radar-canvas{flex-shrink:0}
+.radar-legend{flex:1;min-width:200px}
+.legend-item{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px}
+.legend-dot{width:10px;height:10px;border-radius:50%}
+
+/* QUIZ */
+.quiz-container{max-width:800px;margin:0 auto}
+.quiz-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.quiz-progress{flex:1;min-width:200px}
+.quiz-progress-bar{height:6px;background:var(--card-border);border-radius:3px;overflow:hidden}
+.quiz-progress-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .3s}
+.quiz-progress-text{font-size:12px;color:var(--text-muted);margin-top:4px}
+.quiz-timer{display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600}
+.quiz-timer.warning{color:var(--warning)}
+.quiz-timer.danger{color:var(--error);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+.quiz-card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:32px;margin-bottom:24px}
+.quiz-domain-badge{display:inline-block;padding:4px 12px;border-radius:4px;font-size:11px;font-weight:600;color:#fff;margin-bottom:16px}
+.quiz-difficulty{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;margin-left:8px}
+.quiz-difficulty.easy{background:rgba(16,185,129,.2);color:var(--success)}
+.quiz-difficulty.medium{background:rgba(245,158,11,.2);color:var(--warning)}
+.quiz-difficulty.hard{background:rgba(239,68,68,.2);color:var(--error)}
+.quiz-question{font-size:18px;font-weight:600;line-height:1.5;margin-bottom:24px}
+.quiz-options{display:flex;flex-direction:column;gap:10px}
+.quiz-option{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border:1px solid var(--card-border);border-radius:var(--radius-sm);cursor:pointer;transition:var(--transition);font-size:14px;line-height:1.5}
+.quiz-option:hover{border-color:var(--accent);background:rgba(79,110,247,.05)}
+.quiz-option.selected{border-color:var(--accent);background:rgba(79,110,247,.1)}
+.quiz-option.correct{border-color:var(--success);background:rgba(16,185,129,.1)}
+.quiz-option.wrong{border-color:var(--error);background:rgba(239,68,68,.1)}
+.quiz-option .letter{width:28px;height:28px;border-radius:50%;border:2px solid var(--card-border);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;transition:var(--transition)}
+.quiz-option.selected .letter{border-color:var(--accent);background:var(--accent);color:#fff}
+.quiz-option.correct .letter{border-color:var(--success);background:var(--success);color:#fff}
+.quiz-option.wrong .letter{border-color:var(--error);background:var(--error);color:#fff}
+
+.quiz-explanation{margin-top:20px;padding:20px;background:rgba(79,110,247,.05);border:1px solid rgba(79,110,247,.15);border-radius:var(--radius-sm);display:none}
+.quiz-explanation.show{display:block;animation:fadeIn .3s ease}
+.quiz-explanation h4{font-size:14px;margin-bottom:8px;color:var(--accent)}
+.quiz-explanation p{font-size:13px;line-height:1.6;color:var(--text-muted)}
+.quiz-explanation .tip{margin-top:12px;padding:10px;background:rgba(245,158,11,.1);border-radius:var(--radius-sm);font-size:12px;color:var(--warning)}
+.quiz-explanation .doc-link{margin-top:8px;font-size:12px}
+.quiz-explanation .doc-link a{color:var(--accent)}
+
+.quiz-actions{display:flex;gap:12px;margin-top:24px;justify-content:flex-end}
+
+/* BUTTONS */
+.btn{padding:10px 20px;border-radius:var(--radius-sm);font-weight:600;font-size:14px;transition:var(--transition);display:inline-flex;align-items:center;gap:8px}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-hover)}
+.btn-secondary{background:var(--card);border:1px solid var(--card-border);color:var(--text)}
+.btn-secondary:hover{border-color:var(--accent)}
+.btn-success{background:var(--success);color:#fff}
+.btn-danger{background:var(--error);color:#fff}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* FICHES */
+.fiches-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.fiche-card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:20px;transition:var(--transition)}
+.fiche-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.fiche-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.fiche-title{font-size:15px;font-weight:600}
+.fiche-points{margin-bottom:16px}
+.fiche-point{display:flex;align-items:flex-start;gap:8px;padding:6px 0;font-size:13px;color:var(--text-muted);line-height:1.5}
+.fiche-point::before{content:"•";color:var(--accent);font-weight:bold}
+.fiche-traps{padding:12px;background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.1);border-radius:var(--radius-sm);margin-bottom:12px}
+.fiche-traps h5{font-size:12px;color:var(--error);margin-bottom:6px}
+.fiche-traps p{font-size:12px;color:var(--text-muted);line-height:1.5}
+.fiche-powershell{background:#0d1117;border:1px solid #30363d;border-radius:var(--radius-sm);padding:12px;margin-bottom:12px}
+.fiche-powershell pre{font-size:12px;color:#7ee787;overflow-x:auto;white-space:pre-wrap}
+.fiche-link{font-size:12px;color:var(--accent)}
 
 /* MODAL */
-.modal-overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,.8);
-  backdrop-filter:blur(8px);z-index:200;display:none;
-  align-items:center;justify-content:center;padding:24px;
-}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:200;display:none;align-items:center;justify-content:center;padding:24px}
 .modal-overlay.active{display:flex}
-.modal{
-  background:var(--bg-card);border:1px solid var(--border-color);
-  border-radius:var(--radius);max-width:800px;width:100%;
-  max-height:90vh;overflow-y:auto;position:relative;
-  scrollbar-width:thin;scrollbar-color:var(--border-color) transparent;
-}
-.modal::-webkit-scrollbar{width:6px}
-.modal::-webkit-scrollbar-thumb{background:var(--border-color);border-radius:3px}
-.modal-close{
-  position:sticky;top:0;float:right;margin:16px;
-  background:rgba(0,0,0,.5);border:none;color:#fff;
-  width:36px;height:36px;border-radius:50%;cursor:pointer;
-  font-size:18px;z-index:10;transition:var(--transition);
-}
+.modal{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);max-width:600px;width:100%;max-height:90vh;overflow-y:auto;position:relative}
+.modal-close{position:sticky;top:0;float:right;margin:16px;background:rgba(0,0,0,.5);color:#fff;width:36px;height:36px;border-radius:50%;font-size:18px;z-index:10;transition:var(--transition)}
 .modal-close:hover{background:rgba(255,255,255,.1)}
-.modal-img{width:100%;max-height:400px;object-fit:cover}
 .modal-body{padding:32px}
-.modal-theme{
-  display:inline-block;padding:4px 12px;border-radius:4px;
-  font-size:12px;font-weight:600;color:#fff;margin-bottom:16px;
-}
-.modal-title{font-size:24px;font-weight:700;line-height:1.3;margin-bottom:12px}
-.modal-meta{
-  display:flex;align-items:center;gap:16px;
-  font-size:13px;color:var(--text-secondary);margin-bottom:24px;
-  padding-bottom:24px;border-bottom:1px solid var(--border-color);
-}
-.modal-content{
-  font-size:15px;line-height:1.8;color:var(--text-secondary);
-}
-.modal-content p{margin-bottom:16px}
-.modal-link{
-  display:inline-flex;align-items:center;gap:8px;
-  margin-top:24px;padding:12px 24px;background:var(--general);
-  color:#fff;border-radius:var(--radius-sm);font-weight:600;
-  transition:var(--transition);
-}
-.modal-link:hover{opacity:.85}
+.modal-body h2{font-size:22px;margin-bottom:16px}
+.modal-body .score-big{font-family:'Plus Jakarta Sans',sans-serif;font-size:64px;font-weight:800;text-align:center;margin:24px 0}
+.modal-body .score-label{text-align:center;color:var(--text-muted);font-size:14px}
+.modal-body .results-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:24px 0}
+.modal-body .result-item{background:rgba(255,255,255,.03);padding:12px;border-radius:var(--radius-sm);text-align:center}
+.modal-body .result-value{font-size:24px;font-weight:700}
+.modal-body .result-label{font-size:11px;color:var(--text-muted)}
 
-/* NOTIFICATION TOAST */
-.toast{
-  position:fixed;bottom:24px;right:24px;background:var(--bg-card);
-  border:1px solid var(--border-color);border-radius:var(--radius);
-  padding:16px 20px;z-index:300;max-width:360px;
-  transform:translateY(120%);transition:transform .4s cubic-bezier(.4,0,.2,1);
-  box-shadow:0 8px 32px rgba(0,0,0,.5);
-}
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:16px 20px;z-index:300;max-width:360px;transform:translateY(120%);transition:transform .4s cubic-bezier(.4,0,.2,1);box-shadow:var(--shadow)}
 .toast.show{transform:translateY(0)}
-.toast-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.toast-dot{width:8px;height:8px;border-radius:50%;background:#EF4444;animation:pulse 2s infinite}
-.toast-label{font-size:12px;font-weight:600;color:#EF4444;text-transform:uppercase}
-.toast-title{font-size:14px;font-weight:600;line-height:1.4}
+.toast.success{border-color:var(--success)}
+.toast.error{border-color:var(--error)}
+.toast-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.toast-title{font-size:14px;font-weight:600}
 
-/* LOADING SPINNER */
-.loading-more{
-  text-align:center;padding:32px;color:var(--text-muted);
-  font-size:13px;
-}
-.spinner{
-  display:inline-block;width:24px;height:24px;
-  border:2px solid var(--border-color);border-top-color:var(--general);
-  border-radius:50%;animation:spin .8s linear infinite;margin-bottom:8px;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
+/* CONFETTI */
+.confetti-container{position:fixed;inset:0;pointer-events:none;z-index:400;overflow:hidden}
+.confetti{position:absolute;width:10px;height:10px;top:-10px;animation:confettiFall 3s ease-in forwards}
+@keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+
+/* BADGES */
+.badges-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.badge-item{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:16px;text-align:center;transition:var(--transition)}
+.badge-item.unlocked{border-color:var(--accent);background:rgba(79,110,247,.05)}
+.badge-item.locked{opacity:.4;filter:grayscale(1)}
+.badge-icon{font-size:32px;margin-bottom:8px}
+.badge-name{font-size:12px;font-weight:600}
+.badge-desc{font-size:10px;color:var(--text-muted);margin-top:4px}
+
+/* STREAK */
+.streak-display{display:flex;align-items:center;gap:8px}
+.streak-fire{font-size:20px}
+.streak-count{font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800}
+
+/* SKELETON */
+.skeleton{position:relative;overflow:hidden;background:var(--card-border);border-radius:var(--radius);margin-bottom:16px}
+.skeleton::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.04),transparent);animation:shimmer 1.5s infinite}
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+
+/* ANIMATIONS */
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+.fade-in{animation:fadeIn .3s ease}
+.scale-in{animation:scaleIn .3s ease}
 
 /* RESPONSIVE */
-@media(max-width:1024px){
-  .main-container{grid-template-columns:1fr}
-  .sidebar{position:static;display:grid;grid-template-columns:1fr 1fr;gap:20px}
-  .articles-grid{column-count:2}
-}
 @media(max-width:768px){
-  .navbar-inner{flex-wrap:wrap;height:auto;padding:12px 0}
-  .nav-filters{order:3;width:100%;padding-top:8px}
-  .search-input{width:140px}
-  .search-input:focus{width:180px}
-  .articles-grid{column-count:1}
-  .hero-img{height:260px}
-  .hero-title{font-size:20px}
-  .hero-overlay{padding:20px}
-  .sidebar{grid-template-columns:1fr}
-  .main-container{padding:16px}
+  .stats-row{grid-template-columns:1fr 1fr}
+  .domains-grid{grid-template-columns:1fr}
+  .progress-ring-container{flex-direction:column;text-align:center}
+  .radar-wrap{flex-direction:column}
+  .quiz-card{padding:20px}
+  .fiches-grid{grid-template-columns:1fr}
 }
 @media(max-width:480px){
-  .nav-stats{display:none}
-  .hero-card{margin-bottom:16px}
+  .stats-row{grid-template-columns:1fr}
+  .main{padding:16px}
 }
 
-/* SCROLL TO TOP */
-.scroll-top{
-  position:fixed;bottom:24px;left:24px;width:44px;height:44px;
-  background:var(--bg-card);border:1px solid var(--border-color);
-  border-radius:50%;display:flex;align-items:center;justify-content:center;
-  cursor:pointer;opacity:0;transform:translateY(20px);
-  transition:var(--transition);z-index:50;font-size:18px;
-}
-.scroll-top.visible{opacity:1;transform:translateY(0)}
-.scroll-top:hover{border-color:var(--general);color:var(--general)}
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--card-border);border-radius:3px}
 </style>
 </head>
 <body>
-
-<!-- TICKER -->
-<div class="ticker-wrap">
-  <div class="ticker" id="ticker"></div>
-</div>
-
-<!-- NAVBAR -->
-<nav class="navbar">
-  <div class="navbar-inner">
-    <div class="navbar-brand">NewsFlow <span>FR</span></div>
-    <div class="nav-filters" id="navFilters"></div>
-    <div class="search-wrap">
-      <span class="search-icon">🔍</span>
-      <input type="text" class="search-input" id="searchInput" placeholder="Rechercher...">
-    </div>
-    <div class="nav-stats">
-      <div class="live-counter">
-        <span class="pulse"></span>
-        <span id="totalCounter">0</span> articles
-      </div>
-      <div class="new-badge" id="newBadge" style="display:none">+0</div>
-    </div>
+<div class="app">
+<!-- SIDEBAR -->
+<button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <h1>MS-102 Architect</h1>
+    <p>Plateforme de Révision</p>
   </div>
-</nav>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Navigation</div>
+    <div class="nav-item active" onclick="showPage('dashboard')" data-page="dashboard">
+      <span class="icon">📊</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="showPage('quiz')" data-page="quiz">
+      <span class="icon">❓</span> Quiz
+    </div>
+    <div class="nav-item" onclick="showPage('fiches')" data-page="fiches">
+      <span class="icon">📝</span> Fiches
+    </div>
+    <div class="nav-item" onclick="showPage('badges')" data-page="badges">
+      <span class="icon">🏆</span> Badges
+    </div>
+    <div class="nav-section">Domaines</div>
+    <div class="nav-item" onclick="startDomainQuiz('domain1')" style="--c:var(--d1)">
+      <span class="icon">🏗️</span> Déploiement <span class="badge">25%</span>
+    </div>
+    <div class="nav-item" onclick="startDomainQuiz('domain2')" style="--c:var(--d2)">
+      <span class="icon">🔐</span> Sécurité <span class="badge">30%</span>
+    </div>
+    <div class="nav-item" onclick="startDomainQuiz('domain3')" style="--c:var(--d3)">
+      <span class="icon">📱</span> Appareils <span class="badge">20%</span>
+    </div>
+    <div class="nav-item" onclick="startDomainQuiz('domain4')" style="--c:var(--d4)">
+      <span class="icon">👥</span> Teams <span class="badge">15%</span>
+    </div>
+    <div class="nav-item" onclick="startDomainQuiz('domain5')" style="--c:var(--d5)">
+      <span class="icon">📧</span> Exchange <span class="badge">10%</span>
+    </div>
+  </nav>
+  <div class="user-card">
+    <div class="user-level">
+      <span id="userName">NH</span>
+      <span class="level-badge" id="levelBadge">Niveau 1</span>
+    </div>
+    <div class="user-xp"><span id="xpValue">0</span> XP</div>
+    <div class="xp-bar"><div class="xp-fill" id="xpFill" style="width:0%"></div></div>
+  </div>
+</aside>
 
 <!-- MAIN -->
-<div class="main-container">
-  <main>
-    <div id="heroCard"></div>
-    <div class="articles-grid" id="articlesGrid"></div>
-    <div class="loading-more" id="loadingMore" style="display:none">
-      <div class="spinner"></div>
-      <div>Chargement...</div>
+<div class="main" id="mainContent">
+  <!-- DASHBOARD PAGE -->
+  <div class="page" id="page-dashboard">
+    <div class="dashboard">
+      <h1 class="page-title">Bonjour NH 👋</h1>
+      <p class="page-subtitle">Prêt pour ta révision MS-102 ? Tu as <span class="streak-display"><span class="streak-fire">🔥</span><span class="streak-count" id="streakCount">0</span></span> jours de streak !</p>
+
+      <!-- STATS -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Score Global</div>
+          <div class="stat-value" id="globalScore">0%</div>
+          <div class="stat-sub">de maîtrise</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Quiz Complétés</div>
+          <div class="stat-value" id="quizCompleted">0</div>
+          <div class="stat-sub">sessions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Questions Répondues</div>
+          <div class="stat-value" id="questionsAnswered">0</div>
+          <div class="stat-sub">au total</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Taux de Réussite</div>
+          <div class="stat-value" id="successRate">0%</div>
+          <div class="stat-sub">bonnes réponses</div>
+        </div>
+      </div>
+
+      <!-- PROGRESS RING -->
+      <div class="progress-ring-container">
+        <div class="ring-wrap">
+          <svg class="ring-svg" width="140" height="140" viewBox="0 0 140 140">
+            <circle class="ring-bg" cx="70" cy="70" r="60"/>
+            <circle class="ring-fill" id="mainRing" cx="70" cy="70" r="60" stroke-dasharray="377" stroke-dashoffset="377"/>
+          </svg>
+          <div class="ring-text">
+            <span class="ring-percent" id="ringPercent">0%</span>
+            <span class="ring-label">Progression</span>
+          </div>
+        </div>
+        <div class="ring-info">
+          <h3>Ta progression vers la certification</h3>
+          <p>Continue à réviser chaque domaine pour atteindre le niveau Expert requis pour l'examen MS-102.</p>
+          <div class="next-goal" id="nextGoal">💡 Prochain objectif : Compléter le domaine Sécurité et conformité</div>
+        </div>
+      </div>
+
+      <!-- DOMAINS -->
+      <h3 style="margin-bottom:16px">Progression par domaine</h3>
+      <div class="domains-grid" id="domainsGrid"></div>
+
+      <!-- RADAR -->
+      <div class="radar-section">
+        <h3>🎯 Radar des compétences</h3>
+        <div class="radar-wrap">
+          <canvas class="radar-canvas" id="radarCanvas" width="300" height="300"></canvas>
+          <div class="radar-legend" id="radarLegend"></div>
+        </div>
+      </div>
     </div>
-    <div id="sentinel" style="height:1px"></div>
-  </main>
-  <aside class="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-title"><span class="icon">⚡</span> Dernières dépêches</div>
-      <ul class="timeline" id="timeline"></ul>
+  </div>
+
+  <!-- QUIZ PAGE -->
+  <div class="page" id="page-quiz" style="display:none">
+    <div class="quiz-container">
+      <div class="quiz-header">
+        <div class="quiz-progress">
+          <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quizProgressFill" style="width:0%"></div></div>
+          <div class="quiz-progress-text" id="quizProgressText">Question 1 / 10</div>
+        </div>
+        <div class="quiz-timer" id="quizTimer">⏱️ 45s</div>
+      </div>
+      <div id="quizContent"></div>
+      <div class="quiz-actions" id="quizActions"></div>
     </div>
-    <div class="sidebar-section">
-      <div class="sidebar-title"><span class="icon">📊</span> Statistiques</div>
-      <div class="stats-grid" id="statsGrid"></div>
-    </div>
-  </aside>
+  </div>
+
+  <!-- FICHES PAGE -->
+  <div class="page" id="page-fiches" style="display:none">
+    <h1 class="page-title">📝 Fiches de Révision</h1>
+    <p class="page-subtitle">Résumés clés par domaine pour réviser efficacement</p>
+    <div class="fiches-grid" id="fichesGrid"></div>
+  </div>
+
+  <!-- BADGES PAGE -->
+  <div class="page" id="page-badges" style="display:none">
+    <h1 class="page-title">🏆 Badges & Accomplissements</h1>
+    <p class="page-subtitle">Débloque des badges en progressant dans ta révision</p>
+    <div class="badges-grid" id="badgesGrid"></div>
+  </div>
+</div>
 </div>
 
 <!-- MODAL -->
 <div class="modal-overlay" id="modalOverlay">
-  <div class="modal" id="modal">
-    <button class="modal-close" id="modalClose">✕</button>
-    <div id="modalContent"></div>
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-body" id="modalBody"></div>
   </div>
 </div>
 
 <!-- TOAST -->
 <div class="toast" id="toast">
-  <div class="toast-header">
-    <span class="toast-dot"></span>
-    <span class="toast-label">Breaking News</span>
-  </div>
-  <div class="toast-title" id="toastTitle"></div>
+  <div class="toast-header"><span id="toastIcon">✅</span><span class="toast-title" id="toastTitle"></span></div>
 </div>
 
-<!-- SCROLL TOP -->
-<button class="scroll-top" id="scrollTop">↑</button>
+<!-- CONFETTI -->
+<div class="confetti-container" id="confettiContainer"></div>
 
 <script>
 // ═══════════════════════════════════════════════════════════════
-// CONFIGURATION
+// DATA — DOMAINS
 // ═══════════════════════════════════════════════════════════════
-const RSS_SOURCES = [
-  { name: "AFP",          url: "https://www.afp.com/fr/actus/afp_actualite/792,31,9,7,33/feed", theme: "general" },
-  { name: "Reuters FR",   url: "https://fr.reuters.com/rssFeed/topNews",                         theme: "general" },
-  { name: "AP France",    url: "https://rss.app/feeds/ap-france.xml",                            theme: "general" },
-  { name: "Bloomberg FR", url: "https://feeds.bloomberg.com/markets/news.rss",                   theme: "finance" },
-  { name: "Le Monde",     url: "https://www.lemonde.fr/rss/une.xml",                             theme: "general" },
-  { name: "Le Figaro",    url: "https://www.lefigaro.fr/rss/figaro_actualites.xml",              theme: "general" },
-  { name: "BFM TV",       url: "https://www.bfmtv.com/rss/news-flux-rss/",                      theme: "general" },
-  { name: "France 24",    url: "https://www.france24.com/fr/rss",                                theme: "general" },
-  { name: "LeMonde Tech", url: "https://www.lemonde.fr/pixels/rss_full.xml",                     theme: "tech" },
-  { name: "BFM Finance",  url: "https://www.bfmtv.com/economie/rss/",                           theme: "finance" },
-  { name: "L'Equipe",     url: "https://www.lequipe.fr/rss/actu_rss.xml",                       theme: "sport" },
-  { name: "France24 Géo", url: "https://www.france24.com/fr/europe/rss",                         theme: "geopolitique" },
-  { name: "Science&Vie",  url: "https://www.science-et-vie.com/feed",                            theme: "science" }
+const DOMAINS=[
+{id:"domain1",name:"Déploiement et gestion de Microsoft 365",weight:"25%",color:"#2196F3",icon:"🏗️",topics:["Planification et implémentation de Microsoft 365","Gestion des identités et des accès","Gestion des licences","Configuration hybride Exchange","Migration vers Microsoft 365"]},
+{id:"domain2",name:"Sécurité et conformité",weight:"30%",color:"#F44336",icon:"🔐",topics:["Microsoft Defender for Office 365","Protection des informations (MIP)","Gestion de la conformité","eDiscovery et audit","Conditional Access & Zero Trust"]},
+{id:"domain3",name:"Gestion des appareils",weight:"20%",color:"#4CAF50",icon:"📱",topics:["Microsoft Intune","Autopilot Windows","Politiques de configuration","Gestion des applications mobiles (MAM)","Co-gestion SCCM + Intune"]},
+{id:"domain4",name:"Microsoft Teams et collaboration",weight:"15%",color:"#9C27B0",icon:"👥",topics:["Architecture Teams","Gouvernance et politiques","Voice et téléphonie","SharePoint et OneDrive","Power Platform intégration"]},
+{id:"domain5",name:"Messagerie Exchange Online",weight:"10%",color:"#FF9800",icon:"📧",topics:["Configuration Exchange Online","Flux de messagerie et connecteurs","Protection anti-spam/malware","Archivage et rétention","Groupes et ressources"]}
 ];
-const CORS_PROXY = "https://api.allorigins.win/get?url=";
-const THEMES = {
-  general:      { label: "🌍 Général",      color: "#2196F3" },
-  finance:      { label: "💰 Finance",      color: "#4CAF50" },
-  tech:         { label: "⚡ Tech",         color: "#9C27B0" },
-  sport:        { label: "🏆 Sport",        color: "#FF5722" },
-  science:      { label: "🔬 Science",      color: "#00BCD4" },
-  geopolitique: { label: "🌐 Géopolitique", color: "#F44336" }
-};
-const REFRESH_INTERVAL = 120000; // 2 min
-const CACHE_TTL = 300000; // 5 min
-const ITEMS_PER_PAGE = 12;
+
+// ═══════════════════════════════════════════════════════════════
+// DATA — QUESTIONS (50+)
+// ═══════════════════════════════════════════════════════════════
+const QUESTIONS=[
+// DOMAIN 1 — Déploiement
+{id:1,domain:"domain1",topic:"Planification et implémentation de Microsoft 365",difficulty:"medium",type:"qcm_single",question:"Quel outil permet de vérifier la compatibilité d'un environnement avant une migration vers Microsoft 365 ?",options:["A. Microsoft 365 Compliance Manager","B. Microsoft Readiness Toolkit","C. Microsoft FastTrack","D. Microsoft Assessment and Planning Toolkit (MAP)"],correct:["D"],explanation:"Le MAP Toolkit analyse l'infrastructure existante et génère un rapport de compatibilité pour la migration.",microsoftDoc:"https://learn.microsoft.com/fr-fr/microsoft-365/enterprise/assess-readiness",tip:"⚠️ FastTrack est un service d'accompagnement, pas un outil d'analyse technique."},
+{id:2,domain:"domain1",topic:"Gestion des identités et des accès",difficulty:"easy",type:"qcm_single",question:"Quelle est la limite d'objets dans un tenant Azure AD gratuit ?",options:["A. 50 000 objets","B. 500 000 objets","C. Illimité","D. 10 000 objets"],correct:["A"],explanation:"Azure AD Free supporte jusqu'à 500 000 objets. Au-delà, une licence P1 ou P2 est requise.",tip:"⚠️ Ne pas confondre avec la limite de 50 000 utilisateurs pour Azure AD B2C."},
+{id:3,domain:"domain1",topic:"Gestion des licences",difficulty:"medium",type:"qcm_multiple",question:"Quelles licences incluent Azure AD Premium P1 ? (2 réponses)",options:["A. Microsoft 365 E3","B. Microsoft 365 Business Basic","C. Enterprise Mobility + Security E3","D. Office 365 E1"],correct:["A","C"],explanation:"Azure AD P1 est inclus dans M365 E3/E5 et EMS E3/E5. Office 365 E1 et Business Basic ne l'incluent pas."},
+{id:4,domain:"domain1",topic:"Configuration hybride Exchange",difficulty:"hard",type:"scenario",question:"Une entreprise a 5000 boîtes aux lettres sur Exchange 2019. Elle veut migrer progressivement vers Exchange Online. Quelle approche recommandez-vous ?",options:["A. Migration express (cutover)","B. Migration hybride avec coexistence","C. Migration PST export/import","D. Migration IMAP"],correct:["B"],explanation:"Pour 5000 utilisateurs, la migration hybride permet une coexistence progressive sans interruption de service. La migration cutover est limitée à 2000 boîtes.",tip:"⚠️ Piège exam : la migration cutover est limitée à 2000 utilisateurs maximum."},
+{id:5,domain:"domain1",topic:"Migration vers Microsoft 365",difficulty:"medium",type:"qcm_single",question:"Quel service Microsoft permet de migrer des fichiers depuis Google Workspace vers OneDrive ?",options:["A. SharePoint Migration Tool (SPMT)","B. Migration Manager","C. Microsoft FastTrack","D. Azure Data Box"],correct:["B"],explanation:"Migration Manager dans le centre d'administration SharePoint permet de migrer depuis Google Drive, Dropbox, file shares, etc.",tip:"⚠️ SPMT est uniquement pour les migrations SharePoint on-premises."},
+
+// DOMAIN 2 — Sécurité
+{id:6,domain:"domain2",topic:"Microsoft Defender for Office 365",difficulty:"medium",type:"qcm_single",question:"Quelle politique Defender permet de simuler des attaques de phishing pour former les utilisateurs ?",options:["A. Safe Links","B. Attack Simulator","C. Anti-phishing policy","D. Safe Attachments"],correct:["B"],explanation:"Attack Simulator permet de lancer des simulations de phishing, spear phishing, mot de passe évident, etc.",tip:"⚠️ Safe Links protège les liens, mais ne simule pas d'attaques."},
+{id:7,domain:"domain2",topic:"Protection des informations (MIP)",difficulty:"hard",type:"qcm_multiple",question:"Quels éléments peuvent être protégés par Azure Information Protection ? (3 réponses)",options:["A. Emails Exchange Online","B. Documents SharePoint","C. Messages Teams","D. Bases de données SQL"],correct:["A","B","C"],explanation:"AIP protège les emails, documents SharePoint/OneDrive et messages Teams. Les BDD SQL utilisent Always Encrypted."},
+{id:8,domain:"domain2",topic:"Gestion de la conformité",difficulty:"easy",type:"vrai_faux",question:"Microsoft 365 Compliance Manager peut automatiquement corriger les problèmes de conformité.",options:["Vrai","Faux"],correct:["Faux"],explanation:"Compliance Manager évalue et recommande, mais ne corrige pas automatiquement. L'administrateur doit appliquer les corrections manuellement.",tip:"⚠️ L'outil est passif — il évalue, il n'applique pas."},
+{id:9,domain:"domain2",topic:"eDiscovery et audit",difficulty:"medium",type:"qcm_single",question:"Quelle est la durée de rétention maximale des logs d'audit dans Microsoft 365 E5 ?",options:["A. 90 jours","B. 1 an","C. 10 ans","D. Illimitée"],correct:["C"],explanation:"Avec E5, les logs d'audit sont conservés 1 an par défaut, extensible jusqu'à 10 ans avec Audit Premium.",tip:"⚠️ E3 = 90 jours, E5 = 1 an (extensible à 10 ans)."},
+{id:10,domain:"domain2",topic:"Conditional Access & Zero Trust",difficulty:"hard",type:"scenario",question:"Un utilisateur se connecte depuis un appareil non conforme à Paris, puis 10 minutes plus tard depuis la Chine. Quelle politique Conditional Access détecte cette anomalie ?",options:["A. Location-based policy","B. Impossible Travel Risk Policy","C. Device Compliance Policy","D. Sign-in Risk Policy"],correct:["B"],explanation:"Impossible Travel détecte les connexions géographiquement impossibles en peu de temps. C'est une fonctionnalité d'Identity Protection.",tip:"⚠️ Location-based vérifie le pays, mais ne calcule pas la distance/temporalité."},
+{id:11,domain:"domain2",topic:"Conditional Access & Zero Trust",difficulty:"medium",type:"qcm_single",question:"Quel est le principe fondamental de Zero Trust ?",options:["A. Tout faire confiance dans le réseau interne","B. Ne jamais faire confiance, toujours vérifier","C. Utiliser uniquement le VPN","D. Bloquer tout le trafic externe"],correct:["B"],explanation:"Zero Trust repose sur 'Never Trust, Always Verify' — chaque accès est vérifié indépendamment de la localisation."},
+{id:12,domain:"domain2",topic:"Microsoft Defender for Office 365",difficulty:"medium",type:"qcm_single",question:"Quelle fonctionnalité de Safe Attachments analyse les pièces jointes dans un sandbox ?",options:["A. Block","B. Replace","C. Dynamic Delivery","D. Monitor"],correct:["C"],explanation:"Dynamic Delivery livre l'email immédiatement sans la pièce jointe, puis la délivre une fois l'analyse sandbox terminée."},
+
+// DOMAIN 3 — Appareils
+{id:13,domain:"domain3",topic:"Microsoft Intune",difficulty:"easy",type:"qcm_single",question:"Quel protocole Intune utilise-t-il pour gérer les appareils iOS ?",options:["A. OMA-DM","B. MDM Push Certificate","C. SCCM Agent","D. WinRM"],correct:["B"],explanation:"Intune utilise le MDM Push Certificate d'Apple pour gérer les appareils iOS/iPadOS via le protocole APNs.",tip:"⚠️ OMA-DM est utilisé pour Windows, pas iOS."},
+{id:14,domain:"domain3",topic:"Autopilot Windows",difficulty:"medium",type:"qcm_multiple",question:"Quelles sont les étapes obligatoires d'Autopilot ? (2 réponses)",options:["A. Enregistrement du hardware hash","B. Création d'un profil Autopilot","C. Installation manuelle de Windows","D. Configuration SCCM"],correct:["A","B"],explanation:"Autopilot nécessite l'enregistrement du hardware hash (via OEM ou script) et la création d'un profil de déploiement dans Intune."},
+{id:15,domain:"domain3",topic:"Politiques de configuration",difficulty:"medium",type:"qcm_single",question:"Quelle politique Intune permet de forcer le chiffrement BitLocker sur Windows 10/11 ?",options:["A. Device Configuration Profile","B. Device Compliance Policy","C. Endpoint Security Policy","D. App Protection Policy"],correct:["C"],explanation:"Endpoint Security > Disk Encryption permet de configurer BitLocker de manière centralisée.",tip:"⚠️ Device Compliance vérifie l'état, mais ne configure pas BitLocker."},
+{id:16,domain:"domain3",topic:"Gestion des applications mobiles (MAM)",difficulty:"easy",type:"vrai_faux",question:"Les politiques MAM sans inscription (MAM-WE) nécessitent que l'appareil soit inscrit dans Intune.",options:["Vrai","Faux"],correct:["Faux"],explanation:"MAM-WE (Without Enrollment) protège les applications sans inscription de l'appareil. Idéal pour BYOD."},
+{id:17,domain:"domain3",topic:"Co-gestion SCCM + Intune",difficulty:"hard",type:"qcm_single",question:"Quel workload peut être basculé de SCCM vers Intune en mode co-gestion ?",options:["A. Uniquement les mises à jour Windows","B. Tous les workloads progressivement","C. Uniquement les applications","D. Aucun, c'est l'un ou l'autre"],correct:["B"],explanation:"La co-gestion permet de basculer progressivement chaque workload (compliance, resource access, device configuration, Windows updates, apps) vers Intune."},
+
+// DOMAIN 4 — Teams
+{id:18,domain:"domain4",topic:"Architecture Teams",difficulty:"easy",type:"qcm_single",question:"Quel service backend héberge les fichiers partagés dans Teams ?",options:["A. SharePoint Online","B. OneDrive for Business","C. Azure Blob Storage","D. Teams Files Tab"],correct:["A"],explanation:"Les fichiers des canaux Teams sont stockés dans le SharePoint Online associé à l'équipe. Les fichiers des chats vont dans OneDrive.",tip:"⚠️ Fichiers canal = SharePoint, fichiers chat = OneDrive."},
+{id:19,domain:"domain4",topic:"Gouvernance et politiques",difficulty:"medium",type:"qcm_single",question:"Comment empêcher les utilisateurs de créer des équipes Teams de manière non contrôlée ?",options:["A. Désactiver Teams","B. Politique de création de groupes Azure AD","C. Bloquer le portail Teams","D. Retirer la licence Teams"],correct:["B"],explanation:"Une politique de création de groupes Azure AD permet de restreindre qui peut créer des groupes (et donc des équipes Teams)."},
+{id:20,domain:"domain4",topic:"Voice et téléphonie",difficulty:"hard",type:"qcm_single",question:"Quel composant Teams Phone permet de connecter un PBX on-premises à Teams ?",options:["A. Direct Routing","B. Calling Plans","C. Operator Connect","D. Audio Conferencing"],correct:["A"],explanation:"Direct Routing utilise un SBC (Session Border Controller) pour connecter un PBX ou opérateur SIP à Teams.",tip:"⚠️ Calling Plans = téléphonie Microsoft, Direct Routing = votre opérateur."},
+{id:21,domain:"domain4",topic:"SharePoint et OneDrive",difficulty:"medium",type:"qcm_single",question:"Quelle fonctionnalité SharePoint permet de verrouiller des fichiers pendant l'édition ?",options:["A. Check-out","B. Versioning","C. Co-authoring","D. IRM"],correct:["A"],explanation:"Le check-out verrouille un fichier pour empêcher les modifications simultanées. Le co-authoring permet l'édition collaborative."},
+{id:22,domain:"domain4",topic:"Power Platform intégration",difficulty:"medium",type:"qcm_single",question:"Comment intégrer un Power App dans Teams ?",options:["A. Via un onglet personnalisé","B. Via l'application Power Apps dans Teams","C. Via un webhook","D. Via SharePoint"],correct:["B"],explanation:"L'application Power Apps dans Teams permet de créer et intégrer des Power Apps directement dans les canaux et chats."},
+
+// DOMAIN 5 — Exchange
+{id:23,domain:"domain5",topic:"Configuration Exchange Online",difficulty:"easy",type:"qcm_single",question:"Quelle cmdlet PowerShell liste toutes les boîtes aux lettres Exchange Online ?",options:["A. Get-Mailbox","B. Get-Recipient","C. Get-MailUser","D. Get-InboxRule"],correct:["A"],explanation:"Get-Mailbox liste toutes les boîtes aux lettres. Get-Recipient liste tous les destinataires (y compris DL, contacts).",tip:"⚠️ Commande PowerShell de base à connaître absolument."},
+{id:24,domain:"domain5",topic:"Flux de messagerie et connecteurs",difficulty:"medium",type:"qcm_single",question:"Quel type de connecteur Exchange Online permet de chiffrer les emails sortants vers un partenaire ?",options:["A. Connecteur entrant","B. Connecteur sortant avec TLS","C. Transport Rule","D. Safe Links"],correct:["B"],explanation:"Un connecteur sortant configuré avec TLS obligatoire chiffre les emails envoyés vers un domaine partenaire spécifique."},
+{id:25,domain:"domain5",topic:"Protection anti-spam/malware",difficulty:"easy",type:"vrai_faux",question:"La protection anti-malware Exchange Online analyse uniquement les pièces jointes, pas le corps des emails.",options:["Vrai","Faux"],correct:["Faux"],explanation:"La protection anti-malware analyse à la fois le corps des emails et les pièces jointes pour détecter les menaces."},
+{id:26,domain:"domain5",topic:"Archivage et rétention",difficulty:"medium",type:"qcm_single",question:"Quelle est la taille maximale de la boîte aux lettres d'archivage Exchange Online (Plan 2) ?",options:["A. 50 Go","B. 100 Go","C. 1 To","D. Illimitée"],correct:["D"],explanation:"Avec Exchange Online Plan 2, l'archive est extensible automatiquement jusqu'à 1,5 To (auto-expanding archive).",tip:"⚠️ Plan 1 = 50 Go, Plan 2 = 100 Go extensible à 1,5 To."},
+{id:27,domain:"domain5",topic:"Groupes et ressources",difficulty:"easy",type:"qcm_single",question:"Quel type de groupe Microsoft 365 inclut automatiquement une boîte aux lettres partagée ?",options:["A. Groupe de sécurité","B. Groupe Microsoft 365","C. Groupe de distribution","D. Liste de diffusion"],correct:["B"],explanation:"Un groupe Microsoft 365 inclut une boîte aux lettres partagée, un site SharePoint, un notebook OneNote et un plan Planner."},
+
+// MORE QUESTIONS — Domain 1
+{id:28,domain:"domain1",topic:"Gestion des identités et des accès",difficulty:"medium",type:"qcm_single",question:"Quelle fonctionnalité Azure AD permet la synchronisation des identités on-premises ?",options:["A. Azure AD B2B","B. Azure AD Connect","C. Azure AD DS","D. Azure AD B2C"],correct:["B"],explanation:"Azure AD Connect synchronise les comptes on-premises AD vers Azure AD. B2B est pour les invités externes."},
+{id:29,domain:"domain1",topic:"Planification et implémentation de Microsoft 365",difficulty:"hard",type:"scenario",question:"Une entreprise de 500 utilisateurs veut migrer de G Suite vers M365. Elle a 2 To de données Google Drive. Quelle approche ?",options:["A. Migration manuelle par utilisateurs","B. Migration Manager avec connecteur Google","C. Export PST puis import","D. Azure Data Box"],correct:["B"],explanation:"Migration Manager supporte nativement Google Workspace et peut migrer les données Drive en bulk.",tip:"⚠️ Data Box est pour les migrations physiques > 40 To."},
+{id:30,domain:"domain1",topic:"Gestion des licences",difficulty:"easy",type:"vrai_faux",question:"Une licence Microsoft 365 E5 peut être rétrogradée vers E3 à tout moment.",options:["Vrai","Faux"],correct:["Faux"],explanation:"On ne peut pas rétrograder une licence. Il faut acheter E3 et désactiver E5, ce qui peut entraîner des coûts."},
+
+// MORE QUESTIONS — Domain 2
+{id:31,domain:"domain2",topic:"Conditional Access & Zero Trust",difficulty:"medium",type:"qcm_multiple",question:"Quelles conditions peuvent déclencher une politique Conditional Access ? (3 réponses)",options:["A. Localisation de l'utilisateur","B. Type d'appareil","C. Application utilisée","D. Taille de l'entreprise"],correct:["A","B","C"],explanation:"Les conditions CA incluent : utilisateur/groupe, localisation, appareil, application, risque de sign-in, risque utilisateur."},
+{id:32,domain:"domain2",topic:"Microsoft Defender for Office 365",difficulty:"hard",type:"qcm_single",question:"Quel rapport Defender montre les attaques de phishing qui ont atteint les boîtes aux lettres ?",options:["A. Threat Explorer","B. Secure Score","C. Compliance Report","D. Usage Report"],correct:["A"],explanation:"Threat Explorer permet de rechercher en temps réel les emails malveillants qui ont été délivrés dans les boîtes.",tip:"⚠️ Secure Score évalue la posture de sécurité, pas les incidents."},
+{id:33,domain:"domain2",topic:"Protection des informations (MIP)",difficulty:"medium",type:"qcm_single",question:"Quel est le prérequis pour appliquer des labels de sensibilité automatiquement ?",options:["A. Azure AD P1","B. Microsoft 365 E5 ou AIP P2","C. Exchange Online Plan 1","D. SharePoint Online Plan 1"],correct:["B"],explanation:"La classification automatique avec labels MIP nécessite M365 E5 ou Azure Information Protection P2."},
+
+// MORE QUESTIONS — Domain 3
+{id:34,domain:"domain3",topic:"Microsoft Intune",difficulty:"medium",type:"qcm_single",question:"Quel type de profil Intune permet de configurer le Wi-Fi sur les appareils gérés ?",options:["A. Device Compliance","B. Device Configuration","C. App Protection","D. Endpoint Security"],correct:["B"],explanation:"Device Configuration Profiles permettent de configurer Wi-Fi, VPN, certificats, restrictions, etc."},
+{id:35,domain:"domain3",topic:"Autopilot Windows",difficulty:"hard",type:"scenario",question:"Un utilisateur reçoit un PC neuf. Au premier démarrage, il voit l'écran OOBE standard au lieu du profil Autopilot. Quelle est la cause la plus probable ?",options:["A. Le profil Autopilot n'est pas assigné","B. Le PC n'est pas connecté à Internet","C. La licence Windows est invalide","D. Intune est en maintenance"],correct:["A"],explanation:"Si le hardware hash n'est pas enregistré ou le profil non assigné, Windows affiche l'OOBE standard.",tip:"⚠️ Toujours vérifier l'enregistrement du device dans Autopilot Devices."},
+{id:36,domain:"domain3",topic:"Gestion des applications mobiles (MAM)",difficulty:"medium",type:"qcm_single",question:"Quelle politique MAM empêche la copie de données depuis Outlook vers des apps non gérées ?",options:["A. Data relocation policy","B. Access policy","C. Compliance policy","D. Configuration policy"],correct:["A"],explanation:"La politique de relocalisation de données MAM contrôle le copier-coller, l'enregistrement, le partage vers des apps non autorisées."},
+
+// MORE QUESTIONS — Domain 4
+{id:37,domain:"domain4",topic:"Architecture Teams",difficulty:"medium",type:"qcm_single",question:"Quel protocole Teams utilise pour la signalisation des appels ?",options:["A. SIP","B. H.323","C. WebRTC","D. RTP"],correct:["A"],explanation:"Teams utilise SIP (Session Initiation Protocol) pour la signalisation et RTP/SRTP pour le média."},
+{id:38,domain:"domain4",topic:"Gouvernance et politiques",difficulty:"hard",type:"qcm_multiple",question:"Quelles politiques Teams permettent de contrôler les communications externes ? (2 réponses)",options:["A. Messaging policy","B. External access policy","C. Guest access policy","D. Meeting policy"],correct:["B","C"],explanation:"External Access (fédération) contrôle les communications avec d'autres organisations. Guest Access contrôle les invités dans les équipes."},
+{id:39,domain:"domain4",topic:"SharePoint et OneDrive",difficulty:"easy",type:"qcm_single",question:"Quelle est la taille maximale d'un fichier unique dans SharePoint Online ?",options:["A. 2 Go","B. 15 Go","C. 100 Go","D. 250 Go"],correct:["D"],explanation:"SharePoint Online supporte des fichiers jusqu'à 250 Go. La limite précédente de 15 Go a été augmentée."},
+
+// MORE QUESTIONS — Domain 5
+{id:40,domain:"domain5",topic:"Configuration Exchange Online",difficulty:"medium",type:"qcm_single",question:"Quelle cmdlet permet de configurer une règle de transport pour ajouter un disclaimer ?",options:["A. New-TransportRule","B. New-InboxRule","C. Set-Mailbox","D. New-DlpPolicy"],correct:["A"],explanation:"New-TransportRule crée des règles de transport qui s'appliquent à tous les emails transitant par Exchange.",tip:"⚠️ InboxRule = côté utilisateur, TransportRule = côté serveur."},
+{id:41,domain:"domain5",topic:"Flux de messagerie et connecteurs",difficulty:"hard",type:"scenario",question:"Les emails envoyés vers un partenaire sont rejetés avec l'erreur 'Certificate validation failed'. Quelle est la solution ?",options:["A. Désactiver TLS","B. Configurer le connecteur pour faire confiance au certificat du partenaire","C. Utiliser SMTP relay","D. Augmenter la taille des messages"],correct:["B"],explanation:"Le connecteur sortant doit être configuré pour faire confiance au certificat spécifique du partenaire ou utiliser un CA approuvé."},
+{id:42,domain:"domain5",topic:"Archivage et rétention",difficulty:"medium",type:"qcm_single",question:"Quelle est la différence entre une politique de rétention et un litigation hold ?",options:["A. Aucune différence","B. La rétention supprime après expiration, le hold préserve indéfiniment","C. Le hold est plus rapide","D. La rétention est gratuite"],correct:["B"],explanation:"Une politique de rétention applique des durées de conservation puis supprime. Un litigation hold préserve tout indéfiniment pour des raisons légales."},
+
+// ADDITIONAL QUESTIONS
+{id:43,domain:"domain1",topic:"Configuration hybride Exchange",difficulty:"medium",type:"qcm_single",question:"Quel assistant configure un environnement hybride Exchange ?",options:["A. Hybrid Configuration Wizard (HCW)","B. Exchange Admin Center","C. Azure AD Connect","D. PowerShell uniquement"],correct:["A"],explanation:"Le HCW (Hybrid Configuration Wizard) est l'outil principal pour configurer la coexistence Exchange on-premises/Online."},
+{id:44,domain:"domain2",topic:"eDiscovery et audit",difficulty:"medium",type:"qcm_single",question:"Quelle est la différence entre eDiscovery Standard et Premium ?",options:["A. Aucune","B. Premium ajoute la conservation légale et l'analyse prédictive","C. Standard est plus rapide","D. Premium est gratuit"],correct:["B"],explanation:"eDiscovery Premium ajoute la conservation légale, l'analyse prédictive (TAR), le review set et l'export avancé."},
+{id:45,domain:"domain3",topic:"Politiques de configuration",difficulty:"easy",type:"vrai_faux",question:"Une politique de conformité Intune peut désactiver un appareil non conforme.",options:["Vrai","Faux"],correct:["Vrai"],explanation:"Les actions de non-conformité incluent : email de notification, verrouillage de l'appareil, et même retrait de licences."},
+{id:46,domain:"domain4",topic:"Voice et téléphonie",difficulty:"medium",type:"qcm_single",question:"Combien de numéros de téléphone un utilisateur avec Calling Plans peut-il avoir ?",options:["A. 1","B. Jusqu'à 10","C. Illimité","D. 5"],correct:["B"],explanation:"Un utilisateur peut se voir attribuer jusqu'à 10 numéros de téléphone (principaux et d'appel simultané)."},
+{id:47,domain:"domain5",topic:"Protection anti-spam/malware",difficulty:"medium",type:"qcm_single",question:"Quel niveau de protection anti-spam est recommandé pour la plupart des organisations ?",options:["A. Standard","B. Strict","C. Aucune","D. Personnalisé"],correct:["B"],explanation:"Le niveau Strict est recommandé car il bloque davantage de spam avec peu de faux positifs. Standard est trop permissif."},
+{id:48,domain:"domain1",topic:"Migration vers Microsoft 365",difficulty:"easy",type:"qcm_single",question:"Quel outil migre les fichiers locaux vers OneDrive ?",options:["A. SharePoint Migration Tool","B. OneDrive Known Folder Move","C. Migration Manager","D. Azure Data Box"],correct:["B"],explanation:"Known Folder Move (KFM) redirige automatiquement les dossiers Bureau, Documents et Images vers OneDrive."},
+{id:49,domain:"domain2",topic:"Gestion de la conformité",difficulty:"hard",type:"qcm_single",question:"Quel framework de conformité Microsoft 365 couvre les exigences RGPD ?",options:["A. ISO 27001","B. EU GDPR","C. SOC 2","D. HIPAA"],correct:["B"],explanation:"Le framework EU GDPR dans Compliance Manager mappe les contrôles M365 aux exigences du RGPD européen."},
+{id:50,domain:"domain3",topic:"Co-gestion SCCM + Intune",difficulty:"medium",type:"qcm_single",question:"Quel est le prérequis pour activer la co-gestion ?",options:["A. Azure AD Connect","B. SCCM version 1710+","C. Intune standalone","D. Toutes les réponses"],correct:["D"],explanation:"La co-gestion nécessite Azure AD Connect, SCCM 1710+, et une licence Intune. Les appareils doivent être Azure AD joint."}
+];
+
+// ═══════════════════════════════════════════════════════════════
+// DATA — FICHES
+// ═══════════════════════════════════════════════════════════════
+const FICHES=[
+{domain:"domain1",title:"Migration Exchange Hybride",points:["HCW configure la coexistence","Limites : cutover = 2000 users max","Staged = 2000+ mais dépréciée","Hybride = recommandé pour 500+ users","MRS Proxy doit être activé sur Exchange on-prem"],traps:"⚠️ Piège : la migration IMAP ne migre pas les calendriers et contacts.",powershell:"New-MigrationEndpoint -ExchangeRemoteMove -RemoteServer mail.contoso.com",doc:"https://learn.microsoft.com/fr-fr/exchange/hybrid-deployment"},
+{domain:"domain2",title:"Conditional Access",points:["Conditions : user, location, device, app, risk","Grant : block, require MFA, require compliant device","Session : app enforced restrictions, sign-in frequency","Named Locations = géo-blocage","Always use location condition with trusted IPs"],traps:"⚠️ Piège : ne pas oublier d'exclure les comptes de rupture (break-glass).",powershell:"New-AzureADMSConditionalAccessPolicy -DisplayName 'CA-MFA' -State Enabled",doc:"https://learn.microsoft.com/fr-fr/azure/active-directory/conditional-access"},
+{domain:"domain3",title:"Intune App Protection",points:["MAM avec ou sans inscription","Politiques de relocalisation de données","Copier-coller contrôlé entre apps","PIN/biométrie pour accès aux apps managed","App Configuration Policies pour paramétrer les apps"],traps:"⚠️ Piège : MAM-WE ne protège pas l'appareil, seulement les apps.",powershell:"New-IntuneAppProtectionPolicy -DisplayName 'MAM-Outlook' -Platform iOS",doc:"https://learn.microsoft.com/fr-fr/mem/intune/apps/app-protection-policy"},
+{domain:"domain4",title:"Teams Phone System",points:["Calling Plans = téléphonie Microsoft","Direct Routing = votre SBC/opérateur","Operator Connect = opérateurs partenaires","Auto-attendant et call queues","Voicemail intégré"],traps:"⚠️ Piège : Direct Routing nécessite un SBC certifié par Microsoft.",powershell:"New-CsOnlineVoiceRoute -Identity 'Route-Local' -NumberPattern '^\+33'",doc:"https://learn.microsoft.com/fr-fr/microsoftteams/phone-system"},
+{domain:"domain5",title:"Rétention et Archivage",points:["Retention policies = durée puis suppression","Litigation Hold = préservation indéfinie","In-Place Archive = archive secondaire","Auto-expanding archive = jusqu'à 1,5 To","eDiscovery pour recherche légale"],traps:"⚠️ Piège : une politique de rétention supprime les données après expiration.",powershell:"Set-Mailbox -Identity user@contoso.com -LitigationHoldEnabled $true",doc:"https://learn.microsoft.com/fr-fr/exchange/policy-and-compliance/retention"}
+];
+
+// ═══════════════════════════════════════════════════════════════
+// DATA — BADGES
+// ═══════════════════════════════════════════════════════════════
+const BADGES=[
+{id:"first_quiz",name:"Premier Pas",icon:"🎯",desc:"Compléter ton premier quiz",condition:s=>s.quizCompleted>=1},
+{id:"streak_3",name:"Régulier",icon:"🔥",desc:"3 jours de streak",condition:s=>s.streak>=3},
+{id:"streak_7",name:"Persévérant",icon:"💪",desc:"7 jours de streak",condition:s=>s.streak>=7},
+{id:"domain1_master",name:"Architecte Déploiement",icon:"🏗️",desc:"80%+ sur le domaine 1",condition:s=>(s.progress.domain1||0)>=80},
+{id:"domain2_master",name:"Gardien Sécurité",icon:"🔐",desc:"80%+ sur le domaine 2",condition:s=>(s.progress.domain2||0)>=80},
+{id:"domain3_master",name:"Maître Intune",icon:"📱",desc:"80%+ sur le domaine 3",condition:s=>(s.progress.domain3||0)>=80},
+{id:"domain4_master",name:"Expert Teams",icon:"👥",desc:"80%+ sur le domaine 4",condition:s=>(s.progress.domain4||0)>=80},
+{id:"domain5_master",name:"Gourou Exchange",icon:"📧",desc:"80%+ sur le domaine 5",condition:s=>(s.progress.domain5||0)>=80},
+{id:"perfect_quiz",name:"Sans Faute",icon:"💯",desc:"100% sur un quiz",condition:s=>s.perfectQuiz},
+{id:"xp_500",name:"Montée en Niveau",icon:"⭐",desc:"Atteindre 500 XP",condition:s=>s.xp>=500},
+{id:"xp_1000",name:"Expert Confirmé",icon:"🌟",desc:"Atteindre 1000 XP",condition:s=>s.xp>=1000},
+{id:"all_domains",name:"Architecte Complet",icon:"👑",desc:"60%+ sur tous les domaines",condition:s=>{let ok=true;for(let i=1;i<=5;i++)if((s.progress['domain'+i]||0)<60)ok=false;return ok;}}
+];
 
 // ═══════════════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════════════
-let allArticles = [];
-let filteredArticles = [];
-let displayedCount = 0;
-let activeFilter = 'all';
-let searchQuery = '';
-let visitStart = Date.now();
-let initialCount = 0;
-let newSinceVisit = 0;
-let isLoading = false;
+const DEFAULT_STATE={user:{name:"NH",level:1,xp:0,streak:0,lastSession:null},progress:{domain1:0,domain2:0,domain3:0,domain4:0,domain5:0},quizHistory:[],badges:[],questionsAnswered:0,correctAnswers:0,perfectQuiz:false,settings:{timer:45,difficulty:"mixed"}};
+let state=loadState();
+let quizState={questions:[],current:0,answers:[],timer:null,timeLeft:45,domain:null};
+
+function loadState(){try{const s=localStorage.getItem('ms102_state');return s?JSON.parse(s):{...DEFAULT_STATE}}catch{return{...DEFAULT_STATE}}}
+function saveState(){try{localStorage.setItem('ms102_state',JSON.stringify(state))}catch{}}
 
 // ═══════════════════════════════════════════════════════════════
 // UTILS
 // ═══════════════════════════════════════════════════════════════
-function escapeHtml(str) {
-  if (!str) return '';
-  const d = document.createElement('div');
-  d.textContent = str;
-  return d.innerHTML;
-}
-
-function stripHtml(html) {
-  if (!html) return '';
-  const d = document.createElement('div');
-  d.innerHTML = html;
-  return d.textContent || d.innerText || '';
-}
-
-function timeAgo(date) {
-  const s = Math.floor((Date.now() - date) / 1000);
-  if (s < 60) return "à l'instant";
-  if (s < 3600) return Math.floor(s / 60) + "min";
-  if (s < 86400) return Math.floor(s / 3600) + "h";
-  return Math.floor(s / 86400) + "j";
-}
-
-function isLive(date) {
-  return (Date.now() - date) < 1800000; // 30 min
-}
-
-function debounce(fn, ms) {
-  let t;
-  return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
-}
-
-function getCacheKey(url) { return 'nf_' + btoa(url).slice(0, 20); }
-
-function getCache(key) {
-  try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return null;
-    const { data, ts } = JSON.parse(raw);
-    if (Date.now() - ts > CACHE_TTL) { localStorage.removeItem(key); return null; }
-    return data;
-  } catch { return null; }
-}
-
-function setCache(key, data) {
-  try { localStorage.setItem(key, JSON.stringify({ data, ts: Date.now() })); } catch {}
-}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function getLevel(xp){if(xp>=1000)return{name:"Architecte",level:5};if(xp>=500)return{name:"Expert",level:4};if(xp>=200)return{name:"Confirmé",level:3};if(xp>=50)return{name:"Junior",level:2};return{name:"Débutant",level:1}}
+function getDomainColor(id){return DOMAINS.find(d=>d.id===id)?.color||"#666"}
+function getDomainIcon(id){return DOMAINS.find(d=>d.id===id)?.icon||"📋"}
 
 // ═══════════════════════════════════════════════════════════════
-// RSS PARSER
+// NAVIGATION
 // ═══════════════════════════════════════════════════════════════
-async function fetchRSS(source) {
-  const cacheKey = getCacheKey(source.url);
-  const cached = getCache(cacheKey);
-  if (cached) return cached;
-
-  try {
-    const resp = await fetch(CORS_PROXY + encodeURIComponent(source.url), { signal: AbortSignal.timeout(15000) });
-    if (!resp.ok) throw new Error(resp.status);
-    const json = await resp.json();
-    const xml = json.contents || '';
-    const doc = new DOMParser().parseFromString(xml, 'text/xml');
-    const items = doc.querySelectorAll('item');
-    const articles = [];
-
-    items.forEach((item, i) => {
-      if (i >= 20) return;
-      const title = item.querySelector('title')?.textContent?.trim() || '';
-      const link = item.querySelector('link')?.textContent?.trim() || '';
-      const desc = item.querySelector('description')?.textContent?.trim() || '';
-      const pubDate = item.querySelector('pubDate')?.textContent?.trim() || '';
-      const enclosure = item.querySelector('enclosure')?.getAttribute('url') || '';
-      const mediaContent = item.querySelector('content\\:url, media\\:content')?.getAttribute('url') || '';
-      const img = enclosure || mediaContent || '';
-
-      if (!title) return;
-
-      articles.push({
-        id: source.name + '_' + i + '_' + Date.now(),
-        title: escapeHtml(title),
-        link,
-        description: stripHtml(desc).slice(0, 300),
-        image: img,
-        pubDate: pubDate ? new Date(pubDate) : new Date(),
-        source: source.name,
-        theme: source.theme
-      });
-    });
-
-    setCache(cacheKey, articles);
-    return articles;
-  } catch (e) {
-    console.warn(`[RSS] Erreur ${source.name}:`, e.message);
-    return [];
-  }
+function showPage(page){
+  document.querySelectorAll('.page').forEach(p=>p.style.display='none');
+  document.getElementById('page-'+page).style.display='block';
+  document.querySelectorAll('.nav-item[data-page]').forEach(n=>n.classList.remove('active'));
+  document.querySelector(`.nav-item[data-page="${page}"]`)?.classList.add('active');
+  if(page==='dashboard')renderDashboard();
+  if(page==='fiches')renderFiches();
+  if(page==='badges')renderBadges();
+  closeSidebar();
 }
-
-async function fetchAllSources() {
-  const results = await Promise.allSettled(RSS_SOURCES.map(s => fetchRSS(s)));
-  const articles = [];
-  results.forEach(r => { if (r.status === 'fulfilled') articles.push(...r.value); });
-  articles.sort((a, b) => b.pubDate - a.pubDate);
-  // Deduplicate by title similarity
-  const seen = new Set();
-  return articles.filter(a => {
-    const key = a.title.toLowerCase().slice(0, 60);
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open')}
 
 // ═══════════════════════════════════════════════════════════════
-// RENDER
+// DASHBOARD
 // ═══════════════════════════════════════════════════════════════
-function renderTicker(articles) {
-  const el = document.getElementById('ticker');
-  const items = articles.slice(0, 30);
-  const html = items.map(a => {
-    const t = THEMES[a.theme] || THEMES.general;
-    return `<span class="ticker-item">
-      <span class="dot" style="background:${t.color}"></span>
-      ${a.title}
-      <span class="time">${timeAgo(a.pubDate)}</span>
-    </span>`;
+function renderDashboard(){
+  // Update streak
+  const today=new Date().toDateString();
+  if(state.user.lastSession){
+    const last=new Date(state.user.lastSession).toDateString();
+    const yesterday=new Date(Date.now()-86400000).toDateString();
+    if(last===yesterday){state.user.streak++;state.user.lastSession=today}
+    else if(last!==today){state.user.streak=1;state.user.lastSession=today}
+  }else{state.user.streak=1;state.user.lastSession=today}
+  saveState();
+
+  // Stats
+  const totalProgress=Object.values(state.progress).reduce((a,b)=>a+b,0)/5;
+  document.getElementById('globalScore').textContent=Math.round(totalProgress)+'%';
+  document.getElementById('quizCompleted').textContent=state.quizHistory.length;
+  document.getElementById('questionsAnswered').textContent=state.questionsAnswered;
+  document.getElementById('successRate').textContent=state.questionsAnswered?Math.round(state.correctAnswers/state.questionsAnswered*100)+'%':'0%';
+  document.getElementById('streakCount').textContent=state.user.streak;
+
+  // Level
+  const lvl=getLevel(state.user.xp);
+  state.user.level=lvl.level;
+  document.getElementById('levelBadge').textContent='Niveau '+lvl.level+' — '+lvl.name;
+  document.getElementById('xpValue').textContent=state.user.xp;
+  document.getElementById('xpFill').style.width=Math.min(state.user.xp/1000*100,100)+'%';
+
+  // Ring
+  const circumference=2*Math.PI*60;
+  const offset=circumference-(totalProgress/100)*circumference;
+  document.getElementById('mainRing').style.strokeDashoffset=offset;
+  document.getElementById('ringPercent').textContent=Math.round(totalProgress)+'%';
+
+  // Next goal
+  let minDomain=null,minVal=100;
+  DOMAINS.forEach(d=>{const v=state.progress[d.id]||0;if(v<minVal){minVal=v;minDomain=d}});
+  document.getElementById('nextGoal').textContent=minDomain?`💡 Prochain objectif : Atteindre 60% sur "${minDomain.name}"`:'💡 Tous les domaines sont au-dessus de 60% !';
+
+  // Domain cards
+  const grid=document.getElementById('domainsGrid');
+  grid.innerHTML=DOMAINS.map(d=>{
+    const prog=state.progress[d.id]||0;
+    const answered=state.quizHistory.filter(q=>q.domain===d.id).length;
+    return`<div class="domain-card" onclick="startDomainQuiz('${d.id}')">
+      <div class="domain-header"><span class="domain-icon">${d.icon}</span><span class="domain-name">${d.name}</span><span class="domain-weight">${d.weight}</span></div>
+      <div class="domain-bar"><div class="domain-fill" style="width:${prog}%;background:${d.color}"></div></div>
+      <div class="domain-stats"><span>${Math.round(prog)}% maîtrise</span><span>${answered} quiz</span></div>
+      <div class="domain-topics">${d.topics.map(t=>`<div class="domain-topic"><span class="check">○</span>${t}</div>`).join('')}</div>
+    </div>`;
   }).join('');
-  el.innerHTML = html + html; // duplicate for seamless loop
+
+  // Radar
+  renderRadar();
+  saveState();
 }
 
-function renderNavFilters() {
-  const el = document.getElementById('navFilters');
-  const counts = { all: allArticles.length };
-  Object.keys(THEMES).forEach(t => {
-    counts[t] = allArticles.filter(a => a.theme === t).length;
-  });
+function renderRadar(){
+  const canvas=document.getElementById('radarCanvas');
+  const ctx=canvas.getContext('2d');
+  const cx=150,cy=150,r=120;
+  ctx.clearRect(0,0,300,300);
 
-  let html = `<button class="filter-btn active" data-filter="all">Tous <span class="count">${counts.all}</span></button>`;
-  Object.entries(THEMES).forEach(([key, val]) => {
-    html += `<button class="filter-btn" data-filter="${key}" style="--c:${val.color}">${val.label} <span class="count">${counts[key]}</span></button>`;
-  });
-  el.innerHTML = html;
-
-  el.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      el.querySelectorAll('.filter-btn').forEach(b => {
-        b.classList.remove('active');
-        b.style.background = '';
-        b.style.borderColor = '';
-        b.style.color = '';
-      });
-      btn.classList.add('active');
-      const f = btn.dataset.filter;
-      if (f !== 'all') {
-        const c = THEMES[f]?.color || '#666';
-        btn.style.background = c;
-        btn.style.borderColor = c;
-        btn.style.color = '#fff';
-      }
-      activeFilter = f;
-      applyFilters();
-    });
-  });
-}
-
-function renderHero(article) {
-  if (!article) { document.getElementById('heroCard').innerHTML = ''; return; }
-  const t = THEMES[article.theme] || THEMES.general;
-  const live = isLive(article.pubDate);
-  document.getElementById('heroCard').innerHTML = `
-    <div class="hero-card" onclick="openModal('${article.id}')">
-      ${article.image ? `<img class="hero-img" src="${article.image}" alt="" loading="lazy" onerror="this.style.display='none'">` : ''}
-      <div class="hero-overlay">
-        <span class="hero-theme" style="background:${t.color}">${t.label}</span>
-        ${live ? '<span class="live-badge">● LIVE</span>' : ''}
-        <h2 class="hero-title">${article.title}</h2>
-        <div class="hero-meta">
-          <span class="source">${article.source}</span>
-          <span class="time">${timeAgo(article.pubDate)}</span>
-        </div>
-      </div>
-    </div>`;
-}
-
-function renderSkeletons(count) {
-  let html = '';
-  for (let i = 0; i < count; i++) {
-    html += `<div class="skeleton">
-      <div class="skeleton-img"></div>
-      <div class="skeleton-body">
-        <div class="skeleton-line short"></div>
-        <div class="skeleton-line"></div>
-        <div class="skeleton-line medium"></div>
-      </div>
-    </div>`;
+  // Grid
+  for(let i=1;i<=5;i++){
+    ctx.beginPath();
+    ctx.strokeStyle='rgba(255,255,255,0.05)';
+    const rr=r*i/5;
+    for(let j=0;j<=5;j++){
+      const angle=(j*2*Math.PI/5)-Math.PI/2;
+      const x=cx+rr*Math.cos(angle),y=cy+rr*Math.sin(angle);
+      j===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.closePath();ctx.stroke();
   }
-  return html;
+
+  // Axes
+  for(let i=0;i<5;i++){
+    const angle=(i*2*Math.PI/5)-Math.PI/2;
+    ctx.beginPath();ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+r*Math.cos(angle),cy+r*Math.sin(angle));
+    ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.stroke();
+  }
+
+  // Data
+  const values=DOMAINS.map(d=>(state.progress[d.id]||0)/100);
+  ctx.beginPath();
+  values.forEach((v,i)=>{
+    const angle=(i*2*Math.PI/5)-Math.PI/2;
+    const x=cx+r*v*Math.cos(angle),y=cy+r*v*Math.sin(angle);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.closePath();
+  ctx.fillStyle='rgba(79,110,247,0.2)';ctx.fill();
+  ctx.strokeStyle='#4F6EF7';ctx.lineWidth=2;ctx.stroke();
+
+  // Points & labels
+  values.forEach((v,i)=>{
+    const angle=(i*2*Math.PI/5)-Math.PI/2;
+    const x=cx+r*v*Math.cos(angle),y=cy+r*v*Math.sin(angle);
+    ctx.beginPath();ctx.arc(x,y,4,0,2*Math.PI);
+    ctx.fillStyle=DOMAINS[i].color;ctx.fill();
+
+    const lx=cx+(r+20)*Math.cos(angle),ly=cy+(r+20)*Math.sin(angle);
+    ctx.fillStyle='#94A3B8';ctx.font='11px Inter';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(DOMAINS[i].icon+' '+Math.round(values[i]*100)+'%',lx,ly);
+  });
+
+  // Legend
+  document.getElementById('radarLegend').innerHTML=DOMAINS.map(d=>`<div class="legend-item"><span class="legend-dot" style="background:${d.color}"></span>${d.icon} ${d.name} — ${Math.round(state.progress[d.id]||0)}%</div>`).join('');
 }
 
-function renderArticleCard(a) {
-  const t = THEMES[a.theme] || THEMES.general;
-  const live = isLive(a.pubDate);
-  return `<div class="article-card" onclick="openModal('${a.id}')">
-    <div class="card-glow" style="box-shadow:inset 0 0 0 1px ${t.color},0 0 20px ${t.color}22"></div>
-    ${a.image ? `<img class="card-img" src="${a.image}" alt="" loading="lazy" onerror="this.style.display='none'">` : ''}
-    <div class="card-body">
-      <span class="card-theme" style="background:${t.color}">${t.label}</span>
-      ${live ? '<span class="live-badge" style="margin-left:6px">● LIVE</span>' : ''}
-      <h3 class="card-title">${a.title}</h3>
-      ${a.description ? `<p class="card-desc">${escapeHtml(a.description)}</p>` : ''}
-      <div class="card-footer">
-        <span class="card-source">${a.source}</span>
-        <span class="card-time">${timeAgo(a.pubDate)}</span>
+// ═══════════════════════════════════════════════════════════════
+// QUIZ ENGINE
+// ═══════════════════════════════════════════════════════════════
+function startDomainQuiz(domainId){
+  quizState.domain=domainId;
+  let pool=QUESTIONS.filter(q=>q.domain===domainId);
+  if(pool.length===0)pool=QUESTIONS;
+  quizState.questions=shuffle([...pool]).slice(0,10);
+  quizState.current=0;quizState.answers=[];
+  showPage('quiz');
+  renderQuizQuestion();
+}
+
+function startMixedQuiz(){
+  quizState.domain=null;
+  quizState.questions=shuffle([...QUESTIONS]).slice(0,10);
+  quizState.current=0;quizState.answers=[];
+  showPage('quiz');
+  renderQuizQuestion();
+}
+
+function startExamMode(){
+  quizState.domain=null;
+  quizState.questions=shuffle([...QUESTIONS]).slice(0,40);
+  quizState.current=0;quizState.answers=[];
+  state.settings.timer=135; // 90min/40q = ~135s per question
+  showPage('quiz');
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion(){
+  const q=quizState.questions[quizState.current];
+  if(!q){finishQuiz();return}
+  const total=quizState.questions.length;
+  const idx=quizState.current+1;
+  const color=getDomainColor(q.domain);
+
+  document.getElementById('quizProgressFill').style.width=(idx/total*100)+'%';
+  document.getElementById('quizProgressText').textContent=`Question ${idx} / ${total}`;
+
+  // Timer
+  clearInterval(quizState.timer);
+  quizState.timeLeft=state.settings.timer;
+  updateTimerDisplay();
+  quizState.timer=setInterval(()=>{
+    quizState.timeLeft--;
+    updateTimerDisplay();
+    if(quizState.timeLeft<=0){clearInterval(quizState.timer);submitAnswer(null)}
+  },1000);
+
+  const diffClass=q.difficulty==='easy'?'easy':q.difficulty==='hard'?'hard':'medium';
+  const diffLabel=q.difficulty==='easy'?'Facile':q.difficulty==='hard'?'Difficile':'Moyen';
+
+  let optionsHtml='';
+  if(q.type==='vrai_faux'){
+    optionsHtml=q.options.map((o,i)=>`<div class="quiz-option" onclick="selectOption(this,${i})" data-idx="${i}"><span class="letter">${i===0?'V':'F'}</span><span>${o}</span></div>`).join('');
+  }else{
+    optionsHtml=q.options.map((o,i)=>`<div class="quiz-option" onclick="selectOption(this,${i})" data-idx="${i}"><span class="letter">${String.fromCharCode(65+i)}</span><span>${o}</span></div>`).join('');
+  }
+
+  document.getElementById('quizContent').innerHTML=`
+    <div class="quiz-card fade-in">
+      <span class="quiz-domain-badge" style="background:${color}">${getDomainIcon(q.domain)} ${DOMAINS.find(d=>d.id===q.domain)?.name||''}</span>
+      <span class="quiz-difficulty ${diffClass}">${diffLabel}</span>
+      <div class="quiz-question">${q.question}</div>
+      <div class="quiz-options">${optionsHtml}</div>
+      <div class="quiz-explanation" id="quizExplanation">
+        <h4>📖 Explication</h4>
+        <p>${q.explanation}</p>
+        ${q.tip?`<div class="tip">${q.tip}</div>`:''}
+        ${q.microsoftDoc?`<div class="doc-link">📚 <a href="${q.microsoftDoc}" target="_blank">Documentation Microsoft</a></div>`:''}
       </div>
+    </div>`;
+
+  document.getElementById('quizActions').innerHTML=`
+    <button class="btn btn-primary" id="btnSubmit" onclick="submitAnswer()" disabled>Valider</button>
+    <button class="btn btn-secondary" onclick="skipQuestion()">Passer →</button>`;
+}
+
+function updateTimerDisplay(){
+  const el=document.getElementById('quizTimer');
+  const t=quizState.timeLeft;
+  el.textContent=`⏱️ ${t}s`;
+  el.className='quiz-timer'+(t<=10?' danger':t<=20?' warning':'');
+}
+
+function selectOption(el,idx){
+  document.querySelectorAll('.quiz-option').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('btnSubmit').disabled=false;
+}
+
+function submitAnswer(){
+  clearInterval(quizState.timer);
+  const q=quizState.questions[quizState.current];
+  const selected=document.querySelector('.quiz-option.selected');
+  const selectedIdx=selected?parseInt(selected.dataset.idx):-1;
+
+  let isCorrect=false;
+  if(selectedIdx>=0){
+    const selectedLetter=String.fromCharCode(65+selectedIdx);
+    isCorrect=q.correct.includes(selectedLetter)||(q.type==='vrai_faux'&&q.correct.includes(q.options[selectedIdx]));
+  }
+
+  // Show results
+  document.querySelectorAll('.quiz-option').forEach((o,i)=>{
+    o.style.pointerEvents='none';
+    const letter=String.fromCharCode(65+i);
+    if(q.correct.includes(letter))o.classList.add('correct');
+    else if(i===selectedIdx&&!isCorrect)o.classList.add('wrong');
+  });
+
+  document.getElementById('quizExplanation').classList.add('show');
+  state.questionsAnswered++;
+  if(isCorrect){state.correctAnswers++;state.user.xp+=10}
+  else{state.user.xp+=2}
+
+  quizState.answers.push({questionId:q.id,correct:isCorrect,domain:q.domain});
+
+  document.getElementById('quizActions').innerHTML=`
+    <button class="btn ${isCorrect?'btn-success':'btn-danger'}" disabled>${isCorrect?'✅ Correct !':'❌ Incorrect'}</button>
+    <button class="btn btn-primary" onclick="nextQuestion()">Suivant →</button>`;
+  saveState();
+}
+
+function skipQuestion(){
+  clearInterval(quizState.timer);
+  quizState.answers.push({questionId:quizState.questions[quizState.current].id,correct:false,domain:quizState.questions[quizState.current].domain});
+  state.questionsAnswered++;
+  nextQuestion();
+}
+
+function nextQuestion(){
+  quizState.current++;
+  renderQuizQuestion();
+}
+
+function finishQuiz(){
+  clearInterval(quizState.timer);
+  const correct=quizState.answers.filter(a=>a.correct).length;
+  const total=quizState.answers.length;
+  const pct=Math.round(correct/total*100);
+
+  // Update progress by domain
+  const domainScores={};
+  quizState.answers.forEach(a=>{
+    if(!domainScores[a.domain])domainScores[a.domain]={correct:0,total:0};
+    domainScores[a.domain].total++;
+    if(a.correct)domainScores[a.domain].correct++;
+  });
+  Object.entries(domainScores).forEach(([d,s])=>{
+    const current=state.progress[d]||0;
+    const newScore=Math.round(s.correct/s.total*100);
+    state.progress[d]=Math.round((current+newScore)/2);
+  });
+
+  // Perfect quiz
+  if(pct===100){state.perfectQuiz=true;showConfetti()}
+
+  // XP bonus
+  if(pct>=80)state.user.xp+=50;
+  else if(pct>=60)state.user.xp+=25;
+
+  // Save history
+  state.quizHistory.push({date:new Date().toISOString(),score:pct,domain:quizState.domain,correct,total});
+
+  // Check badges
+  checkBadges();
+  saveState();
+
+  // Show modal
+  const grade=pct>=80?'🎉 Excellent !':pct>=60?'👍 Bon travail !':'📚 Continue à réviser !';
+  document.getElementById('modalBody').innerHTML=`
+    <h2>${grade}</h2>
+    <div class="score-big" style="color:${pct>=80?'var(--success)':pct>=60?'var(--warning)':'var(--error)'}">${pct}%</div>
+    <div class="score-label">${correct} bonnes réponses sur ${total}</div>
+    <div class="results-grid">
+      <div class="result-item"><div class="result-value" style="color:var(--success)">${correct}</div><div class="result-label">Correctes</div></div>
+      <div class="result-item"><div class="result-value" style="color:var(--error)">${total-correct}</div><div class="result-label">Incorrectes</div></div>
+      <div class="result-item"><div class="result-value" style="color:var(--accent)">+${pct>=80?50:pct>=60?25:0}</div><div class="result-label">XP Bonus</div></div>
+      <div class="result-item"><div class="result-value">${state.user.xp}</div><div class="result-label">XP Total</div></div>
     </div>
-  </div>`;
+    <div style="text-align:center;margin-top:24px">
+      <button class="btn btn-primary" onclick="closeModal();showPage('dashboard')">Retour Dashboard</button>
+      <button class="btn btn-secondary" onclick="closeModal();${quizState.domain?`startDomainQuiz('${quizState.domain}')`:'startMixedQuiz()'}">Rejouer</button>
+    </div>`;
+  openModal();
 }
 
-function renderArticles(reset = false) {
-  const grid = document.getElementById('articlesGrid');
-  if (reset) { grid.innerHTML = ''; displayedCount = 0; }
-
-  const end = Math.min(displayedCount + ITEMS_PER_PAGE, filteredArticles.length);
-  let html = '';
-  for (let i = displayedCount; i < end; i++) {
-    html += renderArticleCard(filteredArticles[i]);
-  }
-  grid.insertAdjacentHTML('beforeend', html);
-  displayedCount = end;
-
-  document.getElementById('loadingMore').style.display =
-    displayedCount < filteredArticles.length ? 'block' : 'none';
-}
-
-function renderTimeline() {
-  const el = document.getElementById('timeline');
-  const items = allArticles.slice(0, 20);
-  el.innerHTML = items.map(a => {
-    const t = THEMES[a.theme] || THEMES.general;
-    return `<li class="timeline-item" onclick="openModal('${a.id}')">
-      <span class="tl-theme" style="background:${t.color}"></span>
-      <span class="tl-title">${a.title}</span>
-      <div class="tl-meta">${a.source} · ${timeAgo(a.pubDate)}</div>
-    </li>`;
+// ═══════════════════════════════════════════════════════════════
+// FICHES
+// ═══════════════════════════════════════════════════════════════
+function renderFiches(){
+  document.getElementById('fichesGrid').innerHTML=FICHES.map(f=>{
+    const color=getDomainColor(f.domain);
+    return`<div class="fiche-card">
+      <div class="fiche-header"><span class="domain-icon">${getDomainIcon(f.domain)}</span><span class="fiche-title">${f.title}</span></div>
+      <div class="fiche-points">${f.points.map(p=>`<div class="fiche-point">${p}</div>`).join('')}</div>
+      <div class="fiche-traps"><h5>⚠️ Piège examen</h5><p>${f.traps}</p></div>
+      <div class="fiche-powershell"><pre>${f.powershell}</pre></div>
+      <a class="fiche-link" href="${f.doc}" target="_blank">📚 Documentation Microsoft →</a>
+    </div>`;
   }).join('');
 }
 
-function renderStats() {
-  const el = document.getElementById('statsGrid');
-  const themeCounts = {};
-  Object.keys(THEMES).forEach(t => { themeCounts[t] = 0; });
-  allArticles.forEach(a => { if (themeCounts[a.theme] !== undefined) themeCounts[a.theme]++; });
-
-  el.innerHTML = `
-    <div class="stat-item"><div class="stat-value">${allArticles.length}</div><div class="stat-label">Total</div></div>
-    <div class="stat-item"><div class="stat-value">${RSS_SOURCES.length}</div><div class="stat-label">Sources</div></div>
-    ${Object.entries(THEMES).map(([k, v]) => `
-      <div class="stat-item"><div class="stat-value" style="color:${v.color}">${themeCounts[k]}</div><div class="stat-label">${v.label}</div></div>
-    `).join('')}
-  `;
-}
-
-function updateCounters() {
-  document.getElementById('totalCounter').textContent = allArticles.length;
-  document.title = `(${allArticles.length}) NewsFlow FR — Agrégateur RSS`;
-
-  const currentCount = allArticles.length;
-  if (initialCount > 0) {
-    newSinceVisit = currentCount - initialCount;
-    if (newSinceVisit > 0) {
-      const badge = document.getElementById('newBadge');
-      badge.textContent = '+' + newSinceVisit;
-      badge.style.display = 'inline-block';
-    }
-  }
-}
-
 // ═══════════════════════════════════════════════════════════════
-// FILTERS & SEARCH
+// BADGES
 // ═══════════════════════════════════════════════════════════════
-function applyFilters() {
-  filteredArticles = allArticles.filter(a => {
-    const matchTheme = activeFilter === 'all' || a.theme === activeFilter;
-    const matchSearch = !searchQuery ||
-      a.title.toLowerCase().includes(searchQuery) ||
-      (a.description && a.description.toLowerCase().includes(searchQuery)) ||
-      a.source.toLowerCase().includes(searchQuery);
-    return matchTheme && matchSearch;
-  });
-
-  // Hero = first article
-  renderHero(filteredArticles[0] || null);
-
-  // Grid = rest
-  const gridArticles = filteredArticles.slice(1);
-  const grid = document.getElementById('articlesGrid');
-  grid.innerHTML = '';
-  displayedCount = 0;
-
-  // Temporarily swap for rendering
-  const origFiltered = filteredArticles;
-  filteredArticles = gridArticles;
-  renderArticles(true);
-  filteredArticles = origFiltered;
-}
-
-const handleSearch = debounce((val) => {
-  searchQuery = val.toLowerCase().trim();
-  applyFilters();
-}, 300);
-
-// ═══════════════════════════════════════════════════════════════
-// MODAL
-// ═══════════════════════════════════════════════════════════════
-function openModal(id) {
-  const article = allArticles.find(a => a.id === id);
-  if (!article) return;
-  const t = THEMES[article.theme] || THEMES.general;
-  const live = isLive(article.pubDate);
-
-  document.getElementById('modalContent').innerHTML = `
-    ${article.image ? `<img class="modal-img" src="${article.image}" alt="" onerror="this.style.display='none'">` : ''}
-    <div class="modal-body">
-      <span class="modal-theme" style="background:${t.color}">${t.label}</span>
-      ${live ? '<span class="live-badge" style="margin-left:8px">● LIVE</span>' : ''}
-      <h2 class="modal-title">${article.title}</h2>
-      <div class="modal-meta">
-        <span><strong>${article.source}</strong></span>
-        <span>${article.pubDate.toLocaleString('fr-FR')}</span>
-        <span>${timeAgo(article.pubDate)}</span>
-      </div>
-      <div class="modal-content">
-        ${article.description ? `<p>${escapeHtml(article.description)}</p>` : '<p>Aucun résumé disponible. Cliquez ci-dessous pour lire l\'article complet.</p>'}
-      </div>
-      ${article.link ? `<a class="modal-link" href="${article.link}" target="_blank" rel="noopener">Lire l'article complet →</a>` : ''}
+function renderBadges(){
+  document.getElementById('badgesGrid').innerHTML=BADGES.map(b=>{
+    const unlocked=state.badges.includes(b.id);
+    return`<div class="badge-item ${unlocked?'unlocked':'locked'}">
+      <div class="badge-icon">${b.icon}</div>
+      <div class="badge-name">${b.name}</div>
+      <div class="badge-desc">${b.desc}</div>
     </div>`;
-
-  document.getElementById('modalOverlay').classList.add('active');
-  document.body.style.overflow = 'hidden';
+  }).join('');
 }
 
-function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('active');
-  document.body.style.overflow = '';
-}
-
-// ═══════════════════════════════════════════════════════════════
-// NOTIFICATIONS
-// ═══════════════════════════════════════════════════════════════
-function showToast(article) {
-  const toast = document.getElementById('toast');
-  document.getElementById('toastTitle').textContent = article.title;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 6000);
-}
-
-async function requestNotificationPermission() {
-  if ('Notification' in window && Notification.permission === 'default') {
-    await Notification.requestPermission();
-  }
-}
-
-function sendBrowserNotification(article) {
-  if ('Notification' in window && Notification.permission === 'granted') {
-    new Notification('NewsFlow FR — Breaking', {
-      body: article.title,
-      icon: article.image || undefined,
-      tag: article.id
-    });
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════
-// INFINITE SCROLL
-// ═══════════════════════════════════════════════════════════════
-function setupInfiniteScroll() {
-  const sentinel = document.getElementById('sentinel');
-  const observer = new IntersectionObserver(entries => {
-    if (entries[0].isIntersecting && !isLoading && displayedCount < filteredArticles.length) {
-      isLoading = true;
-      document.getElementById('loadingMore').style.display = 'block';
-      setTimeout(() => {
-        renderArticles();
-        isLoading = false;
-      }, 300);
+function checkBadges(){
+  BADGES.forEach(b=>{
+    if(!state.badges.includes(b.id)&&b.condition(state)){
+      state.badges.push(b.id);
+      showToast('🏆 Badge débloqué : '+b.name,'success');
     }
-  }, { rootMargin: '200px' });
-  observer.observe(sentinel);
-}
-
-// ═══════════════════════════════════════════════════════════════
-// SCROLL TOP
-// ═══════════════════════════════════════════════════════════════
-function setupScrollTop() {
-  const btn = document.getElementById('scrollTop');
-  window.addEventListener('scroll', () => {
-    btn.classList.toggle('visible', window.scrollY > 600);
   });
-  btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 }
 
 // ═══════════════════════════════════════════════════════════════
-// INIT & REFRESH
+// MODAL & TOAST
 // ═══════════════════════════════════════════════════════════════
-async function loadAll(showSkeleton = true) {
-  const grid = document.getElementById('articlesGrid');
-  if (showSkeleton && allArticles.length === 0) {
-    grid.innerHTML = renderSkeletons(6);
-  }
-
-  const articles = await fetchAllSources();
-  const prevFirst = allArticles[0]?.id;
-
-  allArticles = articles;
-  if (initialCount === 0) initialCount = articles.length;
-
-  renderNavFilters();
-  renderTicker(articles);
-  renderTimeline();
-  renderStats();
-  updateCounters();
-  applyFilters();
-
-  // Check for breaking news
-  if (prevFirst && articles[0] && articles[0].id !== prevFirst) {
-    const newArticle = articles[0];
-    if (isLive(newArticle.pubDate)) {
-      showToast(newArticle);
-      sendBrowserNotification(newArticle);
-    }
-  }
+function openModal(){document.getElementById('modalOverlay').classList.add('active')}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('active')}
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  document.getElementById('toastIcon').textContent=type==='success'?'✅':'❌';
+  document.getElementById('toastTitle').textContent=msg;
+  t.className='toast show '+type;
+  setTimeout(()=>t.classList.remove('show'),4000);
 }
 
-async function init() {
-  await requestNotificationPermission();
-  await loadAll(true);
-  setupInfiniteScroll();
-  setupScrollTop();
-
-  // Search
-  document.getElementById('searchInput').addEventListener('input', e => handleSearch(e.target.value));
-
-  // Modal close
-  document.getElementById('modalClose').addEventListener('click', closeModal);
-  document.getElementById('modalOverlay').addEventListener('click', e => {
-    if (e.target === e.currentTarget) closeModal();
-  });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-
-  // Auto-refresh
-  setInterval(() => loadAll(false), REFRESH_INTERVAL);
+// ═══════════════════════════════════════════════════════════════
+// CONFETTI
+// ═══════════════════════════════════════════════════════════════
+function showConfetti(){
+  const container=document.getElementById('confettiContainer');
+  const colors=['#4F6EF7','#10B981','#F59E0B','#EF4444','#A78BFA','#F472B6'];
+  for(let i=0;i<100;i++){
+    const c=document.createElement('div');
+    c.className='confetti';
+    c.style.left=Math.random()*100+'%';
+    c.style.background=colors[Math.floor(Math.random()*colors.length)];
+    c.style.animationDelay=Math.random()*2+'s';
+    c.style.width=Math.random()*8+4+'px';
+    c.style.height=Math.random()*8+4+'px';
+    c.style.borderRadius=Math.random()>.5?'50%':'0';
+    container.appendChild(c);
+  }
+  setTimeout(()=>container.innerHTML='',4000);
 }
 
-init();
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+document.getElementById('userName').textContent=state.user.name;
+renderDashboard();
 </script>
 </body>
 </html>
