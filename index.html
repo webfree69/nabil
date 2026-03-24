@@ -767,21 +767,44 @@ function updateTimerDisplay(){
 }
 
 function selectOption(el,idx){
-  document.querySelectorAll('.quiz-option').forEach(o=>o.classList.remove('selected'));
-  el.classList.add('selected');
-  document.getElementById('btnSubmit').disabled=false;
+  const q=quizState.questions[quizState.current];
+  if(q.type==='qcm_multiple'){
+    // Toggle selection for multiple choice
+    el.classList.toggle('selected');
+  }else{
+    // Single selection for other types
+    document.querySelectorAll('.quiz-option').forEach(o=>o.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+  // Enable submit if at least one option is selected
+  const hasSelection=document.querySelectorAll('.quiz-option.selected').length>0;
+  document.getElementById('btnSubmit').disabled=!hasSelection;
 }
 
 function submitAnswer(){
   clearInterval(quizState.timer);
   const q=quizState.questions[quizState.current];
-  const selected=document.querySelector('.quiz-option.selected');
-  const selectedIdx=selected?parseInt(selected.dataset.idx):-1;
-
+  const selectedOptions=document.querySelectorAll('.quiz-option.selected');
+  
   let isCorrect=false;
-  if(selectedIdx>=0){
-    const selectedLetter=String.fromCharCode(65+selectedIdx);
-    isCorrect=q.correct.includes(selectedLetter)||(q.type==='vrai_faux'&&q.correct.includes(q.options[selectedIdx]));
+  const selectedLetters=[];
+  
+  if(selectedOptions.length>0){
+    selectedOptions.forEach(o=>{
+      const idx=parseInt(o.dataset.idx);
+      const letter=String.fromCharCode(65+idx);
+      selectedLetters.push(letter);
+    });
+    
+    if(q.type==='qcm_multiple'){
+      // For multiple choice: all correct answers must be selected, no wrong ones
+      const correctSet=new Set(q.correct);
+      const selectedSet=new Set(selectedLetters);
+      isCorrect=correctSet.size===selectedSet.size && [...correctSet].every(x=>selectedSet.has(x));
+    }else{
+      // For single choice or vrai_faux
+      isCorrect=q.correct.includes(selectedLetters[0])||(q.type==='vrai_faux'&&q.correct.includes(q.options[selectedOptions[0].dataset.idx]));
+    }
   }
 
   // Show results
@@ -789,7 +812,7 @@ function submitAnswer(){
     o.style.pointerEvents='none';
     const letter=String.fromCharCode(65+i);
     if(q.correct.includes(letter))o.classList.add('correct');
-    else if(i===selectedIdx&&!isCorrect)o.classList.add('wrong');
+    else if(selectedLetters.includes(letter))o.classList.add('wrong');
   });
 
   document.getElementById('quizExplanation').classList.add('show');
