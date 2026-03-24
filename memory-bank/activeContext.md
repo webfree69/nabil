@@ -1,42 +1,58 @@
-# Contexte Actif
+# SKILL: Intent Detector — Compréhension intentions
 
-## Dernière mise à jour : 24/03/2026 03:58
+## RÔLE
+Interpréter les messages courts ou ambigus et déclencher
+automatiquement l'action correcte sans demander de clarification.
 
-## Tâche accomplie
-Création et exécution de test_missing_tool.py — Détection et création automatique d'outils manquants
+## TABLE DE CORRESPONDANCES
 
-## Description
-Le fichier test_missing_tool.py était vide (0 octet). J'ai créé un script complet conforme au skill Self-Tool-Creator qui :
-1. Détecte les outils manquants requis par le projet
-2. Les crée automatiquement à partir de templates
-3. Met à jour le registre des outils dans memory-bank
+### Débogage
+| Message reçu | Action déclenchée |
+|---|---|
+| "ça marche pas" | Lire dernière erreur → Self-Debugger |
+| "erreur" | Lire logs → Self-Debugger |
+| "ça plante" | Lire traceback → Self-Debugger |
+| "bug" | Analyser dernier fichier modifié |
 
-## Outils créés (5/5)
-| Outil | Fichier | Rôle |
-|-------|---------|------|
-| ✅ rss_parser | tools/rss_parser.py | Parseur de flux RSS multi-sources |
-| ✅ cache_manager | tools/cache_manager.py | Gestionnaire de cache avec TTL |
-| ✅ html_generator | tools/html_generator.py | Générateur HTML statique |
-| ✅ notification_sender | tools/notification_sender.py | Notifications multi-canal |
-| ✅ data_validator | tools/data_validator.py | Validation et sanitization |
+### Régénération
+| Message reçu | Action déclenchée |
+|---|---|
+| "refais" | Régénère le dernier fichier créé |
+| "recommence" | Repart de zéro sur la dernière tâche |
+| "encore" | Relance la dernière commande |
+| "retry" | Relance avec Self-Debugger actif |
 
-## Fichiers modifiés
-- test_missing_tool.py — Script de détection/création (créé)
-- tools/rss_parser.py — Parseur RSS (créé)
-- tools/cache_manager.py — Cache manager (créé)
-- tools/html_generator.py — Générateur HTML (créé)
-- tools/notification_sender.py — Notifications (créé)
-- tools/data_validator.py — Validateur données (créé)
-- memory-bank/tools-registry.md — Registre mis à jour
+### Git
+| Message reçu | Action déclenchée |
+|---|---|
+| "pousse" | git add . && git commit && git push |
+| "push" | git add . && git commit && git push |
+| "commit" | git add . && git commit -m auto |
+| "sauvegarde" | git add . && git commit -m "chore: sauvegarde" |
 
-## Résultats
-- **Script** : test_missing_tool.py fonctionnel
-- **Outils** : 5/5 créés avec succès
-- **Registre** : tools-registry.md à jour
+### Nettoyage
+| Message reçu | Action déclenchée |
+|---|---|
+| "clean" | Code Reviewer + supprimer fichiers temp |
+| "nettoie" | Supprimer *.tmp *.log __pycache__ |
+| "optimise" | Performance Monitor sur derniers fichiers |
 
-## Tâches précédentes
-- NewsFlow FR — Agrégateur RSS (nabil/index.html, 873 lignes, push GitHub ✅)
+### Navigation
+| Message reçu | Action déclenchée |
+|---|---|
+| "où j'en étais" | Lire memory-bank/last-session.md |
+| "résumé" | Résumer les 5 dernières actions |
+| "stats" | Afficher memory-bank/ide-stats.md |
+| "skills" | Lister tous les skills disponibles |
 
-## Prochaine étape
-- Tester les outils créés
-- Intégrer les outils dans les projets existants
+### Génération rapide
+| Message reçu | Action déclenchée |
+|---|---|
+| "teste" | Auto-Tester sur derniers fichiers |
+| "doc" | Auto-Documenter sur le projet |
+| "plan" | Task Planner sur la tâche en cours |
+
+## RÈGLE
+Toujours interpréter avant de demander.
+Si ambiguité → choisir l'action la plus probable
+et l'indiquer clairement : "J'interprète X comme Y, j'exécute..."
